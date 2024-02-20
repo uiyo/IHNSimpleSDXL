@@ -161,6 +161,7 @@ def get_system_message():
     return body if body else ''
 
 
+
 def preset_instruction(state_params):
     preset = state_params["__preset"]
     preset_url = state_params["preset_url"]
@@ -264,7 +265,6 @@ def init_nav_bars(state_params, request: gr.Request):
         if request.headers["accept-language"].startswith('zh-CN') and args_manager.args.language == 'default':
             args_manager.args.language = 'cn'
         state_params.update({"__lang": args_manager.args.language}) 
-    # print("[LOGINFO]" + args_manager.args.language)
     if "__theme" not in state_params.keys():
         state_params.update({"__theme": args_manager.args.theme})
     if "__preset" not in state_params.keys():
@@ -285,12 +285,7 @@ def init_nav_bars(state_params, request: gr.Request):
             state_params.update({"__max_per_page": 9})
         else:
             state_params.update({"__max_per_page": 18})
-    if "__cookie" in state_params.keys():
-        state_params.update({"__output_list": gallery_util.refresh_output_list(state_params["__max_per_page"], state_params["__cookie"])})
-    else:
-        state_params.update({"__output_list": gallery_util.refresh_output_list(state_params["__max_per_page"])})
-
-
+    state_params.update({"__output_list": gallery_util.refresh_output_list(state_params["__max_per_page"], state_params["__cookie"])})
     #print(f'system_params:{state_params}')
     results = refresh_nav_bars(state_params)
     results += [gr.update(value="enhanced/attached/welcome_m.png")] if state_params["__is_mobile"] else [gr.update()]
