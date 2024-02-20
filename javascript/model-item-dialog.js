@@ -105,6 +105,11 @@ const modelData = [{
     value: 'sdxl_artbookv2_sdvn.safetensors',
     image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/sdxl_artbookv2_sdvn.png',
     decs: '[SDXL] 洪恩绘本SDXLv2，手绘痕迹更明显'
+  }, {
+    label: 'DreamShaper加速',
+    value: 'DreamShaperXL_Turbo_dpmppSdeKarras_half_pruned_6.safetensors',
+    image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/DreamShaperXL_Turbo_dpmppSdeKarras_half_pruned_6.png',
+    decs: '[SDXL] DreamShaper SDXL turbo版本'
   }]
   // lora的数据
   const loraData = [{
