@@ -110,7 +110,18 @@ const modelData = [{
     value: 'DreamShaperXL_Turbo_dpmppSdeKarras_half_pruned_6.safetensors',
     image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/DreamShaperXL_Turbo_dpmppSdeKarras_half_pruned_6.png',
     decs: '[SDXL] DreamShaper SDXL turbo版本'
+  }, {
+    label: '动漫二次元',
+    value: 'animaPencilXL_v100.safetensors',
+    image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/animaPencilXL_v100.png',
+    decs: '[SDXL] Fooocus预置包动漫二次元'
+  }, {
+    label: '动漫与真实融合',
+    value: 'albedobaseXL_v20.safetensors',
+    image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/albedobaseXL_v20.png',
+    decs: '[SDXL] Fooocus预置包动漫与真实风格二者兼具的模型'
   }]
+  
   // lora的数据
   const loraData = [{
     label: '无',
