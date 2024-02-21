@@ -459,7 +459,8 @@ def reset_context(state_params):
     
     results = reset_params(check_prepare_for_reset(info_preset))
 
-    results += [gr.update(), gr.update(choices=state_params["__output_list"], value=None if len(state_params["__output_list"])==0 else state_params["__output_list"][0])]
+    # results += [gr.update(), gr.update(choices=state_params["__output_list"], value=None if len(state_params["__output_list"])==0 else state_params["__output_list"][0])]
+    results += [gr.update(), gr.update(choices=state_params["__output_list"], value=None)]
     results += [gr.update(visible=True if preset_url else False, value=preset_instruction(state_params))]
     state_params.update({"__message": system_message})
     results += [state_params]
