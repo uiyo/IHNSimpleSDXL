@@ -269,12 +269,14 @@ def init_nav_bars(state_params, request: gr.Request):
         state_params.update({"__theme": args_manager.args.theme})
     if "__preset" not in state_params.keys():
         state_params.update({"__preset": config.preset})
-    if "__session" not in state_params.keys() and "x-sso-uid" in request.headers.keys():
-        userid = request.headers['x-sso-uid']
+    if "__session" not in state_params.keys() and 'cookie' in request.headers.keys():        
         cookies = dict([(s.split('=')[0], s.split('=')[1]) for s in request.headers["cookie"].split('; ')])
+        if 'x-sso-uid' in request.headers.keys():
+            userid = request.headers['x-sso-uid']
+        else:
+            userid = cookies['_gid']
+        state_params.update({'__cookie': userid})
         print(f"[LOG] USRID: {userid}")
-        if '_gid' in cookies.keys():
-            state_params.update({'__cookie': userid})
         if "SESSION" in cookies.keys():
             state_params.update({"__session": cookies["SESSION"]})
     user_agent = request.headers["user-agent"]
