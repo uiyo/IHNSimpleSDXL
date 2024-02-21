@@ -407,7 +407,8 @@ with shared.gradio_root:
                                                     'or 0.8 for XL-refiners; '
                                                     'or any value for switching two SDXL models.',
                                                value=modules.config.default_refiner_switch,
-                                               visible=modules.config.default_refiner_model_name != 'None')
+                                               visible=modules.config.default_refiner_model_name != 'None',
+                                              elem_id='refiner_switch')
 
                     refiner_model.change(lambda x: gr.update(visible=x != 'None'),
                                          inputs=refiner_model, outputs=refiner_switch, show_progress=False, queue=False)
