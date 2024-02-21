@@ -105,7 +105,23 @@ const modelData = [{
   value: 'sdxl_artbookv2_sdvn.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/sdxl_artbookv2_sdvn.png',
   decs: '[SDXL] 洪恩绘本SDXLv2，手绘痕迹更明显'
+}, {
+  label: 'DreamShaper加速',
+  value: 'DreamShaperXL_Turbo_dpmppSdeKarras_half_pruned_6.safetensors',
+  image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/DreamShaperXL_Turbo_dpmppSdeKarras_half_pruned_6.png',
+  decs: '[SDXL] DreamShaper SDXL turbo版本'
+}, {
+  label: '动漫二次元',
+  value: 'animaPencilXL_v100.safetensors',
+  image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/animaPencilXL_v100.png',
+  decs: '[SDXL] Fooocus预置包动漫二次元'
+}, {
+  label: '动漫与真实融合',
+  value: 'albedobaseXL_v20.safetensors',
+  image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/albedobaseXL_v20.png',
+  decs: '[SDXL] Fooocus预置包动漫与真实风格二者兼具的模型'
 }]
+
 // lora的数据
 const loraData = [{
   label: '无',
@@ -545,14 +561,25 @@ function setChooseModelValue(baseElId, params, type) {
 // 查找 对应的 input 和 需要回显的div  进行回显 === 精炼模型
 function setChooseRefinerModelValue(baseElId, params, type) {
   const componentShowModel = getElement('component-show-refiner-model')
+  const refinerSwitch = getElement('refiner_switch')
   resetBtnItem(type)
   resetElItem(type)
   if (params.value === 'None') {
     btnNone = noChooseBtnItem(type)
     componentShowModel.append(btnNone);
+    // 隐藏 精炼开启位置
+    if (refinerSwitch) {
+      refinerSwitch.style.display = 'none'
+      refinerSwitch.parentNode.style.display = 'none'
+    }
   } else {
     const modelChoose = showModelChoose(params, type)
     componentShowModel.append(modelChoose);
+    // 显示 精炼开启位置
+    if (refinerSwitch) {
+      refinerSwitch.style.display = 'block'
+      refinerSwitch.parentNode.style.display = 'block'
+    }
   }
   // 给input 赋值 
   setInputValue('refiner_model', params, 0)
@@ -620,3 +647,4 @@ onUiLoaded(async () => {
   showDialogTask()
   initNewModel()
 })
+
