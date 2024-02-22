@@ -248,6 +248,7 @@ async function createModelElm() {
     baseModel.appendChild(componentShowModel);
   } else {
     resetElItem(MODEL)
+    resetBtnItem(REFINER_MODEL)
     componentShowModel = getElement('component-show-model');
   }
   const inputs = oldModel[0].querySelectorAll('input');
@@ -299,6 +300,7 @@ function noChooseBtnItem(type) {
   // 为最外层元素添加点击事件监听器
   btnNone.addEventListener("click", function () {
     dialogType = type
+    chooseData.baseModel = modelData[0]
     toChooseModel()
   });
   return btnNone
@@ -348,6 +350,7 @@ function showModelChoose(params, type) {
   // 为最外层元素添加点击事件监听器
   modelChoose.addEventListener("click", function () {
     dialogType = type
+    chooseData.baseModel = params
     toChooseModel()
   });
   return modelChoose
@@ -458,6 +461,8 @@ function showDialogContent(params) {
   dialogContent.style.flexWrap = 'wrap';
   dialogContent.style.gap = '8px'; // 设置盒子之间的间隔
   dialogContent.style.paddingTop = "15px";
+  dialogContent.style.height = "600px";
+  dialogContent.style.overflow = "auto";
 
   for (let index = 0; index < dialogData.length; index++) {
     const itemModelContent = modelItemContent(dialogData[index])
@@ -501,7 +506,7 @@ function modelItemContent(params) {
   itemModelContent.style.minHeight = '200px';
   itemModelContent.style.padding = '10px';
   itemModelContent.style.borderRadius = '5px';
-  itemModelContent.style.border = '1px solid rgba(255,255,255,0.5)'
+  itemModelContent.style.border = params.value === chooseData.baseModel.value ? '2px solid #409EFF' : '1px solid rgba(255,255,255,0.5)'
   itemModelContent.style.fontSize = '12px'
   itemModelContent.style.color = '#fff'
   itemModelContent.style.marginTop = '10px';
