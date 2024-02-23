@@ -213,6 +213,11 @@ const loraData = [{
   value: 'Stylized_Setting_SDXL.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/Stylized_Setting_SDXL.png',
   decs: '游戏物品饰品、三维渲染建筑物，地图插件'
+}, {
+  label: '三视图lora',
+  value: 'mw_3d角色ip三视图q版_2.0.1(XL尝鲜版).safetensors',
+  image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/mw_3d角色ip三视图q版_2.0.1(XL尝鲜版).png',
+  decs: 'ip设计lora,三视图生成(触发关键词：mw_sanshitu,three view,full body)'
 }]
 // 点击回显的数据
 let chooseData = {
