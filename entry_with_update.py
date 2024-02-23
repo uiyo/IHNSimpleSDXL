@@ -23,27 +23,31 @@ try:
     origin_name = 'main'
     main_name = 'SimpleSDXL'
     dev_name = 'SimpleSDXL_dev'
-    checkout_flag = False
+    local_branch_ref = f'refs/heads/{branch_name}'
     if '--dev' in (sys.argv):
         if branch_name != dev_name:
             branch_name = dev_name
-            checkout_flag = True
             print(f'Ready to checkout {branch_name}')
+            local_branch_ref = f'refs/heads/{branch_name}'
+            if local_branch_ref not in list(repo.references):
+                remote_reference = f'refs/remotes/{remote_name}/{branch_name}'
+                remote_branch = repo.references[remote_reference]
+                new_branch = repo.create_branch(branch_name, repo[remote_branch.target.hex])
+                new_branch.upstream = remote_branch
+            else:
+                new_branch = repo.lookup_branch(branch_name)
+            repo.checkout(new_branch)
+            local_branch_ref = f'refs/heads/{branch_name}'
     else:
         if branch_name != main_name:
             branch_name = main_name
-            checkout_flag = True
             print(f'Ready to checkout {branch_name}')
+            local_branch_ref = f'refs/heads/{branch_name}'
+            new_branch = repo.lookup_branch(branch_name)
+            repo.checkout(new_branch)
 
-    local_branch_ref = f'refs/heads/{branch_name}'
     local_branch = repo.lookup_reference(local_branch_ref)
     local_commit = repo.revparse_single(local_branch_ref)
-    if checkout_flag:
-        repo.checkout(local_branch_ref)
-
-    import enhanced.version as version
-    version.branch = f'{branch_name}'
-    version.commit_id = f'{local_commit.id}'[:7]
 
     remote_reference = f'refs/remotes/{remote_name}/{branch_name}'
     remote_commit = repo.revparse_single(remote_reference)
@@ -51,17 +55,17 @@ try:
     merge_result, _ = repo.merge_analysis(remote_commit.id)
 
     if merge_result & pygit2.GIT_MERGE_ANALYSIS_UP_TO_DATE:
-        print(f'{branch_name}: Already up-to-date')
+        print(f'{branch_name}: Already up-to-date, {str(local_commit.id)[:7]}')
     elif merge_result & pygit2.GIT_MERGE_ANALYSIS_FASTFORWARD:
         local_branch.set_target(remote_commit.id)
         repo.head.set_target(remote_commit.id)
         repo.checkout_tree(repo.get(remote_commit.id))
         repo.reset(local_branch.target, pygit2.GIT_RESET_HARD)
-        print(f'{branch_name}: Fast-forward merge')
+        print(f'{branch_name}: Fast-forward merge, {str(local_commit.id)[:7]} <- {str(remote_commit.id)[:7]}')
     elif merge_result & pygit2.GIT_MERGE_ANALYSIS_NORMAL:
-        print(f'{branch_name}: Update failed - Did you modify any file?')
+        print(f'{branch_name}: Update failed - Did you modify any file? {str(local_commit.id)[:7]} <- {str(remote_commit.id)[:7]}')
 except Exception as e:
-    print(f'{branch_name}: Update failed.')
+    print(f'{branch_name}: Update failed. {str(local_commit.id)[:7]} <- {str(remote_commit.id)[:7]}')
     print(str(e))
 
 print(f'{branch_name}: Update succeeded.')

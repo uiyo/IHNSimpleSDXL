@@ -34,11 +34,12 @@ def worker():
     import modules.advanced_parameters as advanced_parameters
     import enhanced.translator as translator
     import enhanced.enhanced_parameters as enhanced_parameters
+    import enhanced.wildcards as wildcards
     import extras.ip_adapter as ip_adapter
     import extras.face_crop
     import fooocus_version
 
-    from modules.sdxl_styles import apply_style, apply_wildcards, fooocus_expansion
+    from modules.sdxl_styles import apply_style, fooocus_expansion
     from modules.private_logger import log
     from extras.expansion import safe_str
     from modules.util import remove_empty_str, HWC3, resize_image, \
@@ -385,14 +386,20 @@ def worker():
 
             progressbar(async_task, 3, 'Processing prompts ...')
             tasks = []
-            for i in range(image_number):
-                task_seed = (seed + i) % (constants.MAX_SEED + 1)  # randint is inclusive, % is not
-                task_rng = random.Random(task_seed)  # may bind to inpaint noise in the future
+            task_rng = random.Random(seed % (constants.MAX_SEED + 1))
+            prompt, wildcards_arrays, arrays_mult, seed_fixed = wildcards.compile_arrays(prompt, task_rng)
+            for i in range(image_number if arrays_mult==0 else arrays_mult):
+                if arrays_mult==0 or not seed_fixed:
+                    task_seed = (seed + i) % (constants.MAX_SEED + 1)  # randint is inclusive, % is not
+                    task_rng = random.Random(task_seed)  # may bind to inpaint noise in the future
+                else:
+                    task_seed = seed % (constants.MAX_SEED + 1)
 
-                task_prompt = apply_wildcards(prompt, task_rng)
-                task_negative_prompt = apply_wildcards(negative_prompt, task_rng)
-                task_extra_positive_prompts = [apply_wildcards(pmt, task_rng) for pmt in extra_positive_prompts]
-                task_extra_negative_prompts = [apply_wildcards(pmt, task_rng) for pmt in extra_negative_prompts]
+                task_prompt = wildcards.apply_arrays(prompt, i, wildcards_arrays, arrays_mult)
+                task_prompt = wildcards.apply_wildcards(task_prompt, task_rng)
+                task_negative_prompt = wildcards.apply_wildcards(negative_prompt, task_rng)
+                task_extra_positive_prompts = [wildcards.apply_wildcards(pmt, task_rng) for pmt in extra_positive_prompts]
+                task_extra_negative_prompts = [wildcards.apply_wildcards(pmt, task_rng) for pmt in extra_negative_prompts]
 
                 positive_basic_workloads = []
                 negative_basic_workloads = []
