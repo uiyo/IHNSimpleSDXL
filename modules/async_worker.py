@@ -144,6 +144,8 @@ def worker():
         inpaint_additional_prompt = args.pop()
         inpaint_mask_image_upload = args.pop()
         
+
+        print(f"[LOGINFO] refiner: {refiner_model_name}")
         # usr id
         state = args[0]
         cookie = state["__cookie"]

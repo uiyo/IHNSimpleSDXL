@@ -339,7 +339,7 @@ function showLoRaAllWrapNoChoose() {
       btnNone = noChooseBtnItem(LORA_ITEM + index)
       loRasAllWrap.append(btnNone);
     }
-    oldModel[index].parentElement.style.display = 'none'
+    // oldModel[index].parentElement.style.display = 'none'
   }
 }
 
@@ -643,6 +643,7 @@ function setInputValue(baseElId, params, index) {
     // 遍历所有找到的input元素并赋值
     inputs.forEach(function (input) {
       input.value = params.value;
+      updateInput(input)
     });
   }
 }

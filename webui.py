@@ -372,10 +372,16 @@ with shared.gradio_root:
                                    queue=False, show_progress=False)
                 # print(f"[LOGINFO] {state_topbar.value}")
                 if not args_manager.args.disable_image_log:
-                    if "__cookie" in state_topbar.value.keys():
-                        gr.HTML(f'<a href="{args_manager.args.webroot}/file={get_current_html_path(state_topbar.value["__cookie"])}" target="_blank">\U0001F4DA History Log</a>')
-                    else:
-                        gr.HTML(f'<a href="{args_manager.args.webroot}/file={get_current_html_path()}" target="_blank">\U0001F4DA History Log</a>')
+                    # if "__cookie" in state_topbar.value.keys():
+                    #     gr.HTML(f'<a href="{args_manager.args.webroot}/file={get_current_html_path(state_topbar.value["__cookie"])}" target="_blank">\U0001F4DA History Log</a>')
+                    # else:
+                    #     gr.HTML(f'<a href="{args_manager.args.webroot}/file={get_current_html_path()}" 
+                    # target="_blank">\U0001F4DA History Log</a>')
+                    save_zip = gr.Button('🗃️ Download History Image',elem_id='save_current_image', interactive=False)
+            
+                    download_files = gr.File(None, file_count="multiple", interactive=False, show_label=False, visible=False, elem_id=f'download_files')
+
+                    
             with gr.Tab(label='Style', elem_classes=['style_selections_tab']):
                 style_sorter.try_load_sorted_styles(
                     style_names=legal_style_names,
@@ -423,9 +429,14 @@ with shared.gradio_root:
                                                value=modules.config.default_refiner_switch,
                                                visible=modules.config.default_refiner_model_name != 'None',
                                               elem_id='refiner_switch')
-
-                    refiner_model.change(lambda x: gr.update(visible=x != 'None'),
-                                         inputs=refiner_model, outputs=refiner_switch, show_progress=False, queue=False)
+                    
+                    def switch_refiner(refiner_model):
+                        print(f"[LOGINFO] Change Refiner model to: {refiner_model}")
+                        return [gr.update(value=refiner_model), gr.update(visible=refiner_model!='None')]
+                    
+                    refiner_model.change(switch_refiner,inputs=refiner_model, outputs=[refiner_model,refiner_switch], show_progress=False, queue=False)
+                    # refiner_model.change(lambda x: gr.update(visible=x != 'None'),
+                    #                      inputs=refiner_model, outputs=refiner_switch, show_progress=False, queue=False) 
 
                 with gr.Group(elem_id='LoRA-All-Group'):
                     lora_ctrls = []
@@ -437,7 +448,7 @@ with shared.gradio_root:
                             lora_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.01, value=v,
                                                     elem_classes='lora_weight')
                             lora_ctrls += [lora_model, lora_weight]
-
+                    
                 with gr.Row():
                     model_refresh = gr.Button(label='Refresh', value='\U0001f504 Refresh All Files', variant='secondary', elem_classes='refresh_button')
                 with gr.Row():
@@ -623,6 +634,18 @@ with shared.gradio_root:
 
                 model_refresh.click(model_refresh_clicked, [], [base_model, refiner_model] + lora_ctrls,
                                     queue=False, show_progress=False)
+                def save_files(filename, state_topbar):
+                    filename = '20' + filename.split("/")[0]
+                    filepath = os.path.join(modules.config.path_outputs, state_topbar["__cookie"], filename)
+                    image_list = [file for file in os.listdir(filepath) if file.endswith(".png")]
+                    zip_filename = os.path.join(filepath, f"{filename}.zip")
+                    from zipfile import ZipFile
+                    with ZipFile(zip_filename, "w") as zip_file:
+                        for i in range(len(image_list)):
+                            with open(os.path.join(filepath, image_list[i]), 'rb') as f:
+                                zip_file.writestr(os.path.join(filepath, image_list[i]), f.read())
+                    return gr.File.update(value=zip_filename, visible=True)
+                save_zip.click(fn=save_files, inputs=[gallery_index,state_topbar],outputs=download_files, show_progress=False)
 
             with gr.Tab(label='Enhanced'):
                 with gr.Row():
@@ -650,7 +673,7 @@ with shared.gradio_root:
                                                                inpaint_mask_text_threshold
                                                            ], outputs=inpaint_mask_image, show_progress=True, queue=True)
 
-            gallery_index.select(gallery_util.select_index, inputs=[gallery_index, state_topbar], outputs=[gallery, progress_window, progress_gallery, prompt_info_box, params_note_box, image_tools_checkbox, state_topbar], show_progress=False)
+            gallery_index.select(gallery_util.select_index, inputs=[gallery_index, state_topbar], outputs=[gallery, progress_window, progress_gallery, prompt_info_box, params_note_box, image_tools_checkbox, save_zip, state_topbar], show_progress=False)
             gallery.select(gallery_util.select_gallery, inputs=[gallery_index, state_topbar, backfill_prompt], outputs=[prompt_info_box, prompt, negative_prompt, params_note_info, params_note_input_name, params_note_regen_button, params_note_preset_button, state_topbar], show_progress=False)
             progress_gallery.select(gallery_util.select_gallery_progress, inputs=state_topbar, outputs=[prompt_info_box, params_note_info, params_note_input_name, params_note_regen_button, params_note_preset_button, state_topbar], show_progress=False)
 
