@@ -643,7 +643,7 @@ with shared.gradio_root:
                     with ZipFile(zip_filename, "w") as zip_file:
                         for i in range(len(image_list)):
                             with open(os.path.join(filepath, image_list[i]), 'rb') as f:
-                                zip_file.writestr(os.path.join(filepath, image_list[i]), f.read())
+                                zip_file.writestr(image_list[i], f.read())
                     return gr.File.update(value=zip_filename, visible=True)
                 save_zip.click(fn=save_files, inputs=[gallery_index,state_topbar],outputs=download_files, show_progress=False)
 
