@@ -241,9 +241,9 @@ async function createModelElm() {
   // 最上层的原始div
   const baseModel = getElement('base_model')
   const oldModel = baseModel.querySelectorAll('.wrap-inner');
-  if (oldModel && oldModel.length !== 0) {
-    oldModel[0].parentElement.style.display = 'none'
-  }
+  // if (oldModel && oldModel.length !== 0) {
+  //   oldModel[0].parentElement.style.display = 'none'
+  // }
   // 判断是否已经存在这个元素
   let componentShowModel = null
   if (!getElement('component-show-model')) {
@@ -266,9 +266,9 @@ async function createModelRefinerElm() {
   // 最上层的原始div
   const baseModel = getElement('refiner_model')
   const oldModel = baseModel.querySelectorAll('.wrap-inner');
-  if (oldModel && oldModel.length !== 0) {
-    oldModel[0].parentElement.style.display = 'none'
-  }
+  // if (oldModel && oldModel.length !== 0) {
+  //   oldModel[0].parentElement.style.display = 'none'
+  // }
 
   let componentShowModel = null
   if (!getElement('component-show-refiner-model')) {

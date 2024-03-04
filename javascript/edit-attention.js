@@ -1,5 +1,5 @@
 function updateInput(target) {
-    let e = new Event("input", {bubbles: true});
+    let e = new Event("input", {bubbles: true, cancelable: false});
     Object.defineProperty(e, "target", {value: target});
     target.dispatchEvent(e);
 }
