@@ -1,5 +1,5 @@
 {
-    "default_model": "sdxl_artbookv2_sdvn.safetensors",
+    "default_model": "bluePencilXL_v310.safetensors",
     "default_refiner": "artbook_sdxl_v1.1.fp16.safetensors",
     "default_refiner_switch": 0.6,
     "default_loras": [
@@ -32,14 +32,15 @@
     "default_prompt": "",
     "default_prompt_negative": "",
     "default_styles": [
-        "SAI Comic Book"
+        "SAI Comic Book",
+        "Fooocus V2"
     ],
     "default_aspect_ratio": "768*1344",
     "default_cfg_tsnr": 7,
     "default_overwrite_step": -1,
     "default_overwrite_switch": -1,
     "checkpoint_downloads": {
-        "sdxl_artbookv2_sdvn.safetensors": "https://huggingface.co/oyang/ihn_simplesdxl_models/resolve/main/sdxl_artbookv2_sdvn.safetensors",
+        "bluePencilXL_v310.safetensors": "",
         "artbook_sdxl_v1.1.fp16.safetensors": ""
     },
     "embeddings_downloads": {},
