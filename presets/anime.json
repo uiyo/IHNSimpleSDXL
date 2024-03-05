@@ -1,5 +1,5 @@
 {
-    "default_model": "animaPencilXL_v100.safetensors",
+    "default_model": "[SDXL]AnimaPencil动漫v100.safetensors",
     "default_refiner": "None",
     "default_refiner_switch": 0.5,
     "default_loras": [
@@ -38,7 +38,7 @@
     ],
     "default_aspect_ratio": "896*1152",
     "checkpoint_downloads": {
-        "animaPencilXL_v100.safetensors": "https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/animaPencilXL_v100.safetensors"
+        "[SDXL]AnimaPencil动漫v100.safetensors": "https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/animaPencilXL_v100.safetensors"
     },
     "embeddings_downloads": {},
     "lora_downloads": {},
