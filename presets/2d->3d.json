@@ -1,14 +1,14 @@
 {
-    "default_model": "juggernautXL_v8Rundiffusion.safetensors",
-    "default_refiner": "3dAnimationDiffusion_v10.safetensors",
+    "default_model": "[SDXL]基础模型juggernautXLv8.safetensors",
+    "default_refiner": "[SD1.5]3D电影风格.safetensors",
     "default_refiner_switch": 0.8,
     "default_loras": [
         [
-            "dongsen_xl.safetensors",
+            "动森场景.safetensors",
             0.2
         ],
         [
-            "3dmodel_cute3d.safetensors",
+            "可爱3d.safetensors",
             0.8
         ],
         [
@@ -42,12 +42,12 @@
     "default_overwrite_step": -1,
     "default_overwrite_switch": -1,
     "checkpoint_downloads": {
-        "juggernautXL_version6Rundiffusion.safetensors": "https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/juggernautXL_version6Rundiffusion.safetensors",
-        "3dAnimationDiffusion_v10.safetensors": "https://huggingface.co/oyang/ihn_simplesdxl_models/resolve/main/3dAnimationDiffusion_v10.safetensors"
+        "[SDXL]基础模型juggernautXLv8.safetensors": "https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/juggernautXL_version6Rundiffusion.safetensors",
+        "[SD1.5]3D电影风格.safetensors": "https://huggingface.co/oyang/ihn_simplesdxl_models/resolve/main/3dAnimationDiffusion_v10.safetensors"
     },
     "embeddings_downloads": {},
     "lora_downloads": {
-        "dongsen_xl.safetensors": "https://huggingface.co/oyang/ihn_simplesdxl_models/resolve/main/dongsen_xl.safetensors",
-        "3dmodel_cute3d.safetensors": "https://huggingface.co/oyang/ihn_simplesdxl_models/resolve/main/3dmodel_cute3d.safetensors"
+        "动森场景.safetensors": "https://huggingface.co/oyang/ihn_simplesdxl_models/resolve/main/dongsen_xl.safetensors",
+        "可爱3d.safetensors": "https://huggingface.co/oyang/ihn_simplesdxl_models/resolve/main/3dmodel_cute3d.safetensors"
     }
 }
