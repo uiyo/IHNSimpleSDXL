@@ -222,7 +222,7 @@ const loraData = [{
   label: '物品场景3D',
   value: '物品场景3D.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/Stylized_Setting_SDXL.png',
-  decs: '游戏物品饰品、三维渲染建筑物，地图插件'
+  decs: '游戏物品饰品/三维渲染建筑物，地图插件'
 }, {
   label: '三视图lora',
   value: 'mw_3d角色ip三视图q版_2.0.1(XL尝鲜版).safetensors',
@@ -232,7 +232,7 @@ const loraData = [{
   label: '儿童绘本',
   value: '儿童绘本.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/Children_Illustration_SDXL.png',
-  decs: 'mw_sanshitu,three view,full body'
+  decs: 'Children\'s Illustration Style'
 }]
 // 点击回显的数据
 let chooseData = {
