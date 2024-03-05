@@ -232,7 +232,7 @@ const loraData = [{
   label: '儿童绘本',
   value: '儿童绘本.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/Children_Illustration_SDXL.png',
-  decs: 'mw_sanshitu,three view,full body'
+  decs: 'Children\'s Illustration Style'
 }]
 // 点击回显的数据
 let chooseData = {
