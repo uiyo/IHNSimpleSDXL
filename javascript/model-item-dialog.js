@@ -253,7 +253,7 @@ async function createModelElm() {
     baseModel.appendChild(componentShowModel);
   } else {
     resetElItem(MODEL)
-    resetBtnItem(REFINER_MODEL)
+    // resetBtnItem(REFINER_MODEL)
     componentShowModel = getElement('component-show-model');
   }
   const inputs = oldModel[0].querySelectorAll('input');
@@ -278,7 +278,7 @@ async function createModelRefinerElm() {
     baseModel.appendChild(componentShowModel);
   } else {
     resetElItem(REFINER_MODEL)
-    resetBtnItem(REFINER_MODEL)
+    // resetBtnItem(REFINER_MODEL)
     componentShowModel = getElement('component-show-refiner-model');
   }
   const inputs = oldModel[0].querySelectorAll('input');
@@ -286,28 +286,30 @@ async function createModelRefinerElm() {
     const findItem = modelData.find((i) => i.value === inputs[0].value)
     const modelChoose = showModelChoose(findItem, REFINER_MODEL)
     componentShowModel.append(modelChoose);
-  } else {
-    btnNone = noChooseBtnItem(REFINER_MODEL)
-    componentShowModel.append(btnNone);
   }
+  //  else {
+  //   btnNone = noChooseBtnItem(REFINER_MODEL)
+  //   componentShowModel.append(btnNone);
+  // }
 }
 // 没有选中时的 点击按钮
 function noChooseBtnItem(type) {
   const btnNone = document.createElement('button');
   btnNone.id = "choose-div-button-" + type;
   btnNone.style.width = '100px';
-  btnNone.textContent = '点击选择';
   btnNone.style.padding = "10px";
-  btnNone.style.border = "1px solid #374151";
   btnNone.style.borderRadius = "8px";
   btnNone.style.fontSize = "12px";
+  // btnNone.textContent = '点击选择';
+  // btnNone.style.border = "1px solid #374151";
+
 
   // 为最外层元素添加点击事件监听器
-  btnNone.addEventListener("click", function () {
-    dialogType = type
-    chooseData.baseModel = modelData[0]
-    toChooseModel()
-  });
+  // btnNone.addEventListener("click", function () {
+  //   dialogType = type
+  //   chooseData.baseModel = modelData[0]
+  //   toChooseModel()
+  // });
   return btnNone
 }
 
@@ -324,7 +326,7 @@ function showLoRaAllWrapNoChoose() {
       oldModel[index].parentElement.parentElement.appendChild(loRasAllWrap);
     } else {
       resetElItem(LORA_ITEM + index)
-      resetBtnItem(LORA_ITEM + index)
+      // resetBtnItem(LORA_ITEM + index)
       loRasAllWrap = getElement("component-wrap-lora-item-" + index);
     }
     // 查找对应input的值
@@ -335,10 +337,11 @@ function showLoRaAllWrapNoChoose() {
       const modelChoose = showModelChoose(findItem, LORA_ITEM + index)
       loRasAllWrap.appendChild(modelChoose);
       oldModel[index].parentElement.parentElement.appendChild(loRasAllWrap);
-    } else {
-      btnNone = noChooseBtnItem(LORA_ITEM + index)
-      loRasAllWrap.append(btnNone);
     }
+    // else {
+    //   btnNone = noChooseBtnItem(LORA_ITEM + index)
+    //   loRasAllWrap.append(btnNone);
+    // }
     // oldModel[index].parentElement.style.display = 'none'
   }
 }
@@ -353,11 +356,11 @@ function showModelChoose(params, type) {
   modelChoose.append(chooseItemDiv);
 
   // 为最外层元素添加点击事件监听器
-  modelChoose.addEventListener("click", function () {
-    dialogType = type
-    chooseData.baseModel = params
-    toChooseModel()
-  });
+  // modelChoose.addEventListener("click", function () {
+  //   dialogType = type
+  //   chooseData.baseModel = params
+  //   toChooseModel()
+  // });
   return modelChoose
 }
 function showOnChooseModelItem(chooseData) {
@@ -457,7 +460,7 @@ function showDialogContent(params) {
   dialogTitleContent.appendChild(closeButton);
   dialog.appendChild(dialogTitleContent);
   // 为关闭按钮添加事件监听器
-  closeButton.addEventListener('click', hideDialog);
+  // closeButton.addEventListener('click', hideDialog);
 
   // 弹框内容
   const dialogContent = document.createElement('div');
@@ -472,17 +475,17 @@ function showDialogContent(params) {
   for (let index = 0; index < dialogData.length; index++) {
     const itemModelContent = modelItemContent(dialogData[index])
     dialogContent.appendChild(itemModelContent)
-    itemModelContent.addEventListener('click', function () {
-      chooseData.baseModel = JSON.parse(this.value)
-      if (dialogType === MODEL) {
-        setChooseModelValue('choose-div-model', chooseData.baseModel, dialogType)
-      } else if (dialogType.includes(LORA_ITEM)) {
-        setChooseLoraItemValue(chooseData.baseModel, dialogType)
-      } else if (dialogType === REFINER_MODEL) {
-        setChooseRefinerModelValue('choose-div-refiner-model', chooseData.baseModel, dialogType)
-      }
+    // itemModelContent.addEventListener('click', function () {
+    //   chooseData.baseModel = JSON.parse(this.value)
+    //   if (dialogType === MODEL) {
+    //     setChooseModelValue('choose-div-model', chooseData.baseModel, dialogType)
+    //   } else if (dialogType.includes(LORA_ITEM)) {
+    //     setChooseLoraItemValue(chooseData.baseModel, dialogType)
+    //   } else if (dialogType === REFINER_MODEL) {
+    //     setChooseRefinerModelValue('choose-div-refiner-model', chooseData.baseModel, dialogType)
+    //   }
 
-    })
+    // })
   }
 
   dialog.appendChild(dialogContent);
@@ -655,7 +658,7 @@ function initNewModel() {
 }
 
 onUiLoaded(async () => {
-  showDialogTask()
+  // showDialogTask()
   initNewModel()
 })
 
