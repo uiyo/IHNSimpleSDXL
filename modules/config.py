@@ -560,5 +560,38 @@ def downloading_upscale_model():
     )
     return os.path.join(path_upscale_models, 'fooocus_upscaler_s409985e5.bin')
 
+def downloading_poseprocess_model():
+    results = []
+    # openpose lora
+    load_file_from_url(
+        url='https://huggingface.co/thibaud/controlnet-openpose-sdxl-1.0/resolve/main/control-lora-openposeXL2-rank256.safetensors',
+        model_dir=path_controlnet,
+        file_name='thibaud_xl_openpose_256lora.safetensors'
+    )
+    results += [os.path.join(path_controlnet, 'thibaud_xl_openpose_256lora.safetensors')]
+    # openpose body
+    load_file_from_url(
+        url='https://huggingface.co/lllyasviel/Annotators/resolve/main/body_pose_model.pth',
+        model_dir=path_controlnet,
+        file_name='body_pose_model.pth'
+    )
+    results += [os.path.join(path_controlnet, 'body_pose_model.pth')]
+
+    # openpose hand
+    load_file_from_url(
+        url='https://huggingface.co/lllyasviel/Annotators/resolve/main/hand_pose_model.pth',
+        model_dir=path_controlnet,
+        file_name='hand_pose_model.pth'
+    )
+    results += [os.path.join(path_controlnet, 'hand_pose_model.pth')]
+    
+    # openpose face
+    load_file_from_url(
+        url='https://huggingface.co/lllyasviel/Annotators/resolve/main/facenet.pth',
+        model_dir=path_controlnet,
+        file_name='facenet.pth'
+    )
+    results += [os.path.join(path_controlnet, 'facenet.pth')]
+    return results
 
 update_all_model_names()
