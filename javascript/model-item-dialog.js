@@ -129,7 +129,7 @@ const modelData = [{
   label: '动漫与真实融合',
   value: '[SDXL]动漫+真实v20.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/albedobaseXL_v20.png',
-  decs: ' Fooocus预置包动漫+真实风格'
+  decs: ' Fooocus预置包融合'
 }]
 
 // lora的数据
