@@ -228,6 +228,11 @@ const loraData = [{
   value: 'mw_3d角色ip三视图q版_2.0.1(XL尝鲜版).safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/mw_3d角色ip三视图q版_2.0.1(XL尝鲜版).png',
   decs: 'mw_sanshitu,three view,full body'
+}, {
+  label: '儿童绘本',
+  value: '儿童绘本.safetensors',
+  image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/Children_Illustration_SDXL.png',
+  decs: 'mw_sanshitu,three view,full body'
 }]
 // 点击回显的数据
 let chooseData = {
