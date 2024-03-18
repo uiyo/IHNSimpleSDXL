@@ -30,7 +30,6 @@ cn_cpds = "CPDS"
 
 ip_list = [cn_ip, cn_canny, cn_cpds, cn_ip_face]
 # ip_list = [cn_ip, cn_canny, cn_cpds, cn_ip_face, cn_depth, cn_pose]
-
 default_ip = cn_ip
 
 default_parameters = {
