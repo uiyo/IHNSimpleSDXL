@@ -404,17 +404,9 @@ with shared.gradio_root:
                                    queue=False, show_progress=False)
                 # print(f"[LOGINFO] {state_topbar.value}")
                 
-                def update_history_link():
-                    if args_manager.args.disable_image_log:
-                        return gr.update(value='')
-                    else:
-                        if "__cookie" in state_topbar.value.keys():
-                            return gr.HTML(f'<a href="{args_manager.args.webroot}/file={get_current_html_path(state_topbar.value["__cookie"])}" target="_blank">\U0001F4DA History Log</a>')
-                        else:
-                            return gr.HTML(f'<a href="{args_manager.args.webroot}/file={get_current_html_path()}" target="_blank">\U0001F4DA History Log</a>')
-                history_link = gr.HTML()
-                shared.gradio_root.load(update_history_link, outputs=history_link, queue=False, show_progress=False)
-            
+               if not args_manager.args.disable_image_log:
+                   save_zip = gr.Button('🗃️ Download History Image', elem_id='save_current_image', interactive=False)
+                   download_files = gr.File(None, file_count="multiple", interactive=False, show_label=False, visible=False, elem_id=f'download_files')
             with gr.Tab(label='Style', elem_classes=['style_selections_tab']):
                 style_sorter.try_load_sorted_styles(
                     style_names=legal_style_names,
@@ -846,9 +838,8 @@ with shared.gradio_root:
             .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed) \
             .then(fn=get_task, inputs=ctrls, outputs=currentTask) \
             .then(enhanced_parameters.set_all_enhanced_parameters, inputs=ehps) \
-            .then(fn=generate_clicked, inputs=currentTask + [state_topbar], outputs=[progress_html, progress_window, progress_gallery, gallery]) \
+            .then(fn=generate_clicked, inputs=currentTask, outputs=[progress_html, progress_window, progress_gallery, gallery]) \
             .then(topbar.process_after_generation, inputs=state_topbar, outputs=[generate_button, stop_button, skip_button, state_is_generating, gallery_index, index_radio, background_theme, bar0_button, bar1_button, bar2_button, bar3_button, bar4_button, bar5_button, bar6_button, bar7_button, bar8_button], show_progress=False) \
-            .then(fn=update_history_link, outputs=history_link) \
             .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed')
 
         for notification_file in ['notification.ogg', 'notification.mp3']:
@@ -897,42 +888,43 @@ with shared.gradio_root:
 
     reset_preset_fun = [preset_instruction, image_number, inpaint_mask_upload_checkbox, mixing_image_prompt_and_vary_upscale, mixing_image_prompt_and_inpaint, backfill_prompt, translation_timing, translation_methods]
     reset_preset_all = reset_params + reset_preset_fun + [state_topbar]
+    bar_button_js = "() => {refresh_grid_delayed(); initNewModel()}"
     bar0_button.click(topbar.reset_params_for_preset, inputs=[bar0_button, state_topbar], outputs=reset_preset_all, show_progress=False) \
                .then(fn=lambda x: x, inputs=state_topbar, outputs=system_params, show_progress=False) \
                .then(fn=lambda x: {}, inputs=system_params, outputs=system_params, _js=topbar.refresh_topbar_status_js) \
-               .then(fn=lambda: None, _js='refresh_grid_delayed')
+               .then(fn=lambda: None, _js=bar_button_js)
     bar1_button.click(topbar.reset_params_for_preset, inputs=[bar1_button, state_topbar], outputs=reset_preset_all, show_progress=False) \
                .then(fn=lambda x: x, inputs=state_topbar, outputs=system_params, show_progress=False) \
                .then(fn=lambda x: {}, inputs=system_params, outputs=system_params, _js=topbar.refresh_topbar_status_js) \
-               .then(fn=lambda: None, _js='refresh_grid_delayed')
+               .then(fn=lambda: None, _js=bar_button_js)
     bar2_button.click(topbar.reset_params_for_preset, inputs=[bar2_button, state_topbar], outputs=reset_preset_all, show_progress=False) \
                .then(fn=lambda x: x, inputs=state_topbar, outputs=system_params, show_progress=False) \
                .then(fn=lambda x: {}, inputs=system_params, outputs=system_params, _js=topbar.refresh_topbar_status_js) \
-               .then(fn=lambda: None, _js='refresh_grid_delayed')
+               .then(fn=lambda: None, _js=bar_button_js)
     bar3_button.click(topbar.reset_params_for_preset, inputs=[bar3_button, state_topbar], outputs=reset_preset_all, show_progress=False) \
                .then(fn=lambda x: x, inputs=state_topbar, outputs=system_params, show_progress=False) \
                .then(fn=lambda x: {}, inputs=system_params, outputs=system_params, _js=topbar.refresh_topbar_status_js) \
-               .then(fn=lambda: None, _js='refresh_grid_delayed')
+               .then(fn=lambda: None, _js=bar_button_js)
     bar4_button.click(topbar.reset_params_for_preset, inputs=[bar4_button, state_topbar], outputs=reset_preset_all, show_progress=False) \
                .then(fn=lambda x: x, inputs=state_topbar, outputs=system_params, show_progress=False) \
                .then(fn=lambda x: {}, inputs=system_params, outputs=system_params, _js=topbar.refresh_topbar_status_js) \
-               .then(fn=lambda: None, _js='refresh_grid_delayed')
+               .then(fn=lambda: None, _js=bar_button_js)
     bar5_button.click(topbar.reset_params_for_preset, inputs=[bar5_button, state_topbar], outputs=reset_preset_all, show_progress=False) \
                .then(fn=lambda x: x, inputs=state_topbar, outputs=system_params, show_progress=False) \
                .then(fn=lambda x: {}, inputs=system_params, outputs=system_params, _js=topbar.refresh_topbar_status_js) \
-               .then(fn=lambda: None, _js='refresh_grid_delayed')
+               .then(fn=lambda: None, _js=bar_button_js)
     bar6_button.click(topbar.reset_params_for_preset, inputs=[bar6_button, state_topbar], outputs=reset_preset_all, show_progress=False) \
                .then(fn=lambda x: x, inputs=state_topbar, outputs=system_params, show_progress=False) \
                .then(fn=lambda x: {}, inputs=system_params, outputs=system_params, _js=topbar.refresh_topbar_status_js) \
-               .then(fn=lambda: None, _js='refresh_grid_delayed')
+               .then(fn=lambda: None, _js=bar_button_js)
     bar7_button.click(topbar.reset_params_for_preset, inputs=[bar7_button, state_topbar], outputs=reset_preset_all, show_progress=False) \
                .then(fn=lambda x: x, inputs=state_topbar, outputs=system_params, show_progress=False) \
                .then(fn=lambda x: {}, inputs=system_params, outputs=system_params, _js=topbar.refresh_topbar_status_js) \
-               .then(fn=lambda: None, _js='refresh_grid_delayed')
+               .then(fn=lambda: None, _js=bar_button_js)
     bar8_button.click(topbar.reset_params_for_preset, inputs=[bar8_button, state_topbar], outputs=reset_preset_all, show_progress=False) \
                .then(fn=lambda x: x, inputs=state_topbar, outputs=system_params, show_progress=False) \
                .then(fn=lambda x: {}, inputs=system_params, outputs=system_params, _js=topbar.refresh_topbar_status_js) \
-               .then(fn=lambda: None, _js='refresh_grid_delayed')
+               .then(fn=lambda: None, _js=bar_button_js)
 
     shared.gradio_root.load(fn=lambda x: x, inputs=system_params, outputs=state_topbar, _js=topbar.get_system_params_js, queue=False, show_progress=False) \
                       .then(topbar.init_nav_bars, inputs=state_topbar, outputs=nav_bars + [progress_window, language_ui, background_theme, gallery_index, index_radio, image_tools_checkbox, inpaint_mask_upload_checkbox, preset_instruction], show_progress=False) \
