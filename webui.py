@@ -404,7 +404,7 @@ with shared.gradio_root:
                                    queue=False, show_progress=False)
                 # print(f"[LOGINFO] {state_topbar.value}")
                 
-               if not args_manager.args.disable_image_log:
+                if not args_manager.args.disable_image_log:
                    save_zip = gr.Button('🗃️ Download History Image', elem_id='save_current_image', interactive=False)
                    download_files = gr.File(None, file_count="multiple", interactive=False, show_label=False, visible=False, elem_id=f'download_files')
             with gr.Tab(label='Style', elem_classes=['style_selections_tab']):
