@@ -24,18 +24,22 @@ cn_ip = "ImagePrompt"
 cn_ip_face = "FaceSwap"
 cn_canny = "PyraCanny"
 cn_cpds = "CPDS"
-cn_pose = 'Pose'
-cn_depth = "Depth"
+# cn_pose = 'Pose'
+# cn_depth = "Depth"
 
 
-ip_list = [cn_ip, cn_canny, cn_cpds, cn_ip_face, cn_depth, cn_pose]
+ip_list = [cn_ip, cn_canny, cn_cpds, cn_ip_face]
+# ip_list = [cn_ip, cn_canny, cn_cpds, cn_ip_face, cn_depth, cn_pose]
 default_ip = cn_ip
 
 default_parameters = {
     cn_ip: (0.5, 0.6), cn_ip_face: (0.9, 0.75), cn_canny: (0.5, 1.0), cn_cpds: (0.5, 1.0),
-    cn_depth: (0.5, 1.0), cn_pose: (0.5, 1.0),
 }  # stop, weight
 
+# default_parameters = {
+#     cn_ip: (0.5, 0.6), cn_ip_face: (0.9, 0.75), cn_canny: (0.5, 1.0), cn_cpds: (0.5, 1.0),
+#     cn_depth: (0.5, 1.0), cn_pose: (0.5, 1.0),
+# } 
 inpaint_engine_versions = ['None', 'v1', 'v2.5', 'v2.6']
 performance_selections = ['Speed', 'Quality', 'Extreme Speed']
 
