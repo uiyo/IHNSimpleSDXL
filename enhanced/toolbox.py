@@ -224,7 +224,7 @@ def delete_image(state_params):
     info = gallery.get_images_prompt(choice, selected, state_params["__max_per_page"])
     file_name = info["Filename"]
     output_index = choice.split('/')
-    dir_path = os.path.join(config.path_outputs, '20' + output_index[0])
+    dir_path = os.path.join(os.path.join(config.path_outputs, state_params["__cookie"]), '20' + output_index[0])
     
     log_path = os.path.join(dir_path, 'log.html')
     if os.path.exists(log_path):
@@ -409,9 +409,9 @@ def embed_params(state_params):
     info = gallery.get_images_prompt(choice, selected, state_params["__max_per_page"])
     #print(f'info:{info}')
     filename = info['Filename']
-    file_path = os.path.join(os.path.join(config.path_outputs, '20' + choice.split('/')[0]), filename)
+    file_path = os.path.join(os.path.join(os.path.join(config.path_outputs, state_params["__cookie"]), '20' + choice.split('/')[0]), filename)
     img = Image.open(file_path)
-    embed_dirs = os.path.join(config.path_outputs, 'embed')
+    embed_dirs = os.path.join(os.path.join(config.path_outputs, state_params["__cookie"]), 'embed')
     if not os.path.exists(embed_dirs):
         os.mkdir(embed_dirs)
     embed_file = os.path.join(embed_dirs, filename)
