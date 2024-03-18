@@ -444,6 +444,8 @@ with shared.gradio_root:
                 with gr.Group():
                     with gr.Row():
                         base_model = gr.Dropdown(label='Base Model (SDXL only)', choices=modules.config.model_filenames, value=modules.config.default_base_model_name, show_label=True, elem_id='base_model')
+                        base_model.change(lambda x: gr.update(visible=x != 'None'), inputs=base_model, outputs=[], show_progress=False, queue=False, _js='createModelElm') 
+
                         refiner_model = gr.Dropdown(label='Refiner (SDXL or SD 1.5)', choices=['None'] + modules.config.model_filenames, value=modules.config.default_refiner_model_name, show_label=True, elem_id='refiner_model')
 
                     refiner_switch = gr.Slider(label='Refiner Switch At', minimum=0.1, maximum=1.0, step=0.0001,
@@ -455,7 +457,8 @@ with shared.gradio_root:
                                                visible=modules.config.default_refiner_model_name != 'None')
 
                     refiner_model.change(lambda x: gr.update(visible=x != 'None'),
-                                         inputs=refiner_model, outputs=refiner_switch, show_progress=False, queue=False)
+                                         inputs=refiner_model, outputs=refiner_switch, show_progress=False, queue=False, _js='createModelRefinerElm')
+
 
                 with gr.Group(elem_id='LoRA-All-Group'):
                     lora_ctrls = []
@@ -471,6 +474,7 @@ with shared.gradio_root:
                                                     maximum=modules.config.default_loras_max_weight, step=0.01, value=v,
                                                     elem_classes='lora_weight', scale=5)
                             lora_ctrls += [lora_enabled, lora_model, lora_weight]
+                            lora_model.change(lambda x: gr.update(visible=x != 'None'), inputs=lora_model, outputs=[], show_progress=False, queue=False, _js='showLoRaAllWrapNoChoose') 
 
                 with gr.Row():
                     model_refresh = gr.Button(label='Refresh', value='\U0001f504 Refresh All Files', variant='secondary', elem_classes='refresh_button')
