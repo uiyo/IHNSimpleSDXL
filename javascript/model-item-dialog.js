@@ -7,119 +7,134 @@ const modelData = [{
   decs: '未选择模型'
 }, {
   label: '3D电影风格',
-  value: '3dAnimationDiffusion_v10.safetensors',
+  value: '[SD1.5]3D电影风格.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/3dAnimationDiffusion_v10.png',
-  decs: '[SD1.5] 迪斯尼、梦工厂、皮克斯3D电影风格'
+  decs: '迪斯尼、梦工厂、皮克斯'
 }, {
-  label: '洪恩绘本模型sdxlv1',
-  value: 'artbook_sdxl_v1.1.fp16.safetensors',
+  label: '洪恩绘本模型1',
+  value: '[SDXL]洪恩绘本模型1.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/artbook_sdxl_v1.1.fp16.png',
-  decs: '[SDXL] 初版sdxl洪恩绘本模型'
+  decs: 'painting,artbook'
 }, {
-  label: '洪恩绘本模型sd15v2',
-  value: 'artbookv2.safetensors',
+  label: '洪恩绘本模型v2',
+  value: '[SD1.5]洪恩绘本模型v2.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/artbookv2.png',
-  decs: '[SD1.5] 洪恩sd1.5绘本模型'
+  decs: '儿童绘本'
 }, {
   label: '二次元动漫',
-  value: 'bluePencilXL_v310.safetensors',
+  value: '[SDXL]二次元动漫.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/bluePencilXL_v310.png',
-  decs: '[SDXL] 二次元动漫风格'
+  decs: '二次元动漫风格'
 }, {
   label: '皮克斯3D',
-  value: 'disneyPixarCartoon_v10b.safetensors',
+  value: '[SD1.5]皮克斯3D.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/disneyPixarCartoon_v10b.png',
-  decs: '[SD1.5] 皮克斯3D建模风格'
+  decs: '皮克斯3D建模风格'
 }, {
   label: '迪士尼3D',
-  value: 'disneyStyleV1_v10.safetensors',
+  value: '[SD1.5]迪士尼3D.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/disneyStyleV1_v10.png',
   decs: '[SD1.5] 迪士尼3D建模风格'
 }, {
   label: 'DreamShaper8',
-  value: 'DreamShaper_8_pruned.safetensors',
+  value: '[SDXL]DreamShaper8.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/DreamShaper_8_pruned.png',
-  decs: '[SDXL] 真实照片，二次元，各类艺术风格形式'
+  decs: '各类艺术风格形式'
 }, {
-  label: 'DreamShaper融合盲盒',
-  value: 'dreamshaper_blindbox_c4d.fp16.safetensors',
+  label: 'DreamShaper+盲盒',
+  value: '[SD1.5]DreamShaper+盲盒.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/dreamshaper_blindbox_c4d.fp16.png',
-  decs: '[SD1.5] dreamshaper融合盲盒以及c4d的lora'
+  decs: 'Dreamshaper+盲盒c4dlora'
 }, {
   label: '3D渲染',
-  value: 'fastercluck_v2.safetensors',
+  value: '[SDXL]3D渲染.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/fastercluck_v2.png',
-  decs: '[SDXL] 3D渲染风格'
+  decs: '3D渲染风格'
 }, {
-  label: '3D模型',
-  value: 'ipDESIGN3D_v31.safetensors',
+  label: 'IP设计3D模型',
+  value: '[SD1.5]IP设计3D模型.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/ipDESIGN3D_v31.png',
-  decs: '[SD1.5] 3D模型渲染风格'
+  decs: 'IP设计3D模型渲染风格'
 }, {
   label: '盲盒公仔',
-  value: 'helloip3dIP_helloip3dV13e.safetensors',
+  value: '[SD1.5]盲盒公仔.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/helloip3dIP_helloip3dV13e.png',
-  decs: '[SD1.5] 塑料盲盒公仔风格'
+  decs: '塑料盲盒公仔风格'
 }, {
-  label: 'SDXL基础模型juggernautXLv8',
-  value: 'juggernautXL_v8Rundiffusion.safetensors',
+  label: 'Fooocus默认SDXL',
+  value: '[SDXL]基础模型juggernautXLv8.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/juggernautXL_version6Rundiffusion.png',
-  decs: '[SDXL] 真实，电影，照片，各类艺术风格，SDXL基础模型'
+  decs: '[SDXL]各类艺术风格,SDXL基础模型'
 }, {
-  label: 'SDXL基础模型playgroundv2',
-  value: 'playground-v2.fp16.safetensors',
+  label: 'Fooocus默认SDXL[旧]',
+  value: '[SDXL]基础模型juggernautXLv6.safetensors',
+  image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/juggernautXL_version6Rundiffusion.png',
+  decs: '[SDXL]各类艺术风格,SDXL基础模型'
+}, {
+  label: 'SDXL基础模型游乐场2',
+  value: '[SDXL]基础模型游乐场2.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/playground-v2.fp16.png',
-  decs: '[SDXL] 真实，艺术渲染，动画，SDXL基础模型'
+  decs: '[SDXL]各类艺术风格,SDXL基础模型'
 }, {
-  label: 'SDXL基础模型电影',
-  value: 'realisticStockPhoto_v20.safetensors',
+  label: '真实电影v20',
+  value: '[SDXL]真实电影v20.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/realisticStockPhoto_v10.png',
-  decs: '[SDXL] 真实，照片质感，电影，SDXL基础模型'
+  decs: '真实,照片质感,电影,SDXL基础模型'
 }, {
-  label: 'SDXL基础模型二次元',
-  value: 'revAnimated_v122EOL.safetensors',
+  label: '真实电影v10',
+  value: '[SDXL]真实电影v10.safetensors',
+  image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/realisticStockPhoto_v10.png',
+  decs: '真实,照片质感,电影,SDXL基础模型'
+}, {
+  label: '基础二次元',
+  value: '[SDXL]revAnimated二次元.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/revAnimated_v122EOL.png',
-  decs: '[SDXL] 绘本，动漫，幻想，卡通，SDXL基础模型'
+  decs: '绘本,动漫,幻想,卡通'
 }, {
   label: 'SDXL基础精炼模型VAE',
-  value: 'sd_xl_base_1.0_0.9vae.safetensors',
+  value: '[SDXL]SDXL基础精炼模型VAE.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/sd_xl_base_1.0_0.9vae.png',
-  decs: '[SDXL] 真实、质感、绘画细节内容填充，SDXL基础精炼模型'
+  decs: '真实/绘画细节填充,SDXL基础精炼模型'
 }, {
-  label: '原始SDXL基础模型',
-  value: 'sd_xl_base_1.0.safetensors',
+  label: '原始SDXL模型',
+  value: '[SDXL]原始SDXL模型1.0.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/sd_xl_base_1.0.png',
-  decs: '[SDXL] 原始SDXL基础模型'
+  decs: ' 原始SDXL基础模型'
 }, {
   label: '可爱3D',
-  value: 'sdvn53dcutewave_v10.safetensors',
+  value: '[SD1.5]sdvn53可爱3Dv10.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/sdvn53dcutewave_v10.png',
-  decs: '[SD1.5] 3D，儿童，玩具，角色设计'
+  decs: '3D,儿童,玩具,角色设计'
 }, {
-  label: '原始SDXL基础精炼模型vae',
-  value: 'sd_xl_refiner_1.0_0.9vae.safetensors',
+  label: '原始SDXL专属精炼',
+  value: '[SDXL]原始SDXL基础专属精炼模型.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/sd_xl_refiner_1.0_0.9vae.png',
-  decs: '[SDXL-Refiner] 原始SDXL基础专属精炼模型'
+  decs: '原始SDXL基础精炼模型vae'
 }, {
   label: '洪恩绘本SDXLv2',
-  value: 'sdxl_artbookv2_sdvn.safetensors',
+  value: '[SDXL]洪恩绘本模型v2.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/sdxl_artbookv2_sdvn.png',
-  decs: '[SDXL] 洪恩绘本SDXLv2，手绘痕迹更明显'
+  decs: '手绘痕迹更明显'
 }, {
   label: 'DreamShaper加速',
-  value: 'DreamShaperXL_Turbo_dpmppSdeKarras_half_pruned_6.safetensors',
+  value: '[SDXL]DreamShaperXL加速.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/DreamShaperXL_Turbo_dpmppSdeKarras_half_pruned_6.png',
-  decs: '[SDXL] DreamShaper SDXL turbo版本'
+  decs: 'DreamShaper SDXL turbo版本'
 }, {
-  label: '动漫二次元',
-  value: 'animaPencilXL_v100.safetensors',
+  label: 'AnimaPencil动漫',
+  value: '[SDXL]AnimaPencil动漫v100.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/animaPencilXL_v100.png',
-  decs: '[SDXL] Fooocus预置包动漫二次元'
+  decs: ' Fooocus预置包动漫二次元'
 }, {
   label: '动漫与真实融合',
-  value: 'albedobaseXL_v20.safetensors',
+  value: '[SDXL]动漫+真实v20.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/albedobaseXL_v20.png',
-  decs: '[SDXL] Fooocus预置包动漫与真实风格二者兼具的模型'
+  decs: ' Fooocus预置包融合'
+}, {
+  label: '网红拍照',
+  value: '[SD1.5]网红麦橘写实.safetensors',
+  image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/wanghongsd15.jpg',
+  decs: '女生网红拍照'
 }]
 
 // lora的数据
@@ -130,89 +145,99 @@ const loraData = [{
   decs: '未加载lora'
 }, {
   label: '可爱皮克斯角色',
-  value: '3dmodel_cute3d.safetensors',
+  value: '可爱3d.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/3dmodel_cute3d.png',
-  decs: '3D，可爱，皮克斯，人物动物画风(触发词：MG_ip)'
+  decs: 'MG_ip'
 }, {
-  label: '3D渲染',
-  value: '3DRedmond-3DRenderStyle-3DRenderAF.safetensors',
+  label: '3D渲染风格',
+  value: '3D渲染.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/3DRedmond-3DRenderStyle-3DRenderAF.png',
-  decs: '3D渲染风格(触发词：3D Render Style,3DRenderAF)'
+  decs: '3D Render Style,3DRenderAF'
 }, {
-  label: '细节增修',
-  value: 'add-detail-xl.safetensors',
+  label: '细化',
+  value: '细节增修.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/add-detail-xl.png',
   decs: '细节化，添加，修改细节'
 }, {
   label: '扁平艺术插图',
-  value: 'chatuxuan.safetensors',
+  value: '扁平艺术插图.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/chatuxuan.png',
-  decs: '扁平艺术插图、矢量插画(触发词：chatu)'
+  decs: 'chatu'
 }, {
   label: '绘本儿童角色',
-  value: 'COOLKIDS_XL_0.3_RC.safetensors',
+  value: '绘本儿童角色.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/COOLKIDS_XL_0.3_RC.png',
   decs: '手绘儿童绘本风格'
 }, {
   label: '可爱盲盒',
-  value: 'Cute_3D_Cartoon.safetensors',
+  value: '可爱3D盲盒.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/cute_blindbox_sdxl.png',
-  decs: '可爱盲盒，塑料模型，手办(触发词：blindbox)'
+  decs: 'blindbox'
 }, {
-  label: '动森场景',
-  value: 'dongsen_xl.safetensors',
+  label: '动森场景风格',
+  value: '动森场景.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/dongsen_xl.png',
-  decs: '动物森友会建模风格(触发词：chibi,3D)'
+  decs: 'chibi,3D'
 }, {
   label: '手绘魔幻插图',
-  value: 'free-hand.safetensors',
+  value: '手绘魔幻插图.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/free-hand.png',
-  decs: '手绘插图，平面，魔幻(触发词：free-hand)'
+  decs: 'free-hand'
 }, {
   label: '蜡笔油画',
-  value: 'ILLUSTRE_v1.safetensors',
+  value: '蜡笔油画.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/ILLUSTRE_v1.png',
   decs: '蜡笔油画质感插图'
 }, {
   label: '可爱动物',
-  value: 'loha_animal_sdxl.safetensors',
+  value: '可爱动物.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/loha_animal_sdxl.png',
   decs: '可爱，毛茸茸的小动物'
 }, {
   label: '现代儿童绘本',
-  value: 'MODILL_XL_0.27_RC.safetensors',
+  value: '儿童绘本彩色插画.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/MODILL_XL_0.27_RC.png',
   decs: '现代儿童绘本彩色插画'
 }, {
-  label: '广告报纸',
-  value: 'OldillXL_0.4_RC.safetensors',
+  label: '油墨广告报纸',
+  value: '油墨广告.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/OldillXL_0.4_RC.png',
   decs: '老派欧式广告报纸插画'
 }, {
   label: '3D卡通电影',
-  value: 'Samaritan 3d Cartoon SDXL.safetensors',
+  value: 'Samaritan3D卡通电影.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/Samaritan 3d Cartoon SDXL.png',
-  decs: '3D动漫，塑料模型,midjourney，皮克斯风格'
+  decs: '3D动漫,midjourney'
 }, {
   label: 'SDXL基础lora',
-  value: 'sd_xl_offset_example-lora_1.0.safetensors',
+  value: 'sdxl样例lora.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/sd_xl_offset_example-lora_1.0.jpeg',
-  decs: 'SDXL基础lora，细节增修'
+  decs: 'SDXL基础lora,细节增修'
 }, {
   label: '电影画质',
-  value: 'SDXL_FILM_PHOTOGRAPHY_STYLE_BetaV0.4.safetensors',
+  value: '电影画质.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/SDXL_FILM_PHOTOGRAPHY_STYLE_BetaV0.4.jpeg',
   decs: '电影画质，真实，超清'
 }, {
   label: 'lcm加速',
-  value: 'sdxl_lcm_lora.safetensors',
+  value: 'sdxl_lcm加速.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/sdxl_lcm_lora.png',
-  decs: 'lcm加速模型'
+  decs: 'lcm加速lora'
 }, {
   label: '物品场景3D',
-  value: 'Stylized_Setting_SDXL.safetensors',
+  value: '物品场景3D.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/Stylized_Setting_SDXL.png',
-  decs: '游戏物品饰品、三维渲染建筑物，地图插件'
+  decs: '游戏物品饰品/三维渲染建筑物，地图插件'
+}, {
+  label: '三视图lora',
+  value: 'mw_3d角色ip三视图q版_2.0.1(XL尝鲜版).safetensors',
+  image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/mw_3d角色ip三视图q版_2.0.1(XL尝鲜版).png',
+  decs: 'mw_sanshitu,three view,full body'
+}, {
+  label: '儿童绘本',
+  value: '儿童绘本.safetensors',
+  image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/Children_Illustration_SDXL.png',
+  decs: 'Children\'s Illustration Style'
 }]
 // 点击回显的数据
 let chooseData = {
@@ -236,9 +261,9 @@ async function createModelElm() {
   // 最上层的原始div
   const baseModel = getElement('base_model')
   const oldModel = baseModel.querySelectorAll('.wrap-inner');
-  if (oldModel && oldModel.length !== 0) {
-    oldModel[0].parentElement.style.display = 'none'
-  }
+  // if (oldModel && oldModel.length !== 0) {
+  //   oldModel[0].parentElement.style.display = 'none'
+  // }
   // 判断是否已经存在这个元素
   let componentShowModel = null
   if (!getElement('component-show-model')) {
@@ -248,7 +273,7 @@ async function createModelElm() {
     baseModel.appendChild(componentShowModel);
   } else {
     resetElItem(MODEL)
-    resetBtnItem(REFINER_MODEL)
+    // resetBtnItem(REFINER_MODEL)
     componentShowModel = getElement('component-show-model');
   }
   const inputs = oldModel[0].querySelectorAll('input');
@@ -261,9 +286,9 @@ async function createModelRefinerElm() {
   // 最上层的原始div
   const baseModel = getElement('refiner_model')
   const oldModel = baseModel.querySelectorAll('.wrap-inner');
-  if (oldModel && oldModel.length !== 0) {
-    oldModel[0].parentElement.style.display = 'none'
-  }
+  // if (oldModel && oldModel.length !== 0) {
+  //   oldModel[0].parentElement.style.display = 'none'
+  // }
 
   let componentShowModel = null
   if (!getElement('component-show-refiner-model')) {
@@ -273,7 +298,7 @@ async function createModelRefinerElm() {
     baseModel.appendChild(componentShowModel);
   } else {
     resetElItem(REFINER_MODEL)
-    resetBtnItem(REFINER_MODEL)
+    // resetBtnItem(REFINER_MODEL)
     componentShowModel = getElement('component-show-refiner-model');
   }
   const inputs = oldModel[0].querySelectorAll('input');
@@ -281,28 +306,30 @@ async function createModelRefinerElm() {
     const findItem = modelData.find((i) => i.value === inputs[0].value)
     const modelChoose = showModelChoose(findItem, REFINER_MODEL)
     componentShowModel.append(modelChoose);
-  } else {
-    btnNone = noChooseBtnItem(REFINER_MODEL)
-    componentShowModel.append(btnNone);
   }
+  //  else {
+  //   btnNone = noChooseBtnItem(REFINER_MODEL)
+  //   componentShowModel.append(btnNone);
+  // }
 }
 // 没有选中时的 点击按钮
 function noChooseBtnItem(type) {
   const btnNone = document.createElement('button');
   btnNone.id = "choose-div-button-" + type;
   btnNone.style.width = '100px';
-  btnNone.textContent = '点击选择';
   btnNone.style.padding = "10px";
-  btnNone.style.border = "1px solid #374151";
   btnNone.style.borderRadius = "8px";
   btnNone.style.fontSize = "12px";
+  // btnNone.textContent = '点击选择';
+  // btnNone.style.border = "1px solid #374151";
+
 
   // 为最外层元素添加点击事件监听器
-  btnNone.addEventListener("click", function () {
-    dialogType = type
-    chooseData.baseModel = modelData[0]
-    toChooseModel()
-  });
+  // btnNone.addEventListener("click", function () {
+  //   dialogType = type
+  //   chooseData.baseModel = modelData[0]
+  //   toChooseModel()
+  // });
   return btnNone
 }
 
@@ -319,7 +346,7 @@ function showLoRaAllWrapNoChoose() {
       oldModel[index].parentElement.parentElement.appendChild(loRasAllWrap);
     } else {
       resetElItem(LORA_ITEM + index)
-      resetBtnItem(LORA_ITEM + index)
+      // resetBtnItem(LORA_ITEM + index)
       loRasAllWrap = getElement("component-wrap-lora-item-" + index);
     }
     // 查找对应input的值
@@ -330,11 +357,12 @@ function showLoRaAllWrapNoChoose() {
       const modelChoose = showModelChoose(findItem, LORA_ITEM + index)
       loRasAllWrap.appendChild(modelChoose);
       oldModel[index].parentElement.parentElement.appendChild(loRasAllWrap);
-    } else {
-      btnNone = noChooseBtnItem(LORA_ITEM + index)
-      loRasAllWrap.append(btnNone);
     }
-    oldModel[index].parentElement.style.display = 'none'
+    // else {
+    //   btnNone = noChooseBtnItem(LORA_ITEM + index)
+    //   loRasAllWrap.append(btnNone);
+    // }
+    // oldModel[index].parentElement.style.display = 'none'
   }
 }
 
@@ -348,11 +376,11 @@ function showModelChoose(params, type) {
   modelChoose.append(chooseItemDiv);
 
   // 为最外层元素添加点击事件监听器
-  modelChoose.addEventListener("click", function () {
-    dialogType = type
-    chooseData.baseModel = params
-    toChooseModel()
-  });
+  // modelChoose.addEventListener("click", function () {
+  //   dialogType = type
+  //   chooseData.baseModel = params
+  //   toChooseModel()
+  // });
   return modelChoose
 }
 function showOnChooseModelItem(chooseData) {
@@ -452,7 +480,7 @@ function showDialogContent(params) {
   dialogTitleContent.appendChild(closeButton);
   dialog.appendChild(dialogTitleContent);
   // 为关闭按钮添加事件监听器
-  closeButton.addEventListener('click', hideDialog);
+  // closeButton.addEventListener('click', hideDialog);
 
   // 弹框内容
   const dialogContent = document.createElement('div');
@@ -467,17 +495,17 @@ function showDialogContent(params) {
   for (let index = 0; index < dialogData.length; index++) {
     const itemModelContent = modelItemContent(dialogData[index])
     dialogContent.appendChild(itemModelContent)
-    itemModelContent.addEventListener('click', function () {
-      chooseData.baseModel = JSON.parse(this.value)
-      if (dialogType === MODEL) {
-        setChooseModelValue('choose-div-model', chooseData.baseModel, dialogType)
-      } else if (dialogType.includes(LORA_ITEM)) {
-        setChooseLoraItemValue(chooseData.baseModel, dialogType)
-      } else if (dialogType === REFINER_MODEL) {
-        setChooseRefinerModelValue('choose-div-refiner-model', chooseData.baseModel, dialogType)
-      }
+    // itemModelContent.addEventListener('click', function () {
+    //   chooseData.baseModel = JSON.parse(this.value)
+    //   if (dialogType === MODEL) {
+    //     setChooseModelValue('choose-div-model', chooseData.baseModel, dialogType)
+    //   } else if (dialogType.includes(LORA_ITEM)) {
+    //     setChooseLoraItemValue(chooseData.baseModel, dialogType)
+    //   } else if (dialogType === REFINER_MODEL) {
+    //     setChooseRefinerModelValue('choose-div-refiner-model', chooseData.baseModel, dialogType)
+    //   }
 
-    })
+    // })
   }
 
   dialog.appendChild(dialogContent);
@@ -638,6 +666,7 @@ function setInputValue(baseElId, params, index) {
     // 遍历所有找到的input元素并赋值
     inputs.forEach(function (input) {
       input.value = params.value;
+      updateInput(input)
     });
   }
 }
@@ -649,7 +678,7 @@ function initNewModel() {
 }
 
 onUiLoaded(async () => {
-  showDialogTask()
+  // showDialogTask()
   initNewModel()
 })
 
