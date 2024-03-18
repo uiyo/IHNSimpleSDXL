@@ -70,3 +70,4 @@ Cargo.toml
 wd-v1-4-moat-tagger-v2.csv
 .user*
 .token*
+.DS_Store

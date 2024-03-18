@@ -1,5 +1,11 @@
 ## SimpleSDXL - Fooocus中文孪生版
-<div align=center><img src="https://github.com/metercai/SimpleSDXL/assets/5652458/2a31325c-2488-45a1-82d7-47ff45f11a50"></div>
+<div align=center><img src="https://github.com/metercai/SimpleSDXL/assets/5652458/e0ca205d-6d7a-42c7-855e-f4a937e65fb1"></div>
+
+## 🔔 更新 / Update
+- [2024.03.09] <b>新增lightning出图模式，自动下载和加载加速模型`sdxl_lightning_4step_lora.safetensors`。优化增强通配符模块，通配符可嵌套，可动态加载。与主线2.2.1版本合版，新增LoRA取值范围可定制，支持png/jpg/webp图片格式，嵌参图片信息可与Civitai兼容等主线带入功能。整合新的嵌参和提参模块，保障前后版本兼容。调整UI，取消冗余选项，将预置包生成入口调入"增强" Tab。梳理参数流程，预置包新增FreeU和翻译器配置等9项预置参数，具体见[预置包ReadMe](https://github.com/metercai/SimpleSDXL/tree/SimpleSDXL/presets/) 。</b>
+
+<b>重要：如果项目给您带来了便利和价值，不要吝惜加颗星"⭐️"，促进项目更好的发展！😜<br>
+Note: Please don't forget to give us a star if you like this project. Thanks! 😜</b>
 
 ## 什么是SimpleSDXL？/ What's SimpleSDXL?
 - **化繁为简** AI的本质应该是化繁为简，让操作更简洁，让想法更易达成。SimpleSDXL保持Fooocus的易用性，以SDXL模型生态为核心，朝着开源可控，简洁易用，功能完善的方向更进一步。
@@ -9,74 +15,65 @@
 ## 对比Fooocus的增强特色 / Enhanced features of Fooocus
 在Fooocus基础上增强功能，可无缝升级，同步迭代，并行使用。而且经过了手机适配，PC和手机也可同步操作。<br> 
 Enhanced features base on Fooocus, seamless upgrading and dual versions available synchronous iteration and parallel use. Adapted to mobile, PC and phone can be used synchronously.
-<img width="350" align=right src="https://github.com/metercai/SimpleSDXL/assets/5652458/4b10e6de-b026-41ea-a206-77d6f9fdf1cd">
-- **中英文混编提示词**: 在线离线自主选择，支持翻译后再编辑，更适于提示词表达。<br>
-  **Chinese English mixed prompts**:  Offline and online autonomous selection, support editing after translation, more suitable for Prompt. <br>
-- **通配符批量提示词**: 支持通配符词组表达和触发展示，可随机批量生成同Seed下的一组图片。<br>
-  **Wildcard batch prompt words**: Supports wildcard phrase expressions and triggering display, allowing for random batch generate a set of images under the same seed.
-- **嵌参图片和提参重生**: 增强的参数管理，可即时查看可嵌入图片，也可提取参数回填界面，二次生成。 <br>
-  **Embeded images and extract regeneration**:  Enhanced parameter management for instant viewing and embedding of images, and can also extract parameters to backfill for secondary generation.<br>
-  <img width="600"  src="https://github.com/metercai/SimpleSDXL/assets/5652458/29decc97-fb60-4ccc-b93d-64223aa8488f">
-  <img width="200" align=right src="https://v2.token.tm/img/SimpleSDXL_2024_03_02.png">
-- **智能抠图生成蒙板**: 具有语义识别的多种抠图算法，可自动生成蒙板，方便生成图片的组合加工。 <br>
-  **Intelligent cutout generation mask**:  Multiple cropping algorithms with semantic recognition that can automatically generate masks, facilitating the combination processing of generated images.<br>
-- **图片集浏览和管理**: 原生版仅能浏览当前生成的图片集，已生成图片管理非常简陋。 <br>
-  **Finished image sets browsing and management**:  Fooocus only can browse the current generated image set. Finished images management is very simple.
-- **增强预置包和模型下载**: 预置包可通过界面切换和生成，模型下载会根据IP自动选择内外源。 <br>
-  **Enhanced preset and adapted for download**:  The preset can be switched and generated through UI, and the model download will automatically select sources based on the access IP.
 
-## 🔔 更新 / Update
-- [2024.02.18] <b>节后第一版：新增通配符和批量提示词工具，提示词支持[]形式的词组，在同一seed下从词组中抽词进行组合批量生成图片，词组支持通配符，可以随机抽，也可以指定位置顺序抽。提示词框增加通配符辅助输入工具，可识别输入内容自动弹出，可展示和点击输入所有通配符及其包含词组。详情参见[通配符ReadMe](https://gitee.com/metercai/SimpleSDXL/tree/SimpleSDXL/wildcards/)。从[OneButtonPrompt](https://github.com/AIrjen/OneButtonPrompt)同步20+通配符内容集，并进行了裁剪适配。增加Fooocus配置文件设置的启动参数`--config`，可与Fooocus共享模型配置文件，取代原来的升级包功能。增加启动参数`--dev`，可以快捷启动SimpleSDXL开发版，参与新功能的体验和反馈。修复主线重绘中refiner切换和step计算错误，by xhoxye。</b>
-- [2024.01.31] 贺春版：新增智能抠图，基于Bert+Sam和U2net实现在语义理解上图片分割，生成蒙板后进行重绘。新增翻译小模型，降低本地翻译的算力要求。进一步优化测试预置包和嵌参图片，现已支持28个预置参数。升级默认预置包主模型到v8版，添加了Turbo模型预置包（加速）、albedobaseXL模型预置包（融合）和社群活跃用户LEO贡献的DragonYear预置包（龙年贺春），内含龙年拜年定制风格。值此新春之际，用全新的SimpleSDX贺春版，感谢朋友们的厚爱。祝大家新春快乐，龙年腾达！
-- [2024.01.20] 预置包优化版：预置包导航重构，实现session based的预置包加载，没有浏览器重载过程，更轻量更快速。预置包、嵌参图片和提参重生接口优化，扩充可预置和嵌参的范围，支持Turbo类模型和自定义风格样式的嵌参和预置。
-- [2024.01.16] 新年第三版：嵌参图片上线，可以生成嵌参图片，可以上传识别嵌参图片。从参数查看到提参重生，从预置包导航到预置包生成，最后到嵌参图片，这一些列简化参数配置和使用的功能终于闭环了。启动流程优化，平行升级版支持自动获取主线配置，免配置模型目录和出图目录，新增国内下载源。界面多处优化，混编翻译器增加不翻译选项等。
-- [2024.01.08] 新年第二版：图片工具增加新特性：浏览图片可自动回填提示词，联动删除坏图文件和日志记录。混编翻译器启动稳定性修补，增加不翻译模式。同步主线v2.1.861，新增风格选择浮层示意图。
-- [2024.01.01] 新年新版本：界面交互优化，状态信息迁移到会话(session)，多浏览器访问互不干扰。优化了手机访问界面，PC和手机可同步使用。生成图片过程中禁止预置包切换，保障出图过程的完整。增加相册缓存，提升历史图片索引切换速度。修复模型路径bug，同步主线版本v2.1.859。
-- [2023.12.30] 提示词翻译器升级：支持中英文混合编辑，支持翻译后再编辑，可自主选择本地模型翻译还是第三方接口翻译，提升提示词翻译器的总体可用性和可控性，翻译质量也能得到保障，应该是目前文生图提示词翻译器的最佳实践了。同步主线v2.1.856。
-- [2023.12.28] 重要更新：底层代码结构重构，相册图集、顶部导航、右侧工具箱解耦。预置包生成流程和加载流程优化，启用MUID模型文件标识，文件名不同自动转换，本地无模型文件自动下载，自动识别embeddings模型，模型MUID标识同步改手动触发。顶部导航视觉优化，新增日志消息提示层，提取和展示Fooocus和SimpleSDXL的最新更新日志，增强互动。本次更新为由预置包和嵌参图片组成的开放系统打下基础，以实现多场景适配的定制能力。同步主线v2.1.855。
+### 中英文混编提示词 / Chinese English mixed prompts
+在线离线自主选择，支持翻译后再编辑，更适于提示词表达。<br>
+Offline and online autonomous selection, support editing after translation, more suitable for Prompt. <br>
 
-## 增强功能 / Enhanced Features
-### 中英混编提示词
+<img width="300" align=right src="https://github.com/metercai/SimpleSDXL/assets/5652458/707999e5-c776-4321-9048-5ad275263ff0">
+
 - [x] **中英文混合编辑** 对提示词文本进行中英文切分后分别翻译再合并，适配提示词类的表达场景。
-- [x] **在线和离线翻译器** 可自动安装离线翻译大模型和小尺寸的瘦模型，也可选择第三方翻译接口。离线模型需自身算力支持，第三方接口接入便捷成本低，但增加了接口依赖。用户可根据情况自主配置选择。
+- [x] **在线和离线翻译器** 可自动安装离线翻译大模型和小尺寸的瘦模型，也可选择第三方翻译接口。离线模型需自身算力支持，第三方接口接入便捷成本低，但增加了接口依赖。用户可根据情况自主配置选>择。
 - [x] **支持翻译后再编辑** 机器翻译的结果质量都不可控，存在翻译质量差导致生成内容偏差的现象。翻译后再编辑可以显性化翻译质量，提供用户再优化调整处理的空间。
 - [x] **多大厂接口随机选** 选择国内大厂（百度、阿里和搜狗）的稳定接口，每次启动时随机选择，运行态相对固定。既避免对接口冲击又保持翻译的一致性。
+- [ ] **私有翻译接口定制** 可以配置私有接口，方便对接OpenAI等大语言模型的翻译能力。
 
-### 通配符批量提示词
-- [x] **词组语法** 支持[Words]词组，以","分割的词列表。表示在同一seed下从每个words词组抽词进行组合批量生成图片。每种组合1张图片，总量是各词组词数的乘积，以实际需要的数量为准，不受出图数量参数的限制。
-- [x] **通配符组词** 格式为:`[__wildcard__:R|Lnumber:start]` R表示随机抽，L表示按顺序抽，默认=R；number是抽取的数量，默认=1；start是在顺序抽取时从第几个开始抽，默认=1。
-- [x] **自动触发输入** 提示词框在输入'['或'_'时可自动触发通配符输入工具，可以通过界面选择追加通配符到提示词框。
-- [ ] **通配符分组与嵌套** 支持通配符多级目录的管理设置，可根据语义分组。支持多级通配符嵌套表达和通配符模版，增强通配符表达能力。
-- [ ] **通配符定制和推送** 支持自主定制通配符快捷方式，并推送给朋友使用。
-
-### 参数工具箱
-- [x] **查看参数** 从出图日志文件中提取当前图片的生成参数并用浮层完整展示。图集切换过程中，浮层内容跟随切换。
-- [x] **提参重生** 用当前图片的生成参数覆盖默认预置包的参数，提示词回填，可以修改参数或提示词后重新出图。
-- [x] **生成预置包** 将当前出图环境参数打包保存为新的预置包，将预置包文件存入presets目录下，顶部导航跟随切换。
-- [x] **扩展预置参数** 扩展主线的预置包参数范围，补充开发者模式的参数，以及风格样式的定义和通配符的定义。
-- [x] **嵌参图片** 将当前出图环境参数打包嵌入图片文件中，保存到专属的嵌参图片目录。嵌参图片可通过图片描述工具提取参数形成新的出图环境配置。
-
-### 智能抠图蒙板
+### 智能抠图生成蒙板 / Intelligent cutout generation mask
+具有语义识别的多种抠图算法，可自动生成蒙板，方便生成图片的组合加工。 <br>
+Multiple cropping algorithms with semantic recognition that can automatically generate masks, facilitating the combination processing of generated images.<br>
 - [x] **智能算法抠图** 可以基于u2net进行图像分割，对重绘图片进行前后景分割，人物主体分割，并生成对应蒙板进行重绘。
 - [x] **语义识别抠图** 可以基于bert+Sam，在语义理解基础上识别图片内容，再进行自动分割，生成蒙板后进行重绘。
 - [ ] **点击识别抠图** 点击图片某个区域，基于Sam算法对点击所在主体进行自动识别和分割，生成蒙板后进行重绘。
 
-### 预置包与导航
-- [x] **预置包导航** 将presets目录下的预置包配置文件生成顶部导航入口，样式上适配明亮/暗黑两种背景。
-- [x] **背景样式导航** 在顶部导航可自主切换明亮/暗黑两种背景样式。
-- [x] **预置包加载** 用户点击顶部预置包导航后，调取对应配置文件，重置出图环境参数和相关配置。支持的预置包参数见[预置包ReadMe](https://gitee.com/metercai/SimpleSDXL/tree/SimpleSDXL/presets/)
+### 通配符批量提示词 / Wildcard batch prompt words
+支持通配符词组表达和触发展示，可随机批量生成同Seed下的一组图片。<br>
+Supports wildcard phrase expressions and triggering display, allowing for random batch generate a set of images under the same seed.
+
+<img width="380" align=right src="https://github.com/metercai/SimpleSDXL/assets/5652458/4b10e6de-b026-41ea-a206-77d6f9fdf1cd">
+
+- [x] **词组语法** 支持[Words]词组，以","分割的词列表。表示在同一seed下从每个words词组抽词进行组合批量生成图片。每种组合1张图片，总量是各词组词数的乘积，以实际需要的数量为准，不受出图数量参数的限制。
+- [x] **通配符组词** 用通配符定义词组，格式为:`[__wildcard__:R|Lnumber:start]` R表示随机抽，L表示按顺序抽，默认=R；number是抽取的数量，默认=1；start是在顺序抽取时从第几个开始抽，默认=1。具体语法说明见[通配符ReadMe](https://github.com/metercai/SimpleSDXL/tree/SimpleSDXL/wildcards/)
+- [x] **自动触发输入** 提示词框在输入'['或'_'时可自动触发通配符输入工具，可以通过界面选择追加通配符到提示词框。
+- [ ] **嵌套及动态加载** 支持通配符的多级嵌套和动态加载，增强通配符的表达能力。
+- [ ] **定制和推送** 支持自主定制通配符快捷方式，并推送给朋友使用。
+
+### 增强预置包和模型下载 / Enhanced preset and adapted for download
+预置包可通过界面切换和生成，模型下载会根据IP自动选择内外源。 <br>
+The preset can be switched and generated through UI, and the model download will automatically select sources based on the access IP.
+- [x] **预置包导航** 将presets目录下的预置包配置文件生成顶部导航入口，户点击顶部预置包导航后，调取对应配置文件，重置出图环境参数和相关配置。
+- [x] **生成预置包** 将当前出图环境参数打包保存为新的预置包，将预置包文件存入presets目录下，自动加入顶部导航。
+- [x] **扩展预置参数** 扩展主线的预置包参数范围，补充开发者模式的参数，以及风格样式的定义和通配符的定义。支持的预置包参数见[预置包ReadMe](https://github.com/metercai/SimpleSDXL/tree/SimpleSDXL/presets/)
 - [x] **统一模型ID和下载** 对接模型信息库，使用以模型文件哈希为基础的统一模型MUID。可自动检测预置包出图环境的可用性，缺失模型文件可自动下载补齐。
 - [x] **出图保护** 当系统环境进入出图状态时，顶部导航不可点击，禁止加载预置包冲击出图环境。
 
-### 已出图集管理
-- [x] **已出图片检索** 对已出图片可以按照出图日期进行检索。单天出图量过大，则按照28张一个子目录分别索引，避免撑爆相册组件。
-- [x] **已出图片删除** 对崩坏的已出图片可以即时删除，联动删除出图参数日志，确保图片和参数日志保持一致性。删除图片的操作入口放在了“参数工具箱”。
+### 图片集浏览和管理 / Finished image sets browsing and management
+原生版仅能浏览当前生成的图片集，已生成图片管理非常简陋。 <br>
+Fooocus only can browse the current generated image set. Finished images management is very simple.
+- [x] **已出图片检索** 对已出图片可以按照出图日期进行检索。单天出图量过大，则根据屏幕适配分组为子目录索引，避免撑爆相册组件。
+- [x] **已出图片删除** 对崩坏的已出图片可以即时删除，联动删除出图参数日志，确保图片和参数日志保持一致性。
 - [x] **自动回填提示词** 在浏览已出图片集过程中，可选择自动回填图片提示词，方便提示词的对照和修改，及图片的重生。
 - [x] **图片集交互优化** 已出图片集索引栏可根据状态适配，自动收起和调整，避免目录过多挤占页面空间，干扰图片生成创作。
 
+### 嵌参图片和提参重生 / Embeded images and extract regeneration
+增强的参数管理，可即时查看可嵌入图片，也可提取参数回填界面，二次生成。 <br>
+Enhanced parameter management for instant viewing and embedding of images, and can also extract parameters to backfill for secondary generation.<br>
+- [x] **查看参数** 从出图日志文件中提取当前图片的生成参数并用浮层完整展示。图集切换过程中，浮层内容跟随切换。
+- [x] **提参重生** 用当前图片的生成参数覆盖默认预置包的参数，提示词回填，可以修改参数或提示词后重新出图。
+- [x] **嵌参图片** 在系统未设置统一嵌参的情况，可以制作当前图片的参数打包嵌入，并保存到专属的嵌参图片目录。嵌参图片可通过图片描述工具提取参数形成新的出图环境配置。
+
 ### 启动包和升级包
 - [x] **启动流程优化** 对接国内模型下载源，根据接入位置区分语言和下载源。国内IP默认中文，国内源；国外IP默认英文，国外源。提供启动参数可自定义覆盖默认值，满足科学魔法的适配需求。
-- [x] **安装包瘦身** 用最小必备组件进行打包，生成一键安装包，从Fooocus主线的1.8G瘦身到81M。支持Fooocus配置文件设置，共享模型和图片输出目录。
+- [x] **安装包瘦身** 用最小必备组件进行打包，生成一键安装包，从Fooocus主线的1.8G瘦身到81M。支持Fooocus配置文件的设置，可以共享模型和图片输出目录。
 - [x] **整合完全包** 整合所有必要资源文件打包形成的完全包，一次下载，运行后就可直接出图。
 - [x] **日志消息** 每次启动自动检测Fooocus主线和SimpleSDXL的更新日志，将更新消息显示到顶部消息浮层。
 - [x] **版本标识** 以发布日期和版本哈希值作为SimpleSDXL的版本标识，方便定位排错。
@@ -325,7 +322,7 @@ AMD is not intensively tested, however. The AMD support is in beta.
 
 Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
 
-### Windows(AMD GPUs)
+### Windows (AMD GPUs)
 
 Note that the [minimal requirement](#minimal-requirement) for different platforms is different.
 
@@ -359,6 +356,10 @@ You can install Fooocus on Apple Mac silicon (M1 or M2) with macOS 'Catalina' or
 1. Launch Fooocus by running `python entry_with_update.py`. (Some Mac M2 users may need `python entry_with_update.py --disable-offload-from-vram` to speed up model loading/unloading.) The first time you run Fooocus, it will automatically download the Stable Diffusion SDXL models and will take a significant amount of time, depending on your internet connection.
 
 Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
+
+### Docker
+
+See [docker.md](docker.md)
 
 ### Download Previous Version
 
@@ -404,14 +405,21 @@ Given different goals, the default models and configs of Fooocus are different:
 
 Note that the download is **automatic** - you do not need to do anything if the internet connection is okay. However, you can download them manually if you (or move them from somewhere else) have your own preparation.
 
+## UI Access and Authentication
+In addition to running on localhost, Fooocus can also expose its UI in two ways: 
+* Local UI listener: use `--listen` (specify port e.g. with `--port 8888`). 
+* API access: use `--share` (registers an endpoint at `.gradio.live`).
+
+In both ways the access is unauthenticated by default. You can add basic authentication by creating a file called `auth.json` in the main directory, which contains a list of JSON objects with the keys `user` and `pass` (see example in [auth-example.json](./auth-example.json)).
+
 ## List of "Hidden" Tricks
 <a name="tech_list"></a>
 
 The below things are already inside the software, and **users do not need to do anything about these**.
 
-1. GPT2-based [prompt expansion as a dynamic style "Fooocus V2".](https://github.com/lllyasviel/Fooocus/discussions/117#raw) (similar to Midjourney's hidden pre-processsing and "raw" mode, or the LeonardoAI's Prompt Magic).
+1. GPT2-based [prompt expansion as a dynamic style "Fooocus V2".](https://github.com/lllyasviel/Fooocus/discussions/117#raw) (similar to Midjourney's hidden pre-processing and "raw" mode, or the LeonardoAI's Prompt Magic).
 2. Native refiner swap inside one single k-sampler. The advantage is that the refiner model can now reuse the base model's momentum (or ODE's history parameters) collected from k-sampling to achieve more coherent sampling. In Automatic1111's high-res fix and ComfyUI's node system, the base model and refiner use two independent k-samplers, which means the momentum is largely wasted, and the sampling continuity is broken. Fooocus uses its own advanced k-diffusion sampling that ensures seamless, native, and continuous swap in a refiner setup. (Update Aug 13: Actually, I discussed this with Automatic1111 several days ago, and it seems that the “native refiner swap inside one single k-sampler” is [merged]( https://github.com/AUTOMATIC1111/stable-diffusion-webui/pull/12371) into the dev branch of webui. Great!)
-3. Negative ADM guidance. Because the highest resolution level of XL Base does not have cross attentions, the positive and negative signals for XL's highest resolution level cannot receive enough contrasts during the CFG sampling, causing the results to look a bit plastic or overly smooth in certain cases. Fortunately, since the XL's highest resolution level is still conditioned on image aspect ratios (ADM), we can modify the adm on the positive/negative side to compensate for the lack of CFG contrast in the highest resolution level. (Update Aug 16, the IOS App [Drawing Things](https://apps.apple.com/us/app/draw-things-ai-generation/id6444050820) will support Negative ADM Guidance. Great!)
+3. Negative ADM guidance. Because the highest resolution level of XL Base does not have cross attentions, the positive and negative signals for XL's highest resolution level cannot receive enough contrasts during the CFG sampling, causing the results to look a bit plastic or overly smooth in certain cases. Fortunately, since the XL's highest resolution level is still conditioned on image aspect ratios (ADM), we can modify the adm on the positive/negative side to compensate for the lack of CFG contrast in the highest resolution level. (Update Aug 16, the IOS App [Draw Things](https://apps.apple.com/us/app/draw-things-ai-generation/id6444050820) will support Negative ADM Guidance. Great!)
 4. We implemented a carefully tuned variation of Section 5.1 of ["Improving Sample Quality of Diffusion Models Using Self-Attention Guidance"](https://arxiv.org/pdf/2210.00939.pdf). The weight is set to very low, but this is Fooocus's final guarantee to make sure that the XL will never yield an overly smooth or plastic appearance (examples [here](https://github.com/lllyasviel/Fooocus/discussions/117#sharpness)). This can almost eliminate all cases for which XL still occasionally produces overly smooth results, even with negative ADM guidance. (Update 2023 Aug 18, the Gaussian kernel of SAG is changed to an anisotropic kernel for better structure preservation and fewer artifacts.)
 5. We modified the style templates a bit and added the "cinematic-default".
 6. We tested the "sd_xl_offset_example-lora_1.0.safetensors" and it seems that when the lora weight is below 0.5, the results are always better than XL without lora.
@@ -486,7 +494,7 @@ entry_with_update.py  [-h] [--listen [IP]] [--port PORT]
                       [--attention-split | --attention-quad | --attention-pytorch]
                       [--disable-xformers]
                       [--always-gpu | --always-high-vram | --always-normal-vram | 
-                       --always-low-vram | --always-no-vram | --always-cpu]
+                       --always-low-vram | --always-no-vram | --always-cpu [CPU_NUM_THREADS]]
                       [--always-offload-from-vram] [--disable-server-log]
                       [--debug-mode] [--is-windows-embedded-python]
                       [--disable-server-info] [--share] [--preset PRESET]
