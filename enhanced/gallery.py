@@ -18,24 +18,24 @@ images_prompt = {}
 images_prompt_keys = []
 images_ads = {}
 history_path = ""
+
+image_types = ['.png', '.jpg', '.webp']
+
 def refresh_output_list(max_per_page, cookie='default'):
-    global history_path
+    global image_types, history_path
     history_path = os.path.join(config.path_outputs, cookie)
-    # history_path = os.path.join(config.path_outputs, 'default')
     if not os.path.exists(history_path):
         os.mkdir(history_path)
-    # print(f"[LOGINFO] {history_path}")
-    
     listdirs = [f for f in os.listdir(history_path) if f!="embed" and os.path.isdir(os.path.join(history_path,f))]
     if listdirs is None:
         return None
     listdirs1 = listdirs.copy()
     for index in listdirs:
         path_gallery = os.path.join(history_path, index)
-        nums = len(util.get_files_from_folder(path_gallery, ['.png'], None))
+        nums = len(util.get_files_from_folder(path_gallery, image_types, None))
         if nums > max_per_page:
             for i in range(1,math.ceil(nums/max_per_page)+1):
-                listdirs1.append(index + "/" + str(i))
+                listdirs1.append("{}/{}".format(index, i))
             listdirs1.remove(index)
     output_list = sorted([f[2:] for f in listdirs1], reverse=True)
     print(f'[Gallery] Refresh_output_catalog: loaded {len(output_list)} images_catalogs.')
@@ -70,7 +70,7 @@ def select_gallery(choice, state_params, backfill_prompt, evt: gr.SelectData):
         choice = state_params["__output_list"][0]
     result = get_images_prompt(choice, evt.index, state_params["__max_per_page"], True)
     #print(f'[Gallery] Selected_gallery: selected index {evt.index} of {choice} images_list:{result["Filename"]}.')
-    if backfill_prompt:
+    if backfill_prompt and 'Prompt' in result:
         return [gr.update(value=toolbox.make_infobox_markdown(result)), gr.update(value=result["Prompt"]), gr.update(value=result["Negative Prompt"])] + [gr.update(visible=False)] * 4 + [state_params]
     else:
         return [gr.update(value=toolbox.make_infobox_markdown(result)), gr.update(), gr.update()] + [gr.update(visible=False)] * 4 + [state_params]
@@ -103,13 +103,13 @@ def get_images_from_gallery_index(choice, max_per_page):
             images_gallery = images_list[choice][(page-1)*max_per_page:page*max_per_page]
         else:
             images_gallery = images_list[choice][nums-max_per_page:]
-    images_gallery = [os.path.join(os.path.join(history_path, '20' + choice), f) for f in images_gallery]
+    images_gallery = [os.path.join(os.path.join(history_path, "20{}".format(choice)), f) for f in images_gallery]
     #print(f'[Gallery]Get images from index: choice={choice}, page={page}, images_gallery={images_gallery}')
     return images_gallery
 
 
 def refresh_images_catalog(choice: str, passthrough = False):
-    global images_list, images_list_keys, history_path
+    global images_list, images_list_keys, image_types, history_path
 
     if not passthrough and choice in images_list_keys:
         images_list_keys.remove(choice)
@@ -117,7 +117,7 @@ def refresh_images_catalog(choice: str, passthrough = False):
         #print(f'[Gallery] Refresh_images_list: hit cache {len(images_list[choice])} image_items of {choice}.')
         return images_list[choice]
 
-    images_list_new = sorted([f for f in util.get_files_from_folder(os.path.join(history_path, '20' + choice), ['.png'], None)], reverse=True)
+    images_list_new = sorted([f for f in util.get_files_from_folder(os.path.join(history_path, "20{}".format(choice)), image_types, None)], reverse=True)
     if len(images_list_new)==0:
         parse_html_log(choice, passthrough)
         if choice in images_list_keys:
@@ -175,7 +175,7 @@ def parse_html_log(choice: str, passthrough = False):
         images_prompt_keys.append(choice)
         #print(f'[Gallery] Parse_html_log: hit cache {len(images_prompt[choice])} image_infos of {choice}.')
         return
-    html_file = os.path.join(os.path.join(history_path, '20' + choice), 'log.html')
+    html_file = os.path.join(os.path.join(history_path, "20{}".format(choice)), 'log.html')
     html = etree.parse(html_file, etree.HTMLParser(encoding='utf-8'))
     prompt_infos = html.xpath('/html/body/div')
     images_prompt_list = {}
@@ -227,13 +227,11 @@ def parse_html_log(choice: str, passthrough = False):
                     text.insert(8, '')
                 info_dict={"Filename":text[0]}
                 for i in range(0,int(len(text)/3)):
-                    if text[1+i*3].startswith("LoRA "):
-                        [key, value] = text[2+i*3].split(':')
-                        info_dict.update({"LoRA ["+key.strip()+"] weight": value.strip()})
-                    else:
-                        info_dict[text[1+i*3]] = text[2+i*3]
+                    info_dict[text[1+i*3]] = text[2+i*3]
             else:
                 print(f'[Gallery] Parse_html_log: Parse error for {choice}, file={html_file}\ntext:{info.xpath(".//text()")}')
+                info_dict={"Filename":text[1]}
+                info_dict[text[2]] = text[3]
         #print(f'{len(text)},info_dict={info_dict}')
         images_prompt_list.update({info_dict["Filename"]: info_dict})
     if len(images_prompt_list.keys())==0:
