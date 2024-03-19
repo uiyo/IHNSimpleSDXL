@@ -404,8 +404,8 @@ def worker():
                 if len(cn_tasks[flags.cn_ip_face]) > 0:
                     clip_vision_path, ip_negative_path, ip_adapter_face_path = modules.config.downloading_ip_adapters(
                         'face')
-                if len(cn_tasks[flags.cn_pose]) > 0:
-                    controlnet_pose_lora_path, controlnet_pose_body_path, controlnet_pose_hand_path, controlnet_pose_face_path = modules.config.downloading_poseprocess_model()
+                # if len(cn_tasks[flags.cn_pose]) > 0:
+                #     controlnet_pose_lora_path, controlnet_pose_body_path, controlnet_pose_hand_path, controlnet_pose_face_path = modules.config.downloading_poseprocess_model()
                     
                 progressbar(async_task, 1, 'Loading control models ...')
 
