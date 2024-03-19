@@ -29,12 +29,13 @@
     "default_sampler": "dpmpp_2m_sde_gpu",
     "default_scheduler": "karras",
     "default_performance": "Quality",
-    "default_prompt": "",
-    "default_prompt_negative": "",
+    "default_prompt": "chibi,3D,3D rendered,MG_ip",
+    "default_prompt_negative": "twisted",
     "default_styles": [
         "Fooocus V2",
-        "SAI 3D Model",
+        "Adorable 3D Character",
         "Fooocus Sharp"
+        
     ],
     "default_aspect_ratio": "768*1280",
     "default_cfg_tsnr": 7,

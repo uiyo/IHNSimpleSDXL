@@ -130,6 +130,11 @@ const modelData = [{
   value: '[SDXL]动漫+真实v20.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/albedobaseXL_v20.png',
   decs: ' Fooocus预置包融合'
+}, {
+  label: '网红拍照',
+  value: '[SD1.5]网红麦橘写实.safetensors',
+  image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/wanghongsd15.jpg',
+  decs: '女生网红拍照'
 }]
 
 // lora的数据
@@ -222,7 +227,7 @@ const loraData = [{
   label: '物品场景3D',
   value: '物品场景3D.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/Stylized_Setting_SDXL.png',
-  decs: '游戏物品饰品、三维渲染建筑物，地图插件'
+  decs: '游戏物品饰品/三维渲染建筑物，地图插件'
 }, {
   label: '三视图lora',
   value: 'mw_3d角色ip三视图q版_2.0.1(XL尝鲜版).safetensors',

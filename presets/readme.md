@@ -8,7 +8,7 @@
 * 预置包也是学习出图技巧的最佳案例。通过对预置包内容的学习和配置，可以加速对图片生成原理的理解，快速掌握图片生成的技巧。积累自己的预置包后，就可以大幅提升出图的效率和质量。
 
 ## 预置包里都包含哪些内容
-- 生成图片所需的模型，比如主模型，精炼模型，LoRa局部或风格模型等。
+- 生成图片所需的模型，比如主模型，精炼模型，LoRA局部或风格模型等。
 - 运行模型的参数配置，比如采样器、调度器，引导系数、采样锐度等。
 - 系统功能的默认设置，比如默认的出图数量、图片尺寸、是否支持蒙板上传等。
 - 默认正反提示词示例，包括示范样张的正反提示词。
@@ -26,49 +26,59 @@
 ## 如何制作预置包？
 - 首先在SimpleSDXL上把生成图片所需模型和参数都配置好，尝试生成图片，直到满意。
 - 从界面底部打开"参数工具"选项，在工具箱中选择"生成预置包"，根据提示输入预置包名称后，系统会在presets目录自动生成名称对应的预置包json配置文件。
-- 为了让更多人认识、了解和使用你创作的预置包，可以人工添加预置包的说明页和整体展示页。说明页和展示页都是html文件，可以放在presets目录下，也可以提供URL加入配置文件里。
-- 配置文件和说明文件放到位后，系统每次启动都会在顶部预置包导航展示入口，可以选择使用。
+- 为了让更多人认识、了解和使用你创作的预置包，可以添加预置包的简介页。简介页是以html文件形式保存在`presets/html`目录下，也可以用URL形式加入配置文件。
+- 配置文件和说明文件放到位后，系统在每次启动或预置包切换时，会更新顶部的预置包导航，如果存在简介页则会自动出现在右侧设置Tab顶部。
 - 原创的预置包，可以推荐到社区，发布到公共的presets目录下，供大家分享学习和使用。
 - 目前SimpleSDXL支持的预置包配置参数如下，后续可以根据使用场景进行添加，可以在Github Issues和QQ群:938075852 提出需求。
 
   ```
-  default_prompt
-  default_prompt_negative
-  default_styles
-  default_aspect_ratio
-  default_image_number
-  default_performance
-  default_model
-  default_refiner
-  default_refiner_switch
-  default_loras
-  default_sampler
-  default_scheduler
-  default_cfg_scale
-  default_sample_sharpness
-  default_adm_scaler_positive
-  default_adm_scaler_negative
-  default_adm_scaler_end
-  default_cfg_tsnr
-  default_overwrite_step
-  default_overwrite_switch
-  default_inpaint_engine
-  default_seed
-  checkpoint_downloads
-  lora_downloads
-  embeddings_downloads
-  styles_definition
-  reference
-  default_inpaint_mask_upload_checkbox
+  default_prompt                                    # 默认提示词
+  default_prompt_negative                           # 默认负向提示词
+  default_styles                                    # 默认风格
+  default_aspect_ratio                              # 默认宽高比
+  default_image_number                              # 默认出图数量
+  default_max_image_number                          # 默认最大出图数量
+  default_performance                               # 默认生成模式
+  default_model                                     # 默认基础模型
+  default_refiner                                   # 默认精炼模型
+  default_refiner_switch                            # 默认精炼切入点
+  default_loras                                     # 默认LoRA
+  default_loras_min_weight                          # 默认LoRA的最小值
+  default_loras_max_weight                          # 默认LoRA的最大值
+  default_sampler                                   # 默认采样器
+  default_scheduler                                 # 默认调度器
+  default_cfg_scale                                 # 默认引导系数CFG
+  default_sample_sharpness                          # 默认采样锐度
+  default_adm_scaler_positive                       # 默认正向ADM引导系数
+  default_adm_scaler_negative                       # 默认反向ADM引导系数
+  default_adm_scaler_end                            # 默认ADM引导结束点
+  default_cfg_tsnr                                  # 默认TSNR模拟CFG
+  default_overwrite_step                            # 默认重写采样步数STEP
+  default_overwrite_switch                          # 默认重写精炼器切入步数
+  default_inpaint_engine                            # 默认重绘引擎版本
+  default_mixing_image_prompt_and_vary_upscale      # 默认图像提示与增强变化混合
+  default_mixing_image_prompt_and_inpaint           # 默认图像提示与重绘混合
+  default_inpaint_mask_upload_checkbox              # 默认开启重绘蒙板
+  default_freeu                                     # 默认FreeU参数: [b1, b2, s1, s2]
+  default_seed                                      # 默认种子
+  default_backfill_prompt                           # 默认浏览图片回填提示词
+  default_translation_timing                        # 默认翻译器介入时点
+  default_translation_methods                       # 默认翻译器模型
+  checkpoint_downloads                              # 模型下载
+  lora_downloads                                    # LoRA下载
+  embeddings_downloads                              # 嵌入模型下载
+  styles_definition                                 # 自定义风格
+  reference                                         # 预置包说明链接
+  
 
-## 如何配置预置包说明？
-- 预置包说明是对预置包能力和效果的说明与展示，包括两个页面：概要说明页和整体展示页。
-- 概要说明页显示在操作界面右上角，高度为100px的窗口内，起到预置包的概要说明，以及展示页的入口作用。
-- 整体展示页是对预置包的综合使用说明和效果展示，包括了预置包的使用场景，配置的模型，效果特点，使用技巧，样张示例等内容。
-- 预置包的概要说明页有两种配置方式：
-<br>**一，本地html文件** 在presets目录下，创建和预置包json配置文件同名的.inc.html文件作为该配置包的概要说明页，比如：`default.json` 对应的概要说明页为 `default.inc.html`。
+## 如何配置预置包简介？
+- 预置包简介是对预置包能力和效果的介绍和引导。
+- 简介页显示在操作界面右上角，高度为110px的窗口内，起到预置包的简要说明和入口引导作用。
+- 建议单独制作预置包的整体说明页，包括预置包的使用场景，配置的模型，效果特点，使用技巧，样张示例等详细内容。
+- 预置包简介有两种配置方式：
+<br>**一，本地html文件** 在`presets/html`目录下，创建和预置包json配置文件同名的.inc.html文件作为该配置包的简介页，比如：`default.json` 对应的概要说明页为 `html/default.inc.html`。
 <br>**二，网络URL** 在预置包json配置文件内新增属性项："reference"，指向外部的网络URL。预置包启用后，会通过网络调取该页面展示在右上侧窗口内。
-<br><br>两种方式在调用时都会通过url参数方式传入两个环境变量，"__theme"表示当前的背景样式：dark(夜黑)或light(明亮)，"__lang"表示界面语言：cn(中文)或default(英文)。概要说明页可根据参数自行适配。在presets目录下提供的default.inc.html.example文件作为样本示范供参考。
+<br><br>两种方式在调用时都会通过url参数方式传入两个环境变量，"__theme"表示当前的背景样式：dark(夜黑)或light(明亮)，"__lang"表示界面语言：cn(中文)或default(英文)。概要说明页可根据参数自行适配。在presets目录下提供的`html/default.inc.html`文件作为样本示范供参考。
 
 ## 如何获取制作好的预置包？
 - SimpleSDXL会优选社区用户制作的预置包更新到presets目录下，上到导航条，供大家使用。
