@@ -57,7 +57,7 @@ def generate_clicked(task):
     # outputs=[progress_html, progress_window, progress_gallery, gallery]
     execution_start_time = time.perf_counter()
     finished = False
-
+    print(f"[LOGINFO] type of the task: {type(task)}")
     yield gr.update(visible=True, value=modules.html.make_progress_html(1, 'Waiting for task to start ...')), \
         gr.update(visible=True, value=None), \
         gr.update(visible=False, value=None), \
@@ -840,7 +840,7 @@ with shared.gradio_root:
 
         generate_button.click(topbar.process_before_generation, inputs=state_topbar, outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating, index_radio, image_tools_checkbox, background_theme, bar0_button, bar1_button, bar2_button, bar3_button, bar4_button, bar5_button, bar6_button, bar7_button, bar8_button], show_progress=False) \
             .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed) \
-            .then(fn=get_task, inputs=ctrls, outputs=currentTask) \
+            .then(fn=get_task, inputs=ctrls+[state_topbar], outputs=currentTask) \
             .then(enhanced_parameters.set_all_enhanced_parameters, inputs=ehps) \
             .then(fn=generate_clicked, inputs=currentTask, outputs=[progress_html, progress_window, progress_gallery, gallery]) \
             .then(topbar.process_after_generation, inputs=state_topbar, outputs=[generate_button, stop_button, skip_button, state_is_generating, gallery_index, index_radio, background_theme, bar0_button, bar1_button, bar2_button, bar3_button, bar4_button, bar5_button, bar6_button, bar7_button, bar8_button], show_progress=False) \

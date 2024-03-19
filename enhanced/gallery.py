@@ -15,12 +15,12 @@ images_list_keys = []
 images_prompt = {}
 images_prompt_keys = []
 images_ads = {}
-
+history_path = ""
 
 image_types = ['.png', '.jpg', '.webp']
 
 def refresh_output_list(max_per_page, cookie='default'):
-    global image_types
+    global image_types, history_path
     history_path = os.path.join(config.path_outputs, cookie)
     if not os.path.exists(history_path):
         os.mkdir(history_path)
@@ -101,13 +101,13 @@ def get_images_from_gallery_index(choice, max_per_page):
             images_gallery = images_list[choice][(page-1)*max_per_page:page*max_per_page]
         else:
             images_gallery = images_list[choice][nums-max_per_page:]
-    images_gallery = [os.path.join(os.path.join(config.path_outputs, "20{}".format(choice)), f) for f in images_gallery]
+    images_gallery = [os.path.join(os.path.join(history_path, "20{}".format(choice)), f) for f in images_gallery]
     #print(f'[Gallery]Get images from index: choice={choice}, page={page}, images_gallery={images_gallery}')
     return images_gallery
 
 
 def refresh_images_catalog(choice: str, passthrough = False):
-    global images_list, images_list_keys, image_types
+    global images_list, images_list_keys, image_types, history_path
 
     if not passthrough and choice in images_list_keys:
         images_list_keys.remove(choice)
@@ -115,7 +115,7 @@ def refresh_images_catalog(choice: str, passthrough = False):
         #print(f'[Gallery] Refresh_images_list: hit cache {len(images_list[choice])} image_items of {choice}.')
         return images_list[choice]
 
-    images_list_new = sorted([f for f in util.get_files_from_folder(os.path.join(config.path_outputs, "20{}".format(choice)), image_types, None)], reverse=True)
+    images_list_new = sorted([f for f in util.get_files_from_folder(os.path.join(history_path, "20{}".format(choice)), image_types, None)], reverse=True)
     if len(images_list_new)==0:
         parse_html_log(choice, passthrough)
         if choice in images_list_keys:
@@ -173,7 +173,7 @@ def parse_html_log(choice: str, passthrough = False):
         images_prompt_keys.append(choice)
         #print(f'[Gallery] Parse_html_log: hit cache {len(images_prompt[choice])} image_infos of {choice}.')
         return
-    html_file = os.path.join(os.path.join(config.path_outputs, "20{}".format(choice)), 'log.html')
+    html_file = os.path.join(os.path.join(history_path, "20{}".format(choice)), 'log.html')
     html = etree.parse(html_file, etree.HTMLParser(encoding='utf-8'))
     prompt_infos = html.xpath('/html/body/div')
     images_prompt_list = {}
