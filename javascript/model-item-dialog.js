@@ -130,6 +130,11 @@ const modelData = [{
   value: '[SDXL]动漫+真实v20.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/albedobaseXL_v20.png',
   decs: ' Fooocus预置包融合'
+}, {
+  label: '网红拍照',
+  value: '[SD1.5]网红麦橘写实.safetensors',
+  image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/wanghongsd15.jpg',
+  decs: '女生网红拍照'
 }]
 
 // lora的数据
