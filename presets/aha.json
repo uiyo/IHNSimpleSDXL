@@ -1,0 +1,47 @@
+{
+    "default_model": "[SDXL]AnimaPencil动漫v100.safetensors",
+    "default_refiner": "None",
+    "default_refiner_switch": 0.5,
+    "default_loras": [
+        [
+            "AHAworld.safetensors",
+            1.7
+        ],
+        [
+            "细节增修.safetensors",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ]
+    ],
+    "default_cfg_scale": 7.0,
+    "default_sample_sharpness": 2.0,
+    "default_sampler": "dpmpp_2m_sde_gpu",
+    "default_scheduler": "karras",
+    "default_performance": "Speed",
+    "default_prompt": "1girl/1boy, t-pose, solo, looking at viewer, full body, white background, standing, simple flat color",
+    "default_prompt_negative": "ugly, deformed, noisy, blurry, low contrast, 3D, photo, realistic",
+    "default_styles": [
+        "Fooocus V2",
+        "Fooocus Negative",
+        "Sticker Designs",
+        "Fooocus Sharp"
+    ],
+    "default_aspect_ratio": "768*1366",
+    "checkpoint_downloads": {
+        "[SDXL]AnimaPencil动漫v100.safetensors": "https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/animaPencilXL_v100.safetensors"
+    },
+    "embeddings_downloads": {},
+    "lora_downloads": {},
+    "previous_default_models": []
+} 
