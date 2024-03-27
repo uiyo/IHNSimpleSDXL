@@ -70,9 +70,4 @@ Cargo.toml
 wd-v1-4-moat-tagger-v2.csv
 .user*
 .token*
-<<<<<<< HEAD
-/enhanced/.user*
-/enhanced/.token*
-=======
 .DS_Store
->>>>>>> 0fad8ee8bb862aa26959fd1306c1bb823c437ffc
