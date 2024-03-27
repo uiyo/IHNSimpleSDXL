@@ -238,7 +238,13 @@ const loraData = [{
   value: '儿童绘本.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/Children_Illustration_SDXL.png',
   decs: 'Children\'s Illustration Style'
+}, {
+  label: 'AHAworld',
+  value: 'AHAworld.safetensors',
+  image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/ahaworld.png',
+  decs: 'AHA世界角色风格'
 }]
+
 // 点击回显的数据
 let chooseData = {
   baseModel: modelData[0],
