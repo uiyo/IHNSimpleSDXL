@@ -64,11 +64,11 @@ class OpenPose:
         #     from basicsr.utils.download_util import load_file_from_url
         #     load_file_from_url(face_model_path, model_dir=annotator_ckpts_path)
 
-        paths = {list(p.keys())[0]: list(p.values())[0] for p in paths}
+        # paths = {list(p.keys())[0]: list(p.values())[0] for p in paths}
 
-        self.body_estimation = Body(paths['body_pose_model.pth'])
-        self.hand_estimation = Hand(paths['hand_pose_model.pth'])
-        self.face_estimation = Face(paths['facenet.pth'])
+        self.body_estimation = Body(paths[1])
+        self.hand_estimation = Hand(paths[2])
+        self.face_estimation = Face(paths[3])
 
     @torch.no_grad()
     @torch.inference_mode()

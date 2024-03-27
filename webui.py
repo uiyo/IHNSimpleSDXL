@@ -57,7 +57,6 @@ def generate_clicked(task):
     # outputs=[progress_html, progress_window, progress_gallery, gallery]
     execution_start_time = time.perf_counter()
     finished = False
-    print(f"[LOGINFO] type of the task: {type(task)}")
     yield gr.update(visible=True, value=modules.html.make_progress_html(1, 'Waiting for task to start ...')), \
         gr.update(visible=True, value=None), \
         gr.update(visible=False, value=None), \
