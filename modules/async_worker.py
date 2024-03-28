@@ -406,7 +406,8 @@ def worker():
                     clip_vision_path, ip_negative_path, ip_adapter_face_path = modules.config.downloading_ip_adapters(
                         'face')
                 if len(cn_tasks[flags.cn_pose]) > 0:
-                    controlnet_pose_info = modules.config.downloading_poseprocess_model()
+                    controlnet_pose_info = modules.config.downloading_openposeprocess_model()
+                    controlnet_dwpose_info = modules.config.downloading_dwposeprocess_model()
                     
                 progressbar(async_task, 1, 'Loading control models ...')
 
@@ -747,7 +748,9 @@ def worker():
                 cn_img, cn_stop, cn_weight = task
                 cn_img = resize_image(HWC3(cn_img), width=width, height=height)
                 from extras.controlnet_preprocess_model.openpose import OpenPose
-                pose_model = OpenPose(controlnet_pose_info)
+                from extras.controlnet_preprocess_model.dwpose import DWposeDetector
+                # pose_model = OpenPose(controlnet_pose_info)
+                pose_model = DWposeDetector(controlnet_dwpose_info)
                 cn_img = preprocessors.pose(cn_img, pose_model)
                 cn_img = HWC3(cn_img)
                 task[0] = core.numpy_to_pytorch(cn_img)

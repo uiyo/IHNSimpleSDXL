@@ -655,7 +655,26 @@ def downloading_upscale_model():
     )
     return os.path.join(path_upscale_models, 'fooocus_upscaler_s409985e5.bin')
 
-def downloading_poseprocess_model():
+def downloading_dwposeprocess_model():
+    results = []
+    # yolox_l.onnx
+    load_file_from_url(
+        url='https://huggingface.co/yzd-v/DWPose/resolve/main/yolox_l.onnx',
+        model_dir=path_controlnet,
+        file_name='yolox_l.onnx'
+    )
+    results += [os.path.join(path_controlnet, 'yolox_l.onnx')]
+    # dw-ll_ucoco_384.onnx
+    load_file_from_url(
+        url='https://huggingface.co/yzd-v/DWPose/resolve/main/dw-ll_ucoco_384.onnx',
+        model_dir=path_controlnet,
+        file_name='dw-ll_ucoco_384.onnx'
+    )
+    results += [os.path.join(path_controlnet, 'dw-ll_ucoco_384.onnx')]
+    return results
+
+
+def downloading_openposeprocess_model():
     results = []
     # openpose lora
     load_file_from_url(
