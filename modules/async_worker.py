@@ -322,7 +322,7 @@ def worker():
 
         controlnet_canny_path = None
         controlnet_cpds_path = None
-        controlnet_pose_info = []
+        controlnet_pose_info = [None]
         clip_vision_path, ip_negative_path, ip_adapter_path, ip_adapter_face_path = None, None, None, None
 
         seed = int(image_seed)
