@@ -37,7 +37,7 @@ const modelData = [{
   decs: '[SD1.5] 迪士尼3D建模风格'
 }, {
   label: 'DreamShaper8',
-  value: '[SDXL]DreamShaper8.safetensors',
+  value: '[SD1.5]DreamShaper8.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/DreamShaper_8_pruned.png',
   decs: '各类艺术风格形式'
 }, {
