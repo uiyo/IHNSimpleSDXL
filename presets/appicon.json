@@ -1,11 +1,11 @@
 {
     "default_model": "[SDXL]DreamShaperXL加速.safetensors",
-    "default_refiner": "None",
-    "default_refiner_switch": 0.5,
+    "default_refiner": "[SD1.5]DreamShaper8.safetensors",
+    "default_refiner_switch": 0.667,
     "default_loras": [
         [
-            "None",
-            1.0
+            "appicons.safetensors",
+            0.5
         ],
         [
             "None",
@@ -29,7 +29,7 @@
     "default_sampler": "dpmpp_2m_sde_gpu",
     "default_scheduler": "karras",
     "default_performance": "Speed",
-    "default_prompt": "",
+    "default_prompt": "app icon",
     "default_prompt_negative": "",
     "default_styles": [
         "Fooocus V2",
@@ -42,5 +42,7 @@
         "[SDXL]DreamShaperXL加速.safetensors": "https://huggingface.co/Lykon/dreamshaper-xl-turbo/resolve/main/DreamShaperXL_Turbo_dpmppSdeKarras_half_pruned_6.safetensors"
     },
     "embeddings_downloads": {},
-    "lora_downloads": {}
+    "lora_downloads": {
+        "appicons.safetensors": "https://civitai.com/api/download/models/166450?type=Model&format=SafeTensor"
+    }
 } 

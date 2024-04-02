@@ -243,6 +243,11 @@ const loraData = [{
   value: 'AHAworld.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/ahaworld.png',
   decs: 'AHA世界角色风格'
+}, {
+  label: 'AppIcons',
+  value: 'appicons.safetensors',
+  image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/appicons.png',
+  decs: 'APP类型图标'
 }]
 
 // 点击回显的数据
