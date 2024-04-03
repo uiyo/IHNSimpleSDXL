@@ -747,11 +747,17 @@ def worker():
             for task in cn_tasks[flags.cn_pose]:
                 cn_img, cn_stop, cn_weight = task
                 cn_img = resize_image(HWC3(cn_img), width=width, height=height)
-                from extras.controlnet_preprocess_model.openpose import OpenPose
-                from extras.controlnet_preprocess_model.dwpose import DWposeDetector
+                from extras.controlnet_preprocess_model.dwpose import DWposeDetector, DWposeDetectorTrans
                 # pose_model = OpenPose(controlnet_pose_info)
-                pose_model = DWposeDetector(controlnet_dwpose_info)
-                cn_img = preprocessors.pose(cn_img, pose_model)
+                if mixing_image_prompt_and_inpaint and inpaint_input_image is not None:
+                    pose_model = DWposeDetectorTrans(controlnet_dwpose_info)
+                    cn_img = preprocessors.poset(cn_img, HWC3(inpaint_input_image['image']), pose_model)
+                elif mixing_image_prompt_and_vary_upscale and uov_input_image is not None:
+                    pose_model = DWposeDetectorTrans(controlnet_dwpose_info)
+                    cn_img = preprocessors.poset(cn_img, HWC3(uov_input_image), pose_model)
+                else:
+                    pose_model = DWposeDetector(controlnet_dwpose_info)
+                    cn_img = preprocessors.pose(cn_img, pose_model)
                 cn_img = HWC3(cn_img)
                 task[0] = core.numpy_to_pytorch(cn_img)
 
