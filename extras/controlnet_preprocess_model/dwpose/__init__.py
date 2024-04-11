@@ -12,6 +12,8 @@ import numpy as np
 import copy
 from . import util
 from .wholebody import Wholebody
+import face_alignment
+from scipy.spatial.transform import Rotation
 
 def draw_pose(pose, H, W):
     bodies = pose['bodies']
@@ -159,8 +161,8 @@ def transfer_pose(action_pose, ratio_pose):
             transfered_points = dict(candidate=candidate_points, subset=subset_points)
         else:
             transfered_points = transfer_keypoints(ratio_pose[key], action_pose[key], key)
-        import pdb
-        pdb.set_trace()
+        # import pdb
+        # pdb.set_trace()
         transfered_pose.update({key: transfered_points})
     return transfered_pose
 
@@ -204,8 +206,41 @@ def align_angle(o1, o2, p1, p2):
 
     return p2_rotated
 
-def trans4(body, img_ref, body_tmp , img):
+def rotate_face(face_act, face_rat):
+    # 计算两个点云之间的质心
+    centroid_act = np.mean(face_act, axis=0)
+    centroid_rat = np.mean(face_rat, axis=0)
 
+    # 将两个点云的质心移到原点
+    point_act_centered = face_act - centroid_act
+    point_rat_centered = face_rat - centroid_rat
+
+    # 计算协方差矩阵
+    H = np.dot(point_rat_centered.T, point_act_centered)
+    # 使用SVD分解协方差矩阵
+    U, S, Vt = np.linalg.svd(H)
+    # 计算旋转矩阵
+    R_matrix = np.dot(Vt.T, U.T)
+    # 确保旋转矩阵的行列式为1（因为旋转矩阵的行列式应该是1）
+    if np.linalg.det(R_matrix) < 0:
+        Vt[2, :] *= -1
+        R_matrix = np.dot(Vt.T, U.T)
+
+    rotation = Rotation.from_matrix(R_matrix)
+    point_rat_rotated = rotation.apply(point_rat_centered)
+    # # 将 ratio 中的每个点通过旋转矩阵进行变换
+    # point_rat_rotated = np.dot(point_rat_centered, R_matrix.T)
+    # 将旋转后的点云移回原来的位置
+    point_rat_rotated += centroid_rat
+
+    return point_rat_rotated[:,:2]
+
+def move_points(points, target):
+    centroid = np.mean(points, axis=0)
+    points_final = points - centroid + target
+    return points_final
+
+def trans4(body, img_ref, body_tmp , img):
     rhand = copy.deepcopy(body['hands'][0])
     lhand = copy.deepcopy(body['hands'][1])
     rhand_tmp = copy.deepcopy(body_tmp['hands'][0])
@@ -269,14 +304,16 @@ def trans4(body, img_ref, body_tmp , img):
     face[:, 0] = face[:, 0] - (face_tmp_b[0] - face_b[0])
     face[:, 1] = face[:, 1] - (face_tmp_b[1] - face_b[1])
 
-    return scale_keypoints(body,1) ,scale_keypoints(face,1.0) ,lhand_tmp ,rhand_tmp
+    # return scale_keypoints(body,1), scale_keypoints(face,1.0) ,lhand_tmp ,rhand_tmp
+    return scale_keypoints(body,1), scale_keypoints(face,1.0), lhand_tmp, rhand_tmp
 
 class DWposeDetectorTrans:
     def __init__(self,paths):
 
         self.pose_estimation_action = Wholebody(paths) # 提供动作
         self.pose_estimation_ratio = Wholebody(paths) #提供身材比例
-
+        # 3D face detector
+        self.face_detector = face_alignment.FaceAlignment(face_alignment.LandmarksType.THREE_D, flip_input=False, device='cuda')
     def __call__(self, actImg, ratImg):
         actImg = actImg.copy()
         ratImg = ratImg.copy()
@@ -302,7 +339,7 @@ class DWposeDetectorTrans:
             candidate[un_visible] = -1
 
             # foot = candidate[:,18:24]
-
+            act_face = self.face_detector.get_landmarks(actImg)
             faces = candidate[:,24:92]
 
             hands = candidate[:,92:113]
@@ -330,7 +367,7 @@ class DWposeDetectorTrans:
             candidate[un_visible] = -1
 
             # foot = candidate[:,18:24]
-
+            rat_face = self.face_detector.get_landmarks(ratImg)
             faces = candidate[:,24:92]
 
             hands = candidate[:,92:113]
@@ -341,6 +378,17 @@ class DWposeDetectorTrans:
             ################################################################
             pose_ratio['bodies']['candidate'], pose_ratio['faces'][0], pose_ratio['hands'][0], pose_ratio['hands'][1] = trans4(pose_ratio, ratImg, pose_action, actImg)
             # pose = transfer_pose(pose_action, pose_ratio)
+            
+            if rat_face is None or act_face is None:
+                # rotated_face = np.ones((68,2))*(-1)
+                pose_ratio['faces'][0,:,:] = np.ones((68,2))*(-1)
+            else:
+                rotated_face = rotate_face(act_face[0], rat_face[0])
+            
+                rotated_face[:, 0] /= WR
+                rotated_face[:, 1] /= HR
+                rotated_face = move_points(rotated_face[:,:2], pose_ratio['bodies']['candidate'][0])
+                pose_ratio['faces'][0,:,:] = rotated_face
             
             return draw_pose(pose_ratio, HR, WR)
             # return draw_pose(pose_action, HA, WA)
