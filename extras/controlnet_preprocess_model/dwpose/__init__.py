@@ -11,7 +11,8 @@ import torch
 import numpy as np
 import copy
 from . import util
-from .wholebody import Wholebody
+# from .wholebody import Wholebody
+from rtmlib import Wholebody, draw_skeleton
 import face_alignment
 from scipy.spatial.transform import Rotation
 
@@ -240,6 +241,15 @@ def move_points(points, target):
     points_final = points - centroid + target
     return points_final
 
+def calculate_bounding_box(point_cloud):
+    # 找到x和y坐标的最小值和最大值
+    min_x = np.min(point_cloud[:, 0])
+    max_x = np.max(point_cloud[:, 0])
+    min_y = np.min(point_cloud[:, 1])
+    max_y = np.max(point_cloud[:, 1])
+    # 返回边界框的坐标
+    return (min_x, min_y, max_x, max_y)
+
 def trans4(body, img_ref, body_tmp , img):
     rhand = copy.deepcopy(body['hands'][0])
     lhand = copy.deepcopy(body['hands'][1])
@@ -309,9 +319,13 @@ def trans4(body, img_ref, body_tmp , img):
 
 class DWposeDetectorTrans:
     def __init__(self,paths):
-
-        self.pose_estimation_action = Wholebody(paths) # 提供动作
-        self.pose_estimation_ratio = Wholebody(paths) #提供身材比例
+        device = 'cpu'  # cpu, cuda
+        backend = 'onnxruntime' 
+        
+        self.pose_estimation = Wholebody(to_openpose=True, 
+                                                mode='performance',  # 'performance', 'lightweight', 'balanced'. Default: 'balanced'
+                                                backend=backend, device=device) # 提供动作
+        # self.pose_estimation = Wholebody(paths) 
         # 3D face detector
         self.face_detector = face_alignment.FaceAlignment(face_alignment.LandmarksType.THREE_D, flip_input=False, device='cuda')
     def __call__(self, actImg, ratImg):
@@ -321,7 +335,7 @@ class DWposeDetectorTrans:
         HR, WR, CR = ratImg.shape
         with torch.no_grad():
             # parse action image pose
-            candidate, subset = self.pose_estimation_action(actImg)
+            candidate, subset = self.pose_estimation(actImg)
             nums, keys, locs = candidate.shape
             candidate[..., 0] /= float(WA)
             candidate[..., 1] /= float(HA)
@@ -339,9 +353,12 @@ class DWposeDetectorTrans:
             candidate[un_visible] = -1
 
             # foot = candidate[:,18:24]
-            act_face = self.face_detector.get_landmarks(actImg)
+            
             faces = candidate[:,24:92]
-
+            faces_fdepth = faces
+            faces_fdepth[0,:,0] *= WA
+            faces_fdepth[0,:,1] *= HA
+            act_face = self.face_detector.get_landmarks(actImg, detected_faces=[calculate_bounding_box(faces_fdepth[0])])
             hands = candidate[:,92:113]
             hands = np.vstack([hands, candidate[:,113:]])
             
@@ -349,7 +366,7 @@ class DWposeDetectorTrans:
             pose_action = dict(bodies=bodies_action, hands=hands, faces=faces)
             ################################################################
             # parse ratio image pose
-            candidate, subset = self.pose_estimation_ratio(ratImg)
+            candidate, subset = self.pose_estimation(ratImg)
             nums, keys, locs = candidate.shape
             candidate[..., 0] /= float(WR)
             candidate[..., 1] /= float(HR)
@@ -367,9 +384,12 @@ class DWposeDetectorTrans:
             candidate[un_visible] = -1
 
             # foot = candidate[:,18:24]
-            rat_face = self.face_detector.get_landmarks(ratImg)
+            
             faces = candidate[:,24:92]
-
+            faces_fdepth = faces
+            faces_fdepth[0,:,0] *= WR
+            faces_fdepth[0,:,1] *= HR
+            rat_face = self.face_detector.get_landmarks(ratImg, detected_faces=[calculate_bounding_box(faces_fdepth[0])])
             hands = candidate[:,92:113]
             hands = np.vstack([hands, candidate[:,113:]])
             
