@@ -11,7 +11,7 @@ import torch
 import numpy as np
 import copy
 from . import util
-# from .wholebody import Wholebody
+from .wholebody import Wholebody as Wholebody_orig
 from rtmlib import Wholebody, draw_skeleton
 import face_alignment
 from scipy.spatial.transform import Rotation
@@ -36,7 +36,7 @@ def draw_pose(pose, H, W):
 class DWposeDetector:
     def __init__(self, paths):
 
-        self.pose_estimation = Wholebody(paths)
+        self.pose_estimation = Wholebody_orig(paths)
 
     def __call__(self, oriImg):
         oriImg = oriImg.copy()
@@ -318,7 +318,7 @@ def trans4(body, img_ref, body_tmp , img):
     return scale_keypoints(body,1), scale_keypoints(face,1.0), lhand_tmp, rhand_tmp
 
 class DWposeDetectorTrans:
-    def __init__(self,paths):
+    def __init__(self, paths):
         device = 'cpu'  # cpu, cuda
         backend = 'onnxruntime' 
         
