@@ -36,8 +36,14 @@ def draw_pose(pose, H, W):
 class DWposeDetector:
     def __init__(self, paths):
 
-        self.pose_estimation = Wholebody_orig(paths)
-
+        # self.pose_estimation = Wholebody_orig(paths)
+        device = 'cpu'  # cpu, cuda
+        backend = 'onnxruntime' 
+        
+        self.pose_estimation = Wholebody(to_openpose=True, 
+                                                mode='performance',  # 'performance', 'lightweight', 'balanced'. Default: 'balanced'
+                                                backend=backend, device=device) # 提供动作
+        
     def __call__(self, oriImg):
         oriImg = oriImg.copy()
         H, W, C = oriImg.shape
