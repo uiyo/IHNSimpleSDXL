@@ -248,6 +248,11 @@ const loraData = [{
   value: 'appicons.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/appicons.png',
   decs: 'APP类型图标'
+}, {
+  label: '儿童插画风格',
+  value: '儿童插画风格.safetensors',
+  image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/J_drawing_XL.jpeg',
+  decs: 'j_drawing'
 }]
 
 // 点击回显的数据
