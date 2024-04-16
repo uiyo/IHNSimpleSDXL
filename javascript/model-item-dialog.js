@@ -87,7 +87,7 @@ const modelData = [{
   decs: '真实,照片质感,电影,SDXL基础模型'
 }, {
   label: '基础二次元',
-  value: '[SDXL]revAnimated二次元.safetensors',
+  value: '[SD1.5]revAnimated二次元.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/revAnimated_v122EOL.png',
   decs: '绘本,动漫,幻想,卡通'
 }, {
@@ -253,6 +253,11 @@ const loraData = [{
   value: '儿童插画风格.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/J_drawing_XL.jpeg',
   decs: 'j_drawing'
+}, {
+  label: '纪念碑谷风格',
+  value: '纪念碑谷风格.safetensors',
+  image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/J_drawing_XL.jpeg',
+  decs: 'video game Monument Valley style'
 }]
 
 // 点击回显的数据
