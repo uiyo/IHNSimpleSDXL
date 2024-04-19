@@ -1,7 +1,7 @@
 {
     "default_model": "[SDXL]BluePencil.safetensors",
     "default_refiner": "[SD1.5]平面动漫线条.safetensors",
-    "default_refiner_switch": 0.667,
+    "default_refiner_switch": 0.8,
     "default_loras": [
         [
             "AHAworld.safetensors",
