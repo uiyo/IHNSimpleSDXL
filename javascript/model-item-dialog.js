@@ -135,6 +135,11 @@ const modelData = [{
   value: '[SD1.5]网红麦橘写实.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/wanghongsd15.jpg',
   decs: '女生网红拍照'
+}, {
+  label: '平面动漫',
+  value: '[SD1.5]平面动漫线条.safetensors',
+  image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/flat2DAnimerge_v45Sharp.png',
+  decs: '轮廓线平面色彩'
 }]
 
 // lora的数据

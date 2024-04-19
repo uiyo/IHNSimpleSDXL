@@ -1,7 +1,7 @@
 {
     "default_model": "[SDXL]AnimaPencil动漫v100.safetensors",
-    "default_refiner": "None",
-    "default_refiner_switch": 0.5,
+    "default_refiner": "[SD1.5]平面动漫线条.safetensors",
+    "default_refiner_switch": 0.667,
     "default_loras": [
         [
             "AHAworld.safetensors",
@@ -29,7 +29,7 @@
     "default_sampler": "dpmpp_2m_sde_gpu",
     "default_scheduler": "karras",
     "default_performance": "Speed",
-    "default_prompt": "1girl/1boy, t-pose, solo, looking at viewer, full body, (white simple background:1.5), simple background, standing, simple flat color, transparent background",
+    "default_prompt": "1girl/1boy, t-pose, chibi, solo, looking at viewer, full body, (white simple background:1.5), simple background, standing, simple flat color, transparent background",
     "default_prompt_negative": "ugly, deformed, noisy, blurry, low contrast, 3D, photo, realistic, lace",
     "default_styles": [
         "Fooocus V2",
