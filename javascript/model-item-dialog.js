@@ -140,6 +140,11 @@ const modelData = [{
   value: '[SD1.5]平面动漫线条.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/flat2DAnimerge_v45Sharp.png',
   decs: '轮廓线平面色彩'
+}, {
+  label: 'BluePencil动漫',
+  value: '[SDXL]BluePencil.safetensors',
+  image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/bluepencil.jpg',
+  decs: '柔和色彩二次元动漫'
 }]
 
 // lora的数据

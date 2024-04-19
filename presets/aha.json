@@ -1,5 +1,5 @@
 {
-    "default_model": "[SDXL]洪恩绘本模型1.safetensors",
+    "default_model": "[SDXL]BluePencil.safetensors",
     "default_refiner": "[SD1.5]平面动漫线条.safetensors",
     "default_refiner_switch": 0.667,
     "default_loras": [
@@ -29,7 +29,7 @@
     "default_sampler": "dpmpp_2m_sde_gpu",
     "default_scheduler": "karras",
     "default_performance": "Speed",
-    "default_prompt": "1girl/1boy, t-pose, chibi, solo, looking at viewer, full body, (white simple background:1.5), simple background, standing, simple flat color, transparent background",
+    "default_prompt": "1girl/1boy, t-pose, solo, looking at viewer, full body, (white simple background:1.5), simple background, standing, simple flat color, transparent background",
     "default_prompt_negative": "ugly, deformed, noisy, blurry, low contrast, 3D, photo, realistic, lace, multi-head",
     "default_styles": [
         "Fooocus V2",
