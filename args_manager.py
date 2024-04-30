@@ -31,7 +31,7 @@ args_parser.parser.add_argument("--disable-metadata", action='store_true',
                                 help="Disables saving metadata to images.")
 
 args_parser.parser.add_argument("--disable-preset-download", action='store_true',
-                                help="Disables downloading models for presets", default=True)
+                                help="Disables downloading models for presets", default=False)
 
 args_parser.parser.add_argument("--always-download-new-model", action='store_true',
                                 help="Always download newer models ", default=False)
