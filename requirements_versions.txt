@@ -28,5 +28,6 @@ sentencepiece==0.1.99
 face-alignment
 rtmlib
 scipy==1.9.3
+rembg
 ./enhanced/libs/rembg-2.0.54-py3-none-any.whl
 ./enhanced/libs/groundingdino_py-0.4.1-py2.py3-none-any.whl
