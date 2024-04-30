@@ -61,13 +61,13 @@ const modelData = [{
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/helloip3dIP_helloip3dV13e.png',
   decs: '塑料盲盒公仔风格'
 }, {
-  label: 'Fooocus默认SDXL',
+  label: 'Fooocus默认SDXL[旧]',
   value: '[SDXL]基础模型juggernautXLv8.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/juggernautXL_version6Rundiffusion.png',
   decs: '[SDXL]各类艺术风格,SDXL基础模型'
-}, {
-  label: 'Fooocus默认SDXL[旧]',
-  value: '[SDXL]基础模型juggernautXLv6.safetensors',
+}, { 
+  label: 'Fooocus默认SDXL',
+  value: '[SDXL]基础模型juggernautXLvXNSFW.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/juggernautXL_version6Rundiffusion.png',
   decs: '[SDXL]各类艺术风格,SDXL基础模型'
 }, {
@@ -142,7 +142,7 @@ const modelData = [{
   decs: '轮廓线平面色彩'
 }, {
   label: 'BluePencil动漫',
-  value: '[SDXL]BluePencil.safetensors',
+  value: '[SDXL]BluePencil动漫.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/bluepencil.jpg',
   decs: '柔和色彩二次元动漫'
 }]

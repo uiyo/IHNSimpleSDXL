@@ -23,4 +23,11 @@
     等效用法：
     __color__ = [__color__] = [__color__:1] = [__color__:1:1] = [__color__:R1] = [__color__:R1:1]
     [__color__:L] = [__color__:L1] = [__color__:L1:1]
+    ---------------------------------------------------------------------------------------------
+    混合用法示例：
+    1[__rpg__:4] with a __color__ hat at __minilocations__
+    
+    1__rpg__ with a __color__ hat at __minilocations__
+
+    上面两个用法都是一样的，三个通配符rpg，color，minilocations 随机抽取组合。其差异在于，前者生成图片的数量由提示词来决定的，而后者的生成数量由系统出图数量的设置决定。
 

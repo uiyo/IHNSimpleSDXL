@@ -1,13 +1,16 @@
 import os
 import importlib
 import importlib.util
+import shutil
 import subprocess
 import sys
 import re
 import logging
 import importlib.metadata
 import packaging.version
-
+import pygit2
+from pathlib import Path
+pygit2.option(pygit2.GIT_OPT_SET_OWNER_VALIDATION, 0)
 
 logging.getLogger("torch.distributed.nn").setLevel(logging.ERROR)  # sshh...
 logging.getLogger("xformers").addFilter(lambda record: 'A matching Triton is not available' not in record.getMessage())
@@ -22,6 +25,30 @@ index_url = os.environ.get('INDEX_URL', "https://pypi.tuna.tsinghua.edu.cn/simpl
 
 modules_path = os.path.dirname(os.path.realpath(__file__))
 script_path = os.path.dirname(modules_path)
+dir_repos = "repos"
+
+def git_clone(url, dir, name, hash=None):
+    try:
+        try:
+            repo = pygit2.Repository(dir)
+        except:
+            Path(dir).parent.mkdir(exist_ok=True)
+            repo = pygit2.clone_repository(url, str(dir))
+            print(f"{name} cloned.")
+
+        remote = repo.remotes["origin"]
+        remote.fetch()
+
+        commit = repo.get(hash)
+
+        repo.checkout_tree(commit, strategy=pygit2.GIT_CHECKOUT_FORCE)
+        print(f"{name} {str(commit.id)[:7]} update check complete.")
+    except Exception as e:
+        print(f"Git clone failed for {name}: {str(e)}")
+
+
+def repo_dir(name):
+    return str(Path(script_path) / dir_repos / name)
 
 
 def is_installed(package):
@@ -117,3 +144,19 @@ def requirements_met(requirements_file):
 
     return result
 
+
+def delete_folder_content(folder, prefix=None):
+    result = True
+
+    for filename in os.listdir(folder):
+        file_path = os.path.join(folder, filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception as e:
+            print(f'{prefix}Failed to delete {file_path}. Reason: {e}')
+            result = False
+
+    return result

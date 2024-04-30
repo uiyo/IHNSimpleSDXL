@@ -1,8 +1,9 @@
 ## SimpleSDXL - Fooocus中文孪生版
-<div align=center><img src="https://github.com/metercai/SimpleSDXL/assets/5652458/e0ca205d-6d7a-42c7-855e-f4a937e65fb1"></div>
+<div align=center><img src="https://github.com/metercai/SimpleSDXL/assets/5652458/c6088225-4006-4e0a-a1d4-979a61aefda4"></div>
 
 ## 🔔 更新 / Update
-- [2024.03.09] <b>新增lightning出图模式，自动下载和加载加速模型`sdxl_lightning_4step_lora.safetensors`。优化增强通配符模块，通配符可嵌套，可动态加载。与主线2.2.1版本合版，新增LoRA取值范围可定制，支持png/jpg/webp图片格式，嵌参图片信息可与Civitai兼容等主线带入功能。整合新的嵌参和提参模块，保障前后版本兼容。调整UI，取消冗余选项，将预置包生成入口调入"增强" Tab。梳理参数流程，预置包新增FreeU和翻译器配置等9项预置参数，具体见[预置包ReadMe](https://github.com/metercai/SimpleSDXL/tree/SimpleSDXL/presets/) 。</b>
+- [2024.04.23] <b>升级OBP到最新版，集成[Superprompt](https://huggingface.co/roborovski/superprompt-v1)超级提示词扩展，为提示词增补细节描写。新增SD3生图引擎接口，可到[stability.ai](https://stability.ai/membership)申请免费会员，获取接口密钥后无缝对接SD3新引擎生成图片。优化界面，包括将OBP和Superprompt入口整合到提示词框，新增预置包导航浮层提示、提示词框token数统计、图生图多个参数前置到操作页面等。<b>
+- [2024.03.26] 集成[OneButtonPrompt](https://github.com/AIrjen/OneButtonPrompt)组件，根据预设场景模版，随机抽取组合提示词，是一款好玩而强大的提示词组织工具。修订通配符语法处理逻辑,兼容主线的多通配符随机抽取。增加预置包模型文件下载提示，修订嵌参图片参数提取等bug，完成主线2.3.1合版。
 
 <b>重要：如果项目给您带来了便利和价值，不要吝惜加颗星"⭐️"，促进项目更好的发展！😜<br>
 Note: Please don't forget to give us a star if you like this project. Thanks! 😜</b>
@@ -204,6 +205,10 @@ The first time you launch the software, it will automatically download models:
 
 After Fooocus 2.1.60, you will also have `run_anime.bat` and `run_realistic.bat`. They are different model presets (and require different models, but they will be automatically downloaded). [Check here for more details](https://github.com/lllyasviel/Fooocus/discussions/679).
 
+After Fooocus 2.3.0 you can also switch presets directly in the browser. Keep in mind to add these arguments if you want to change the default behavior:
+* Use `--disable-preset-selection` to disable preset selection in the browser.
+* Use `--always-download-new-model` to download missing models on preset switch. Default is fallback to `previous_default_models` defined in the corresponding preset, also see terminal output.
+
 ![image](https://github.com/lllyasviel/Fooocus/assets/19834515/d386f817-4bd7-490c-ad89-c1e228c23447)
 
 If you already have these files, you can copy them to the above locations to speed up installation.
@@ -235,17 +240,21 @@ See also the common problems and troubleshoots [here](troubleshoot.md).
 
 ### Colab
 
-(Last tested - 2023 Dec 12)
+(Last tested - 2024 Mar 18 by [mashb1t](https://github.com/mashb1t))
 
 | Colab | Info
 | --- | --- |
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/lllyasviel/Fooocus/blob/main/fooocus_colab.ipynb) | Fooocus Official
 
-In Colab, you can modify the last line to `!python entry_with_update.py --share` or `!python entry_with_update.py --preset anime --share` or `!python entry_with_update.py --preset realistic --share` for Fooocus Default/Anime/Realistic Edition.
+In Colab, you can modify the last line to `!python entry_with_update.py --share --always-high-vram` or `!python entry_with_update.py --share --always-high-vram --preset anime` or `!python entry_with_update.py --share --always-high-vram --preset realistic` for Fooocus Default/Anime/Realistic Edition.
+
+You can also change the preset in the UI. Please be aware that this may lead to timeouts after 60 seconds. If this is the case, please wait until the download has finished, change the preset to initial and back to the one you've selected or reload the page.
 
 Note that this Colab will disable refiner by default because Colab free's resources are relatively limited (and some "big" features like image prompt may cause free-tier Colab to disconnect). We make sure that basic text-to-image is always working on free-tier Colab.
 
-Thanks to [camenduru](https://github.com/camenduru)!
+Using `--always-high-vram` shifts resource allocation from RAM to VRAM and achieves the overall best balance between performance, flexibility and stability on the default T4 instance. Please find more information [here](https://github.com/lllyasviel/Fooocus/pull/1710#issuecomment-1989185346).
+
+Thanks to [camenduru](https://github.com/camenduru) for the template!
 
 ### Linux (Using Anaconda)
 

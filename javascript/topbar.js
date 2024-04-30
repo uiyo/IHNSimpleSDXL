@@ -110,6 +110,105 @@ function showSysMsg(message, theme) {
     sysmsg.style.display = "block";
 }
 
+function initPresetPreviewOverlay() {
+    let overlayVisible = false;
+    const samplesPath = document.querySelector("meta[name='preset-samples-path']").getAttribute("content")
+    const overlay = document.createElement('div');
+    const tooltip = document.createElement('div');
+    tooltip.className = 'preset-tooltip';
+    overlay.appendChild(tooltip);
+    overlay.id = 'presetPreviewOverlay';
+    document.body.appendChild(overlay);
+    
+    document.addEventListener('mouseover', async function (e) {
+        const label = e.target.closest('.bar_button');
+        if (!label) return;
+        label.removeEventListener("mouseout", onMouseLeave);
+        label.addEventListener("mouseout", onMouseLeave);
+        const originalText = label.getAttribute("data-original-text");
+        let name = originalText || label.textContent;
+	if (name!=" ") {
+	    let download = false;
+	    if (name.endsWith('\u2B07')) {
+    	   	name = name.slice(0, -1);
+    		download = true;
+	    }
+	    const img = new Image();
+            img.src = samplesPath.replace(
+                "default",
+                name.toLowerCase().replaceAll(" ", "_")
+            ).replaceAll("\\", "\\\\");
+            img.onerror = async () => {
+                overlay.style.height = '54px';
+		let text = "模型资源"
+		text += await fetchPresetDataFor(name);
+                if (download) text += ' '+'\u2B07'+"未就绪要下载";
+		else text += ' '+"已准备好";
+                tooltip.textContent = text;
+            };
+	    img.onload = async () => {
+                overlay.style.height = '128px'; 
+		let text = await fetchPresetDataFor(name);
+                if (download) text += ' '+'\u2B07'+"要下载资源";
+                tooltip.textContent = text;
+		overlay.style.backgroundImage = `url("${samplesPath.replace(
+                    "default",
+                    name.toLowerCase().replaceAll(" ", "_")
+                ).replaceAll("\\", "\\\\")}")`;
+            };
+
+	    overlayVisible = true;
+	    overlay.style.opacity = "1";
+	}
+        function onMouseLeave() {
+            overlayVisible = false;
+            overlay.style.opacity = "0";
+            overlay.style.backgroundImage = "";
+            label.removeEventListener("mouseout", onMouseLeave);
+        }
+    });
+    document.addEventListener('mousemove', function (e) {
+        if (!overlayVisible) return;
+        overlay.style.left = `${e.clientX}px`;
+        overlay.style.top = `${e.clientY}px`;
+        overlay.className = e.clientY > window.innerHeight / 2 ? "lower-half" : "upper-half";
+    });
+}
+
+async function fetchPresetDataFor(name) {
+    let time_ver = "t="+Date.now()+"."+Math.floor(Math.random() * 10000)
+    const response = await fetch(`${webpath}/presets/${name}.json?${time_ver}`);
+    const data = await response.json();
+    let pos = data.default_model.lastIndexOf('.');
+    return data.default_model.substring(0,pos);
+}
+
+function setObserver() {
+    const elements = gradioApp().querySelectorAll('div#token_counter');
+    for (var i = 0; i < elements.length; i++) {
+	if (elements[i].className.includes('block')) {
+            tokenCounterBlock = elements[i];
+        }
+        if (elements[i].className.includes('prose')) {
+	    tokenCounter = elements[i];
+	}
+    }
+    var observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.target == tokenCounter) {
+                var divTextContent = tokenCounter.textContent;
+                if (parseInt(divTextContent) > 77 ) {
+                    tokenCounterBlock.style.backgroundColor = 'var(--primary-700)'; 
+                } else {
+                    tokenCounterBlock.style.backgroundColor = 'var(--secondary-400)'; 
+                }
+            }
+        });
+    });
+    var config = { childList: true, characterData: true };
+    observer.observe(tokenCounter, config);
+}
+
 document.addEventListener("DOMContentLoaded", function() {
     const sysmsg = document.createElement('div');
     sysmsg.id = "sys_msg";
@@ -153,6 +252,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     document.body.appendChild(sysmsg);
-
+    initPresetPreviewOverlay();
+    
 });
 

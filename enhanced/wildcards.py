@@ -18,7 +18,7 @@ wildcards_template = {}
 wildcards_weight_range = {}
 
 array_regex = re.compile(r'\[([\w\(\)\.\s,;:-]+)\]')
-array_regex1 = re.compile(r'\[([\w\(\)\s,;-]+)\]')
+array_regex1 = re.compile(r'\[([\w\(\)\s,;.:\"-]+)\]')
 tag_regex0 = re.compile(r'([\s\w\(\);-]+)')
 tag_regex1 = re.compile(r'([\s\w\(\),-]+)')
 tag_regex2 = re.compile(r'__([\w-]+)__')
@@ -46,7 +46,7 @@ def get_wildcards_samples(path="root"):
     for wildcard in wildcards_list_all:
         words = open(os.path.join(wildcards_path, f'{wildcard}.txt'), encoding='utf-8').read().splitlines()
         words = [x.split('?')[0] for x in words if x != '' and not wildcard_regex.findall(x)]
-        words = [x.split(';')[0] for x in words]
+        #words = [x.split(';')[0] for x in words]
 
         templates = [x for x in words if '|' in x]  #  word|template|weight_range
         for line in templates:
@@ -112,7 +112,8 @@ def get_words_of_wildcard_samples(wildcard="root"):
 
     if wildcard == "root":
         return [[x] for x in wildcards[wildcards_list[wildcard][0]]]
-    return [[x] for x in wildcards[wildcard]]
+    words = [[x] for x in wildcards[wildcard]]
+    return words
 
 def get_words_with_wildcard(wildcard, rng, method='R', number=1, start_at=1):
     global wildcards
@@ -142,6 +143,7 @@ def get_words_with_wildcard(wildcard, rng, method='R', number=1, start_at=1):
         for i in range(number):
             words_each = rng.sample(words, nums)
             words_result.append(words_each[0] if nums==1 else f'({" ".join(words_each)})')
+    words_result = [replace_wildcard(txt, rng) for txt in words_result]
     print(f'[Wildcards] Get words from wildcard:__{wildcard}__, method:{method}, number:{number}, start_at:{start_at}, result:{words_result}')
     return words_result
 
@@ -220,6 +222,12 @@ def compile_arrays(text, rng):
     else:
         mult = 0
     
+
+    print(f'[Wildcards] Copmile text in prompt to arrays: {text} -> arrays:{arrays}, mult:{mult}')
+    return text, arrays, mult, seed_fixed
+
+def replace_wildcard(text, rng):
+    global wildcards_max_bfs_depth, tag_regex2, wildcards
     parts = tag_regex2.findall(text)
     i = 1
     while parts:
@@ -229,9 +237,7 @@ def compile_arrays(text, rng):
         i += 1
         if i > wildcards_max_bfs_depth:
             break
-
-    print(f'[Wildcards] Copmile text in prompt to arrays: {text} -> arrays:{arrays}, mult:{mult}')
-    return text, arrays, mult, seed_fixed
+    return text
 
 
 def get_words(arrays, totalMult, index):
@@ -262,10 +268,11 @@ def apply_arrays(text, index, arrays, mult):
 
     i = 0
     for arr in arrays:
-        if not tag_regex2.findall(chosen_words[i]):
-            text = text.replace(f'[{tags[i]}]', chosen_words[i], 1)
-        else:
-            text = text.replace(f'[{tags[i]}]', tags[i], 1)
+        if i<len(tags) and i<len(chosen_words):
+            if not tag_regex2.findall(chosen_words[i]):
+                text = text.replace(f'[{tags[i]}]', chosen_words[i], 1)
+            else:
+                text = text.replace(f'[{tags[i]}]', tags[i], 1)
         i = i+1
 
     return text
@@ -314,3 +321,13 @@ def add_wildcards_and_array_to_prompt(wildcard, prompt, state_params):
         new_tag = f'__{wildcard}__'
     prompt = f'{prompt.strip()} {new_tag}'
     return gr.update(value=prompt), gr.Dataset.update(label=f'{wildcard}:', samples=get_words_of_wildcard_samples(wildcard)), gr.update(open=True)
+
+def add_word_to_prompt(wildcard, index, prompt):
+    global wildcards, wildcards_list
+
+    wildcard = wildcard[0].split('|')[0]
+    words = wildcards[wildcard]
+    word = words[index]
+    prompt = f'{prompt.strip()} {word}'
+    return gr.update(value=prompt)
+

@@ -1,5 +1,4 @@
 import json
-import os
 import re
 from abc import ABC, abstractmethod
 from pathlib import Path
@@ -12,7 +11,7 @@ import modules.config
 import modules.sdxl_styles
 from modules.flags import MetadataScheme, Performance, Steps
 from modules.flags import SAMPLERS, CIVITAI_NO_KARRAS
-from modules.util import quote, unquote, extract_styles_from_prompt, is_json, get_file_from_folder_list, calculate_sha256
+from modules.util import quote, unquote, extract_styles_from_prompt, is_json, get_file_from_folder_list, sha256
 
 re_param_code = r'\s*(\w[\w \-/]+):\s*("(?:\\.|[^\\"])+"|[^,]*)(?:,|$)'
 re_param = re.compile(re_param_code)
@@ -27,8 +26,9 @@ def load_parameter_button_click(raw_metadata: dict | str, is_generating: bool):
         loaded_parameter_dict = json.loads(raw_metadata)
     assert isinstance(loaded_parameter_dict, dict)
 
-    results = [len(loaded_parameter_dict) > 0, 1]
+    results = [True] if len(loaded_parameter_dict) > 0 else [gr.update()]
 
+    get_image_number('image_number', 'Image Number', loaded_parameter_dict, results)
     get_str('prompt', 'Prompt', loaded_parameter_dict, results)
     get_str('negative_prompt', 'Negative Prompt', loaded_parameter_dict, results)
     get_list('styles', 'Styles', loaded_parameter_dict, results)
@@ -59,7 +59,7 @@ def load_parameter_button_click(raw_metadata: dict | str, is_generating: bool):
 
     for i in range(modules.config.default_max_lora_number):
        get_lora(f'lora_combined_{i + 1}', f'LoRA {i + 1}', loaded_parameter_dict, results)
-
+    
     return results
 
 
@@ -81,9 +81,10 @@ def get_list(key: str, fallback: str | None, source_dict: dict, results: list, d
     except:
         results.append(gr.update())
     if key in ['styles', 'Styles']:
-        for k in h:
-            if k and 'styles_definition' in source_dict and k not in modules.sdxl_styles.styles and k in source_dict.get('styles_definition', default):
-                modules.sdxl_styles.styles.update({k: source_dict["styles_definition"][k]})
+        if h:
+            for k in h:
+                if k and 'styles_definition' in source_dict and k not in modules.sdxl_styles.styles and k in source_dict.get('styles_definition', default):
+                    modules.sdxl_styles.styles.update({k: source_dict["styles_definition"][k]})
 
 
 def get_float(key: str, fallback: str | None, source_dict: dict, results: list, default=None):
@@ -96,13 +97,25 @@ def get_float(key: str, fallback: str | None, source_dict: dict, results: list, 
         results.append(gr.update())
 
 
+def get_image_number(key: str, fallback: str | None, source_dict: dict, results: list, default=None):
+    try:
+        h = source_dict.get(key, source_dict.get(fallback, default))
+        assert h is not None
+        h = int(h)
+        h = min(h, modules.config.default_max_image_number)
+        results.append(h)
+    except:
+        results.append(1)
+
+
 def get_steps(key: str, fallback: str | None, source_dict: dict, results: list, default=None):
     try:
         h = source_dict.get(key, source_dict.get(fallback, default))
         assert h is not None
         h = int(h)
         # if not in steps or in steps and performance is not the same
-        if h not in iter(Steps) or Steps(h).name.casefold() != source_dict.get('performance', '').replace(' ', '_').casefold():
+        if h not in iter(Steps) or Steps(h).name.casefold() != source_dict.get('performance', '').replace(' ',
+                                                                                                          '_').casefold():
             results.append(h)
             return
         results.append(-1)
@@ -173,11 +186,20 @@ def get_freeu(key: str, fallback: str | None, source_dict: dict, results: list, 
 
 def get_lora(key: str, fallback: str | None, source_dict: dict, results: list):
     try:
-        n, w = source_dict.get(key, source_dict.get(fallback)).split(' : ')
-        w = float(w)
-        results.append(True)
-        results.append(n)
-        results.append(w)
+        split_data = source_dict.get(key, source_dict.get(fallback)).split(' : ')
+        enabled = True
+        name = split_data[0]
+        weight = split_data[1]
+
+        if len(split_data) == 3:
+            enabled = split_data[0] == 'True'
+            name = split_data[1]
+            weight = split_data[2]
+
+        weight = float(weight)
+        results.append(enabled)
+        results.append(name)
+        results.append(weight)
     except:
         results.append(True)
         results.append('None')
@@ -201,7 +223,8 @@ def get_loras_simple(loras: dict, results: list):
 def get_sha256(filepath):
     global hash_cache
     if filepath not in hash_cache:
-        hash_cache[filepath] = calculate_sha256(filepath)
+        # is_safetensors = os.path.splitext(filepath)[1].lower() == '.safetensors'
+        hash_cache[filepath] = sha256(filepath)
 
     return hash_cache[filepath]
 
@@ -289,6 +312,12 @@ class MetadataParser(ABC):
 
         if styles_definition != 'None':
             self.styles_definition = styles_definition
+
+    @staticmethod
+    def remove_special_loras(lora_filenames):
+        for lora_to_remove in modules.config.loras_metadata_remove:
+            if lora_to_remove in lora_filenames:
+                lora_filenames.remove(lora_to_remove)
 
 
 class A1111MetadataParser(MetadataParser):
@@ -399,12 +428,19 @@ class A1111MetadataParser(MetadataParser):
                         data[key] = filename
                         break
 
-        if 'lora_hashes' in data:
+        lora_data = ''
+        if 'lora_weights' in data and data['lora_weights'] != '':
+            lora_data = data['lora_weights']
+        elif 'lora_hashes' in data and data['lora_hashes'] != '' and data['lora_hashes'].split(', ')[0].count(':') == 2:
+            lora_data = data['lora_hashes']
+
+        if lora_data != '':
             lora_filenames = modules.config.lora_filenames.copy()
-            if modules.config.sdxl_lcm_lora in lora_filenames:
-                lora_filenames.remove(modules.config.sdxl_lcm_lora)
-            for li, lora in enumerate(data['lora_hashes'].split(', ')):
-                lora_name, lora_hash, lora_weight = lora.split(': ')
+            self.remove_special_loras(lora_filenames)
+            for li, lora in enumerate(lora_data.split(', ')):
+                lora_split = lora.split(': ')
+                lora_name = lora_split[0]
+                lora_weight = lora_split[2] if len(lora_split) == 3 else lora_split[1]
                 for filename in lora_filenames:
                     path = Path(filename)
                     if lora_name == path.stem:
@@ -453,16 +489,19 @@ class A1111MetadataParser(MetadataParser):
             if key in data:
                 generation_params[self.fooocus_to_a1111[key]] = data[key]
 
-        lora_hashes = []
-        for index, (lora_name, lora_weight, lora_hash) in enumerate(self.loras):
-            # workaround for Fooocus not knowing LoRA name in LoRA metadata
-            lora_hashes.append(f'{lora_name}: {lora_hash}: {lora_weight}')
-        lora_hashes_string = ', '.join(lora_hashes)
+        if len(self.loras) > 0:
+            lora_hashes = []
+            lora_weights = []
+            for index, (lora_name, lora_weight, lora_hash) in enumerate(self.loras):
+                # workaround for Fooocus not knowing LoRA name in LoRA metadata
+                lora_hashes.append(f'{lora_name}: {lora_hash}')
+                lora_weights.append(f'{lora_name}: {lora_weight}')
+            lora_hashes_string = ', '.join(lora_hashes)
+            lora_weights_string = ', '.join(lora_weights)
+            generation_params[self.fooocus_to_a1111['lora_hashes']] = lora_hashes_string
+            generation_params[self.fooocus_to_a1111['lora_weights']] = lora_weights_string
 
-        generation_params |= {
-            self.fooocus_to_a1111['lora_hashes']: lora_hashes_string,
-            self.fooocus_to_a1111['version']: data['version']
-        }
+        generation_params[self.fooocus_to_a1111['version']] = data['version']
 
         if modules.config.metadata_created_by != '':
             generation_params[self.fooocus_to_a1111['created_by']] = modules.config.metadata_created_by
@@ -483,9 +522,7 @@ class FooocusMetadataParser(MetadataParser):
     def parse_json(self, metadata: dict) -> dict:
         model_filenames = modules.config.model_filenames.copy()
         lora_filenames = modules.config.lora_filenames.copy()
-        if modules.config.sdxl_lcm_lora in lora_filenames:
-            lora_filenames.remove(modules.config.sdxl_lcm_lora)
-
+        self.remove_special_loras(lora_filenames)
         for key, value in metadata.items():
             if value in ['', 'None']:
                 continue

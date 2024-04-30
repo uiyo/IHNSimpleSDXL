@@ -1,5 +1,5 @@
 {
-    "default_model": "[SDXL]BluePencil.safetensors",
+    "default_model": "[SDXL]BluePencil动漫.safetensors",
     "default_refiner": "[SD1.5]平面动漫线条.safetensors",
     "default_refiner_switch": 0.8,
     "default_loras": [
@@ -40,7 +40,8 @@
     ],
     "default_aspect_ratio": "768*1366",
     "checkpoint_downloads": {
-        "[SDXL]AnimaPencil动漫v100.safetensors": "https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/animaPencilXL_v100.safetensors"
+        "[SDXL]BluePencil动漫.safetensors": "https://huggingface.co/bluepen5805/blue_pencil-XL/resolve/main/blue_pencil-XL-v6.0.0.safetensors",
+        "[SD1.5]平面动漫线条.safetensors":"https://huggingface.co/stablediffusionapi/flat-2d-animerge/tree/main"
     },
     "embeddings_downloads": {},
     "lora_downloads": {},
