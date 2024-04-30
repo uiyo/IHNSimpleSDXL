@@ -74,7 +74,7 @@ default_parameters = {
     cn_ip: (0.5, 0.6), cn_ip_face: (0.9, 0.75), cn_canny: (0.5, 1.0), cn_cpds: (0.5, 1.0), cn_pose: (0.926, 1.566),
 }  # stop, weight
 
-output_formats = ['png', 'jpg', 'webp']
+output_formats = ['png', 'jpeg', 'webp']
 
 inpaint_mask_models = [
     'u2net', 'u2netp', 'u2net_human_seg', 'u2net_cloth_seg', 'silueta', 'isnet-general-use', 'isnet-anime', 'sam'
@@ -96,6 +96,8 @@ desc_type_anime = 'Art/Anime'
 translation_timing = ['Translate then generate', 'Modify after translate', 'No translate']
 translation_methods = ['Slim Model', 'Big Model', 'Third APIs']
 
+backend_engine_list = ['SDXL', 'SD3 Api', 'SD3Turbo Api']
+
 class MetadataScheme(Enum):
     FOOOCUS = 'fooocus'
     A1111 = 'a1111'
@@ -108,8 +110,17 @@ metadata_scheme = [
     (f'{MetadataScheme.A1111.value}', MetadataScheme.A1111.value),
 ]
 
-
 controlnet_image_count = 4
+
+
+class OutputFormat(Enum):
+    PNG = 'png'
+    JPEG = 'jpeg'
+    WEBP = 'webp'
+
+    @classmethod
+    def list(cls) -> list:
+        return list(map(lambda c: c.value, cls))
 
 
 class Steps(IntEnum):
@@ -147,6 +158,3 @@ class Performance(Enum):
 
     def steps_uov(self) -> int | None:
         return StepsUOV[self.name].value if Steps[self.name] else None
-
-
-performance_selections = Performance.list()

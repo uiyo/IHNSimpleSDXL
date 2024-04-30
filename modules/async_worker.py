@@ -1,4 +1,5 @@
 import threading
+import re
 from modules.patch import PatchSettings, patch_settings, patch_all
 
 patch_all()
@@ -38,7 +39,7 @@ def worker():
     import modules.inpaint_worker as inpaint_worker
     import modules.constants as constants
     import enhanced.translator as translator
-    import enhanced.enhanced_parameters as enhanced_parameters
+    import enhanced.enhanced_parameters as ehps
     import enhanced.wildcards as wildcards
     import extras.ip_adapter as ip_adapter
     import extras.face_crop
@@ -48,8 +49,8 @@ def worker():
     from modules.sdxl_styles import apply_style, apply_wildcards, fooocus_expansion, apply_arrays
     from modules.private_logger import log
     from extras.expansion import safe_str
-    from modules.util import remove_empty_str, HWC3, resize_image, \
-        get_image_shape_ceil, set_image_shape_ceil, get_shape_ceil, resample_image, erode_or_dilate, ordinal_suffix
+    from modules.util import remove_empty_str, HWC3, resize_image, get_image_shape_ceil, set_image_shape_ceil, \
+        get_shape_ceil, resample_image, erode_or_dilate, ordinal_suffix, get_enabled_loras
     from modules.upscaler import perform_upscale
     from modules.flags import Performance
     from modules.meta_parser import get_metadata_parser, MetadataScheme
@@ -126,16 +127,6 @@ def worker():
         async_task.results = async_task.results + [wall]
         return
 
-    def apply_enabled_loras(loras):
-        enabled_loras = []
-        for lora_enabled, lora_model, lora_weight in loras:
-            if lora_enabled:
-                enabled_loras.append([lora_model, lora_weight])
-            else:
-                enabled_loras.append(['None', 1.0])
-
-        return enabled_loras
-
     @torch.no_grad()
     @torch.inference_mode()
     def handler(async_task):
@@ -153,12 +144,13 @@ def worker():
         image_number = args.pop()
         output_format = args.pop()
         image_seed = args.pop()
+        read_wildcards_in_order = args.pop()
         sharpness = args.pop()
         guidance_scale = args.pop()
         base_model_name = args.pop()
         refiner_model_name = args.pop()
         refiner_switch = args.pop()
-        loras = apply_enabled_loras([[bool(args.pop()), str(args.pop()), float(args.pop()), ] for _ in range(modules.config.default_max_lora_number)])
+        loras = get_enabled_loras([[bool(args.pop()), str(args.pop()), float(args.pop())] for _ in range(modules.config.default_max_lora_number)])
         input_image_checkbox = args.pop()
         current_tab = args.pop()
         uov_method = args.pop()
@@ -213,9 +205,31 @@ def worker():
         save_metadata_to_images = args.pop() if not args_manager.args.disable_metadata else False
         metadata_scheme = MetadataScheme(args.pop()) if not args_manager.args.disable_metadata else MetadataScheme.FOOOCUS
 
-        if enhanced_parameters.translation_timing != 'No translate':
-            prompt = translator.convert(prompt, enhanced_parameters.translation_methods)
-            negative_prompt = translator.convert(negative_prompt, enhanced_parameters.translation_methods)
+        if ehps.translation_timing != 'No translate':
+            prompt = translator.convert(prompt, ehps.translation_methods)
+            negative_prompt = translator.convert(negative_prompt, ehps.translation_methods)
+        
+        import enhanced.sd3_handle as sd3_handle
+        if ehps.backend_selection == 'SD3 Api' or ehps.backend_selection == 'SD3Turbo Api':
+            if ehps.backend_selection == 'SD3 Api':
+                model = 'sd3'
+            else:
+                model = 'sd3-turbo'
+            out_path_filename = sd3_handle.sd3_generate_api(prompt=prompt, model=model, aspect_ratio=ehps.sd3_aspect_ratios_selection, negative_prompt=negative_prompt, seed=int(image_seed), output_format=output_format)
+
+            from PIL import Image
+            with Image.open(out_path_filename) as image:
+                img = np.array(image)
+            width, height = image.size
+            d = [('Prompt', 'prompt', prompt),
+                 ('Negative Prompt', 'negative_prompt', negative_prompt),
+                 ('Base Model', 'base_model', model),
+                 ('Resolution', 'resolution', str((width, height))),
+                 ('Seed', 'seed', image_seed)]
+            sd3_image_path = log(img, d, output_format=output_format)
+            yield_result(async_task, sd3_image_path, do_not_show_finished_images=True)    
+            async_task.processing = False
+            return
 
         cn_tasks = {x: [] for x in flags.ip_list}
         for _ in range(flags.controlnet_image_count):
@@ -468,10 +482,11 @@ def worker():
                     task_seed = seed % (constants.MAX_SEED + 1)
 
                 task_prompt = wildcards.apply_arrays(prompt, i, wildcards_arrays, arrays_mult)
+                task_prompt = wildcards.replace_wildcard(task_prompt, task_rng)
                 task_negative_prompt = wildcards.apply_wildcards(negative_prompt, task_rng)
                 task_extra_positive_prompts = [wildcards.apply_wildcards(pmt, task_rng) for pmt in extra_positive_prompts]
                 task_extra_negative_prompts = [wildcards.apply_wildcards(pmt, task_rng) for pmt in extra_negative_prompts]
-            
+           
                 positive_basic_workloads = []
                 negative_basic_workloads = []
 
@@ -505,7 +520,7 @@ def worker():
                     log_positive_prompt='\n'.join([task_prompt] + task_extra_positive_prompts),
                     log_negative_prompt='\n'.join([task_negative_prompt] + task_extra_negative_prompts),
                 ))
-
+            
             if use_expansion:
                 for i, t in enumerate(tasks):
                     progressbar(async_task, 5, f'Preparing Fooocus text #{i + 1} ...')
@@ -640,12 +655,12 @@ def worker():
 
                 H, W, C = inpaint_image.shape
                 if 'left' in outpaint_selections:
-                    inpaint_image = np.pad(inpaint_image, [[0, 0], [int(H * 0.3), 0], [0, 0]], mode='edge')
-                    inpaint_mask = np.pad(inpaint_mask, [[0, 0], [int(H * 0.3), 0]], mode='constant',
+                    inpaint_image = np.pad(inpaint_image, [[0, 0], [int(W * 0.3), 0], [0, 0]], mode='edge')
+                    inpaint_mask = np.pad(inpaint_mask, [[0, 0], [int(W * 0.3), 0]], mode='constant',
                                           constant_values=255)
                 if 'right' in outpaint_selections:
-                    inpaint_image = np.pad(inpaint_image, [[0, 0], [0, int(H * 0.3)], [0, 0]], mode='edge')
-                    inpaint_mask = np.pad(inpaint_mask, [[0, 0], [0, int(H * 0.3)]], mode='constant',
+                    inpaint_image = np.pad(inpaint_image, [[0, 0], [0, int(W * 0.3)], [0, 0]], mode='edge')
+                    inpaint_mask = np.pad(inpaint_mask, [[0, 0], [0, int(W * 0.3)]], mode='constant',
                                           constant_values=255)
 
                 inpaint_image = np.ascontiguousarray(inpaint_image.copy())
@@ -920,7 +935,7 @@ def worker():
 
                     d.append(('Sampler', 'sampler', sampler_name))
                     d.append(('Scheduler', 'scheduler', scheduler_name))
-                    d.append(('Seed', 'seed', task['task_seed']))
+                    d.append(('Seed', 'seed', str(task['task_seed'])))
 
                     if freeu_enabled:
                         d.append(('FreeU', 'freeu', str((freeu_b1, freeu_b2, freeu_s1, freeu_s2))))

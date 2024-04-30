@@ -11,7 +11,7 @@ from extras.expansion import FooocusExpansion
 
 from ldm_patched.modules.model_base import SDXL, SDXLRefiner
 from modules.sample_hijack import clip_separate
-from modules.util import get_file_from_folder_list
+from modules.util import get_file_from_folder_list, get_enabled_loras
 
 
 model_base = core.StableDiffusionModel()
@@ -60,7 +60,6 @@ def assert_model_integrity():
 @torch.inference_mode()
 def refresh_base_model(name):
     global model_base
-
     filename = get_file_from_folder_list(name, modules.config.paths_checkpoints)
 
     if model_base.filename == filename:
@@ -254,7 +253,7 @@ def refresh_everything(refiner_model_name, base_model_name, loras,
 refresh_everything(
     refiner_model_name=modules.config.default_refiner_model_name,
     base_model_name=modules.config.default_base_model_name,
-    loras=modules.config.default_loras
+    loras=get_enabled_loras(modules.config.default_loras)
 )
 
 

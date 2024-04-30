@@ -1,5 +1,5 @@
 {
-    "default_model": "[SDXL]基础模型juggernautXLv8.safetensors",
+    "default_model": "[SDXL]基础模型juggernautXLvXNSFW.safetensors",
     "default_refiner": "[SD1.5]3D电影风格.safetensors",
     "default_refiner_switch": 0.8,
     "default_loras": [
@@ -42,7 +42,7 @@
     "default_overwrite_step": -1,
     "default_overwrite_switch": -1,
     "checkpoint_downloads": {
-        "[SDXL]基础模型juggernautXLv8.safetensors": "https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/juggernautXL_version6Rundiffusion.safetensors",
+        "[SDXL]基础模型juggernautXLvXNSFW.safetensors": "https://huggingface.co/RunDiffusion/Juggernaut-X-v10/resolve/main/Juggernaut-X-RunDiffusion-NSFW.safetensors",
         "[SD1.5]3D电影风格.safetensors": "https://huggingface.co/oyang/ihn_simplesdxl_models/resolve/main/3dAnimationDiffusion_v10.safetensors"
     },
     "embeddings_downloads": {},

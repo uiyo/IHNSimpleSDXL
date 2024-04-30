@@ -35,6 +35,7 @@ def javascript_html():
     model_item_dialog = webpath('javascript/model-item-dialog.js')
     # test = webpath('javascript/test.js')
     samples_path = webpath(os.path.abspath('./sdxl_styles/samples/fooocus_v2.jpg'))
+    preset_samples_path = webpath(os.path.abspath('./presets/samples/default.jpg'))
     head = f'<script type="text/javascript">{localization_js(args_manager.args.language)}</script>\n'
     head += f'<script type="text/javascript" src="{script_js_path}"></script>\n'
     head += f'<script type="text/javascript" src="{context_menus_js_path}"></script>\n'
@@ -45,6 +46,7 @@ def javascript_html():
     head += f'<script type="text/javascript" src="{image_viewer_js_path}"></script>\n'
     head += f'<script type="text/javascript" src="{topbar_js_path}"></script>\n'
     head += f'<meta name="samples-path" content="{samples_path}"></meta>\n'
+    head += f'<meta name="preset-samples-path" content="{preset_samples_path}"></meta>\n'
 
     theme = args_manager.args.theme if args_manager.args.theme else "light"
     head += f'<script type="text/javascript">set_theme(\"{theme}\");</script>\n'

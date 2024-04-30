@@ -16,61 +16,12 @@ import modules.sdxl_styles as sdxl_styles
 import modules.style_sorter as style_sorter
 import enhanced.gallery as gallery_util
 import enhanced.location as location
-from enhanced.models_info import models_info, models_info_muid
+import enhanced.superprompter as superprompter
+from enhanced.models_info import models_info, models_info_muid, refresh_models_info_from_path
 from modules.model_loader import load_file_from_url, load_file_from_muid
 
 
 css = '''
-.systemMsg {
-    position: absolute;
-    z-index: 1002;
-    top: 0%;
-    left: 5%;
-    right: 5%;
-    height: 45px;
-    overflow: auto;
-    user-select: none;
-    -webkit-user-select: none;
-}
-
-.systemMsgBox {
-    position: absolute;
-    left: 24px;
-    right: 24px;
-    top: 2px;
-    font-size: 12px;
-}
-.systemMsgBox::-webkit-scrollbar {
-    border: 1px !important;
-}
-
-.systemMsgClose {
-    position: absolute;
-    top: 0px;
-    right: 5px;
-}
-
-iframe::-webkit-scrollbar {
-    display: none;
-}
-
-.preset_bar {
-    text-align: center;
-    padding: 0px;
-}
-
-.bar_title {
-    width: 60px !important;
-    padding: 0px;
-    position: absolute;
-    left: 5px;
-    top: 2px
-}
-
-.bar_button {
-    width: 80px !important;
-    padding: 0px;
-}
 '''
 
 # app context
@@ -99,6 +50,19 @@ def get_preset_name_list():
         name_list += f'{presets[i][:-5]},'
     name_list = name_list[:-1]
     return name_list
+
+def is_models_file_absent(preset_name):
+    preset_path = os.path.abspath(f'./presets/{preset_name}.json')
+    if os.path.exists(preset_path):
+        with open(preset_path, "r", encoding="utf-8") as json_file:
+            config_preset = json.load(json_file)
+        if config_preset["default_model"] and config_preset["default_model"] != 'None':
+            if "checkpoints/"+config_preset["default_model"] not in models_info.keys():
+                return True
+        if config_preset["default_refiner"] and config_preset["default_refiner"] != 'None':
+            if "checkpoints/"+config_preset["default_refiner"] not in models_info.keys():
+                return True
+    return False
 
 
 def get_system_message():
@@ -197,6 +161,8 @@ function(system_params) {
         theme=url_params["__theme"];
         system_params["__theme"]=theme;
     }
+    setObserver();
+
     return system_params;
 }
 '''
@@ -293,7 +259,7 @@ def init_nav_bars(state_params, request: gr.Request):
     state_params.update({"note_box_state": ['',0,0]})
     state_params.update({"array_wildcards_mode": '['})
     state_params.update({"wildcard_in_wildcards": 'root'})
-    #print(f'system_params:{state_params}')
+    state_params.update({"bar_button": config.preset})
     results = refresh_nav_bars(state_params)
     results += [gr.update(value="enhanced/attached/welcome_m.jpg")] if state_params["__is_mobile"] else [gr.update()]
     results += [gr.update(value=location.language_radio(state_params["__lang"])), gr.update(value=state_params["__theme"])]
@@ -328,6 +294,7 @@ def refresh_nav_bars(state_params):
         results += [gr.update(visible=True)]
     for i in range(len(preset_name_list)):
         name = preset_name_list[i]
+        name += '\u2B07' if is_models_file_absent(name) else ''
         visible_flag = i<(5 if state_params["__is_mobile"] else 9)
         if name:
             results += [gr.update(value=name, visible=visible_flag)]
@@ -339,11 +306,13 @@ def refresh_nav_bars(state_params):
 def process_before_generation(state_params):
     if "__nav_name_list" not in state_params.keys():
         state_params.update({"__nav_name_list": get_preset_name_list()})
+    superprompter.remove_superprompt()
+    remove_tokenizer()
     # stop_button, skip_button, generate_button, gallery, state_is_generating, index_radio, image_tools_checkbox
     results = [gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), [], True, gr.update(visible=False, open=False), gr.update(value=False, interactive=False)]
-    # background_theme, bar0_button, bar1_button, bar2_button, bar3_button, bar4_button, bar5_button, bar6_button, bar7_button, bar8_button
+    # prompt, random_button, translator_button, super_prompter, background_theme, bar0_button, bar1_button, bar2_button, bar3_button, bar4_button, bar5_button, bar6_button, bar7_button, bar8_button
     preset_nums = len(state_params["__nav_name_list"].split(','))
-    results += [gr.update(interactive=False)] * (preset_nums + 1)
+    results += [gr.update(interactive=False)] * (preset_nums + 5)
     results += [gr.update()] * (9-preset_nums)
     # print("[LOGINFO]" + state_params["__cookie"])
     return results
@@ -354,12 +323,12 @@ def process_after_generation(state_params):
         state_params.update({"__max_per_page": 18})
     state_params.update({"__output_list": gallery_util.refresh_output_list(state_params["__max_per_page"], state_params["__cookie"])})
     # generate_button, stop_button, skip_button, state_is_generating
-    results = [gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), gr.update(visible=False, interactive=False), False]
+    results = [gr.update(visible=True, interactive=True)] + [gr.update(visible=False, interactive=False), gr.update(visible=False, interactive=False), False]
     # gallery_index, index_radio
     results += [gr.update(choices=state_params["__output_list"], value=None), gr.update(visible=len(state_params["__output_list"])>0, open=False)]
-    # background_theme, bar0_button, bar1_button, bar2_button, bar3_button, bar4_button, bar5_button, bar6_button, bar7_button, bar8_button
+    # prompt, random_button, translator_button, super_prompter, background_theme, bar0_button, bar1_button, bar2_button, bar3_button, bar4_button, bar5_button, bar6_button, bar7_button, bar8_button
     preset_nums = len(state_params["__nav_name_list"].split(','))
-    results += [gr.update(interactive=True)] * (preset_nums + 1)
+    results += [gr.update(interactive=True)] * (preset_nums + 5)
     results += [gr.update()] * (9-preset_nums)
     
     if len(state_params["__output_list"]) > 0:
@@ -367,6 +336,7 @@ def process_after_generation(state_params):
         gallery_util.refresh_images_catalog(output_index, True)
         gallery_util.parse_html_log(output_index, True)
     
+    refresh_models_info_from_path() 
     return results
 
 
@@ -374,17 +344,31 @@ def sync_message(state_params):
     state_params.update({"__message":system_message})
     return state_params
 
+preset_down_note_info = 'The preset package being loaded has model files that need to be downloaded, and it will take some time to wait...'
+def check_absent_model(bar_button, state_params):
+    #print(f'check_absent_model,state_params:{state_params}')
+    state_params.update({'bar_button': bar_button})
+    return gr.update(visible=False), state_params
 
-def reset_params_for_preset(bar_button, state_params):
-    global system_message
+def down_absent_model(state_params):
+    state_params.update({'bar_button': state_params["bar_button"].replace('\u2B07', '')})
+    return gr.update(visible=False), state_params
+
+def reset_params_for_preset(state_params):
+    global system_message, preset_down_note_info
 
     state_params.update({"__message": system_message})
     system_message = 'system message was displayed!'
-    if '__preset' not in state_params.keys() or state_params["__preset"]==bar_button:
-        return [gr.update()] * 49 + [state_params]
-    print(f'[Topbar] Reset_context: preset={state_params["__preset"]}-->{bar_button}, theme={state_params["__theme"]}, lang={state_params["__lang"]}')
-    state_params.update({"__preset": bar_button})
-    return reset_context(state_params)
+    if '__preset' not in state_params.keys() or 'bar_button' not in state_params.keys() or state_params["__preset"]==state_params['bar_button']:
+        return [gr.update()] * 61 + [state_params]
+    if '\u2B07' in state_params["bar_button"]:
+        gr.Info(preset_down_note_info)
+    preset = state_params["bar_button"] if '\u2B07' not in state_params["bar_button"] else state_params["bar_button"].replace('\u2B07', '')
+    print(f'[Topbar] Reset_context: preset={state_params["__preset"]}-->{preset}, theme={state_params["__theme"]}, lang={state_params["__lang"]}')
+    state_params.update({"__preset": preset})
+    results = [gr.update(value='SDXL')]
+    results += reset_context(state_params)
+    return results
 
 
 def reset_context(state_params):
@@ -438,10 +422,12 @@ def reset_context(state_params):
     adm_scaler_end = ads.default["adm_scaler_end"] if "default_adm_scaler_end" not in keys else config_preset["default_adm_scaler_end"]
     info_preset.update({"ADM Guidance": f'({adm_scaler_positive}, {adm_scaler_negative}, {adm_scaler_end})'})
     if "default_loras" in keys:
-        loras = [(n, v) for i, (n, v) in enumerate(config_preset["default_loras"]) if n!='None']
+        if len(config_preset["default_loras"][0])==3:
+            loras = [(n, v) for i, (e, n, v) in enumerate(config_preset["default_loras"]) if n!='None']
+        else:
+            loras = [(n, v) for i, (n, v) in enumerate(config_preset["default_loras"]) if n!='None']
         for i, (n, v) in enumerate(loras, 1):
             info_preset.update({f'LoRA {i}': f'{n} : {v}'})
-            lora = f'LoRA {i}'
 
     if "default_seed" in keys:
         info_preset.update({"Seed": f'{config_preset["default_seed"]}'})
@@ -497,7 +483,7 @@ def reset_context(state_params):
     
     results = reset_params(check_prepare_for_reset(info_preset))
     results += [gr.update(visible=True if preset_url else False)]
-
+    
     get_value_or_default = lambda x: ads.default[x] if f'default_{x}' not in config_preset else config_preset[f'default_{x}']
     max_image_number = get_value_or_default("max_image_number")
     image_number = get_value_or_default("image_number")
@@ -506,15 +492,17 @@ def reset_context(state_params):
         results += [gr.update(value=get_value_or_default('image_number'), maximum=get_value_or_default('max_image_number'))]
     else:
         results += [gr.update()]
-
+    
+    # if default_X in config_prese then update the value to gr.X
     update_in_keys = lambda x: [gr.update(value=config_preset[f'default_{x}'])] if f'default_{x}' in config_preset else [gr.update()]
     results += update_in_keys("inpaint_mask_upload_checkbox") + update_in_keys("mixing_image_prompt_and_vary_upscale") + update_in_keys("mixing_image_prompt_and_inpaint")
     results += update_in_keys("backfill_prompt") + update_in_keys("translation_timing") + update_in_keys("translation_methods") 
     
     state_params.update({"__message": system_message})
+    results += refresh_nav_bars(state_params)
+    results += update_in_keys("output_format")
     results += [state_params]
     system_message = 'system message was displayed!'
-
     return results
 
 
@@ -643,6 +631,8 @@ def reset_params(metadata):
     freeu_b1, freeu_b2, freeu_s1, freeu_s2 = [float(f.strip()) for f in get_ads_value_or_default('freeu')[1:-1].split(',')]
 
     styles = [f[1:-1] for f in metadata['Styles'][1:-1].split(', ')]
+    if styles == ['']:
+        styles = []
 
 # [prompt, negative_prompt, style_selections, performance_selection, aspect_ratios_selection, sharpness, guidance_scale, base_model, refiner_model, refiner_switch, sampler_name, scheduler_name, adaptive_cfg, overwrite_step, overwrite_switch, inpaint_engine] + lora_ctrls + [adm_scaler_positive, adm_scaler_negative, adm_scaler_end, seed_random, image_seed] + freeu_ctrls
 
@@ -677,6 +667,76 @@ def reset_params(metadata):
         results += [gr.update(value=False)]
     results += [gr.update(value=freeu_b1), gr.update(value=freeu_b2), gr.update(value=freeu_s1), gr.update(value=freeu_s2) ]
     return results
-                                                                                                                                            
+
+from transformers import CLIPTokenizer
+import shared
+import shutil
+
+cur_clip_path = os.path.join(config.path_clip_vision, "clip-vit-large-patch14")
+if not os.path.exists(cur_clip_path):
+    org_clip_path = os.path.join(shared.root, 'models/clip_vision/clip-vit-large-patch14')
+    shutil.copytree(org_clip_path, cur_clip_path)
+tokenizer = CLIPTokenizer.from_pretrained(cur_clip_path)
+ 
+def remove_tokenizer():
+    global tokenizer
+
+    if 'tokenizer' in globals():
+        del tokenizer
+    return
+
+def prompt_token_prediction(text, style_selections):
+    global tokenizer, cur_clip_path
+    if 'tokenizer' not in globals():
+        globals()['tokenizer'] = None
+    if tokenizer is None:
+        tokenizer = CLIPTokenizer.from_pretrained(cur_clip_path)
+    return len(tokenizer.tokenize(text))
+
+    from extras.expansion import safe_str
+    from modules.util import remove_empty_str
+    import enhanced.translator as translator
+    import enhanced.enhanced_parameters as enhanced_parameters
+    import enhanced.wildcards as wildcards
+    from modules.sdxl_styles import apply_style, fooocus_expansion
+
+    prompt = translator.convert(text, enhanced_parameters.translation_methods)
+    return len(tokenizer.tokenize(prompt))
+    
+    if fooocus_expansion in style_selections:
+        use_expansion = True
+        style_selections.remove(fooocus_expansion)
+    else:
+        use_expansion = False
+
+    use_style = len(style_selections) > 0
+    prompts = remove_empty_str([safe_str(p) for p in prompt.splitlines()], default='')
+
+    prompt = prompts[0]
+
+    if prompt == '':
+        # disable expansion when empty since it is not meaningful and influences image prompt
+        use_expansion = False
+
+    extra_positive_prompts = prompts[1:] if len(prompts) > 1 else []
+    task_rng = random.Random(random.randint(constants.MIN_SEED, constants.MAX_SEED))
+    prompt, wildcards_arrays, arrays_mult, seed_fixed = wildcards.compile_arrays(prompt, task_rng)
+    task_prompt = wildcards.apply_arrays(prompt, 0, wildcards_arrays, arrays_mult)
+    task_prompt = wildcards.replace_wildcard(task_prompt, task_rng)
+    task_extra_positive_prompts = [wildcards.apply_wildcards(pmt, task_rng) for pmt in extra_positive_prompts]
+    positive_basic_workloads = []
+    use_style = False
+    if use_style:
+        for s in style_selections:
+            p, n = apply_style(s, positive=task_prompt)
+            positive_basic_workloads = positive_basic_workloads + p
+    else:
+        positive_basic_workloads.append(task_prompt)
+    positive_basic_workloads = positive_basic_workloads + task_extra_positive_prompts
+    positive_basic_workloads = remove_empty_str(positive_basic_workloads, default=task_prompt)
+    #print(f'positive_basic_workloads:{positive_basic_workloads}')
+    return len(tokenizer.tokenize(positive_basic_workloads[0]))
+
+
 nav_name_list = get_preset_name_list()
 system_message = get_system_message()

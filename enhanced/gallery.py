@@ -6,6 +6,7 @@ import copy
 import modules.util as util
 import modules.config as config
 import enhanced.toolbox as toolbox
+import re
 from lxml import etree
 
 
@@ -19,14 +20,16 @@ images_prompt_keys = []
 images_ads = {}
 history_path = ""
 
-image_types = ['.png', '.jpg', '.webp']
+image_types = ['.png', '.jpg', '.jpeg', '.webp']
+output_images_regex = re.compile(r'\d{4}-\d{2}-\d{2}')
 
 def refresh_output_list(max_per_page, cookie='default'):
     global image_types, history_path
     history_path = os.path.join(config.path_outputs, cookie)
     if not os.path.exists(history_path):
         os.mkdir(history_path)
-    listdirs = [f for f in os.listdir(history_path) if f!="embed" and os.path.isdir(os.path.join(history_path,f))]
+    
+    listdirs = [f for f in os.listdir(history_path) if output_images_regex.findall(f) and os.path.isdir(os.path.join(history_path,f))]
     if listdirs is None:
         return None
     listdirs1 = listdirs.copy()
