@@ -5,7 +5,7 @@
     "default_loras": [
         [
             true,
-            "SDXL_FILM_PHOTOGRAPHY_STYLE_BetaV0.4.safetensors",
+            "电影画质.safetensors",
             0.25
         ],
         [
