@@ -197,7 +197,7 @@ const loraData = [{
   label: '蜡笔油画',
   value: '蜡笔油画.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/crayon_paint.jpeg',
-  decs: '蜡笔油画质感插图'
+  decs: 'childpaint'
 }, {
   label: '可爱动物',
   value: '可爱动物.safetensors',
