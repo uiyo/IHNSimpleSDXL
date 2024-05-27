@@ -272,7 +272,7 @@ const loraData = [{
   label: '川剧变脸风格',
   value: '川剧变脸.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/chuanju_bianlian.png',
-  decs: 'sichuan opera costume, face-changing'
+  decs: 'sichuan opera'
 }]
 
 // 点击回显的数据
