@@ -145,6 +145,11 @@ const modelData = [{
   value: '[SDXL]BluePencil动漫.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/bluepencil.jpg',
   decs: '柔和色彩二次元动漫'
+}, {
+  label: '亚洲人像',
+  value: '[SDXL]亚洲人像.safetensors',
+  image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/asiaportrait.png',
+  decs: '国风审美的人像'
 }]
 
 // lora的数据
