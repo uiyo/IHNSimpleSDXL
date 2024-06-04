@@ -278,6 +278,11 @@ const loraData = [{
   value: '川剧变脸.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/chuanju_bianlian.png',
   decs: 'sichuan opera'
+}, {
+  label: '粘土风格',
+  value: '粘土风格.safetensors',
+  image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/claymation.jpeg',
+  decs: 'claymation'
 }]
 
 // 点击回显的数据
