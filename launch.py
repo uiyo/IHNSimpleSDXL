@@ -54,6 +54,12 @@ def prepare_environment():
     git_clone(comfy_repo, repo_dir(comfyui_name), "Comfy Backend", comfy_commit_hash)
     sys.path.append(str(repo_dir(comfyui_name)))
 
+    if not is_installed("simpleai_base"):
+        run(f'"{python}" -m pip install simpleai_base -i https://pypi.org/simple', "Installing simpleai_base")
+    from simpleai_base import simpleai_base
+    print("Checking ...")
+    token = simpleai_base.init_local(f'SimpleSDXL_User')
+
     if REINSTALL_ALL or not is_installed("torch") or not is_installed("torchvision"):
         run(f'"{python}" -m {torch_command}', "Installing torch and torchvision", "Couldn't install torch", live=True)
 
@@ -90,8 +96,8 @@ def prepare_environment():
 vae_approx_filenames = [
     ('xlvaeapp.pth', 'https://huggingface.co/lllyasviel/misc/resolve/main/xlvaeapp.pth'),
     ('vaeapp_sd15.pth', 'https://huggingface.co/lllyasviel/misc/resolve/main/vaeapp_sd15.pt'),
-    ('xl-to-v1_interposer-v3.1.safetensors',
-     'https://huggingface.co/lllyasviel/misc/resolve/main/xl-to-v1_interposer-v3.1.safetensors')
+    ('xl-to-v1_interposer-v4.0.safetensors',
+     'https://huggingface.co/mashb1t/misc/resolve/main/xl-to-v1_interposer-v4.0.safetensors')
 ]
 
 
@@ -104,15 +110,15 @@ def is_ipynb():
     return True if 'ipykernel' in sys.modules and hasattr(sys, '_jupyter_kernel') else False
 
 prepare_environment()
-#build_launcher()
+build_launcher()
 args = ini_args()
 
 if args.gpu_device_id is not None:
     os.environ['CUDA_VISIBLE_DEVICES'] = str(args.gpu_device_id)
     print("Set device to:", args.gpu_device_id)
 
-import enhanced.token_did as token_did
-token_did.init_local_did(f'SimpleSDXL_User')
+#import enhanced.token_did as token_did
+#token_did.init_local_did(f'SimpleSDXL_User')
 
 import enhanced.location as location 
 location.init_location()
@@ -132,6 +138,9 @@ if '--listen' not in sys.argv:
         args.listen = socket.gethostbyname(socket.gethostname())
 if '--port' not in sys.argv:
     args.port = 6067
+if args.hf_mirror is not None : 
+    os.environ['HF_MIRROR'] = str(args.hf_mirror)
+    print("Set hf_mirror to:", args.hf_mirror)
 
 from modules import config
 

@@ -42,5 +42,8 @@
         "动漫+真实v20.safetensors": "https://huggingface.co/metercai/SimpleSDXL/resolve/main/checkpoints/albedobaseXL_v20.safetensors"
     },
     "embeddings_downloads": {},
-    "lora_downloads": {}
+    "lora_downloads": {},
+    "previous_default_models": [
+    	"albedobaseXL_v20.safetensors"
+    ]
 } 
