@@ -20,6 +20,11 @@ def smart_resize(x, s):
     else:
         return np.stack([smart_resize(x[:, :, i], s) for i in range(Co)], axis=2)
 
+def warpAffine_kps(kps, M):
+    a = M[:,:2]
+    t = M[:,2]
+    kps = np.dot(kps, a.T) + t
+    return kps
 
 def smart_resize_k(x, fx, fy):
     if x.ndim == 2:

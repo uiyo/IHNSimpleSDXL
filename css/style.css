@@ -27,6 +27,7 @@ progress {
   border-radius: 5px; /* Round the corners of the progress bar */
   background-color: #f3f3f3; /* Light grey background */
   width: 100%;
+  vertical-align: middle !important;
 }
 
 /* Style the progress bar container */
@@ -69,29 +70,38 @@ progress::after {
   height: 30px !important;
 }
 
+.progress-bar span {
+    text-align: right;
+    width: 215px;
+}
+div:has(> #positive_prompt) {
+    border: none;
+}
+
+#positive_prompt {
+    padding: 0px;
+    background: var(--background-fill-primary);
+}
+
 .type_row{
-  height: 80px !important;
+  height: 100px !important;
 }
 
 .type_row_half{
-  height: 40px !important;
+  height: 50px !important;
   font-size: 14px !important;
   white-space: nowrap;
   overflow: hidden;
 }
 
 .type_row_third{
-  height: 26px !important;
+  height: 33px !important;
   font-size: 14px !important; 
   white-space: nowrap;
   overflow: hidden;
 }
 
-.scroll-hide{
-  resize: none !important;
-}
-
-.refresh_button{
+.refresh_button {
   border: none !important;
   background: none !important;
   font-size: none !important;
@@ -99,10 +109,10 @@ progress::after {
 }
 
 .advanced_check_row{
-  width: 320px !important;
+  width: 250px !important;
 }
 
-.min_check{
+.min_check {
   min-width: min(1px, 100%) !important;
 }
 
@@ -111,8 +121,12 @@ progress::after {
   overflow: auto !important;
 }
 
-.aspect_ratios label {
+.performance_selection label {
     width: 140px !important;
+}
+
+.aspect_ratios label {
+    flex: calc(50% - 5px) !important;
 }
 
 .aspect_ratios label span {
@@ -413,16 +427,24 @@ progress::after {
   background-color: #fff8;
   font-family: monospace;
   text-align: center;
-  border-radius-top: 5px;
-  display: none; /* 删除此以在预览图像中启用工具提示 */
+  border-radius: 5px 5px 0px 0px;
+  display: none; /* remove this to enable tooltip in preview image */
+}
+
+#inpaint_canvas .canvas-tooltip-info {
+  top: 2px;
+}
+
+#inpaint_brush_color input[type=color]{
+  background: none;
 }
 
 .systemMsg {
     position: absolute;
     z-index: 1002;
     top: 0%;
-    left: 5%;
-    right: 5%;
+    left: 0%;
+    right: 0%;
     height: 45px;
     overflow: auto;
     user-select: none;
@@ -517,3 +539,13 @@ div.prose.tokenCounter {
   min-height: auto;
 }
 
+.identity_input textarea {
+    width: 180px;
+    padding: 3px 3px;
+    height: 32px;
+    margin: 3px 3px;
+}
+
+.iclight_source {
+    max-width: 390px;
+}

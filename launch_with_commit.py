@@ -1,7 +1,6 @@
 import os
 import sys
 
-
 if len(sys.argv) < 2:
     print("Usage: python launch_with_commit.py <commit_hash>")
     sys.exit(1)
@@ -11,8 +10,14 @@ root = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(root)
 os.chdir(root)
 
+from modules.launch_util import is_installed, run_pip
 
 try:
+    if not is_installed("simpleai_base"):
+        run_pip(f"install simpleai_base -i https://pypi.org/simple", "simpleai_base")
+    from simpleai_base import simpleai_base
+    token = simpleai_base.init_local(f'SimpleSDXL_User')
+
     import pygit2
     pygit2.option(pygit2.GIT_OPT_SET_OWNER_VALIDATION, 0)
 

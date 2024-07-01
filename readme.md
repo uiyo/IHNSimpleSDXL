@@ -1,17 +1,39 @@
-## SimpleSDXL - Fooocus中文孪生版
-<div align=center><img src="https://github.com/metercai/SimpleSDXL/assets/5652458/c6088225-4006-4e0a-a1d4-979a61aefda4"></div>
+## SimpleSDXL2 - 扩展后端，超越Fooocus，支持6G显存国产混元与SD3出图。
+<div align=center><img src="https://github.com/metercai/SimpleSDXL/assets/5652458/92b6c7d5-fc3e-4407-b03e-5c87d149d503"></div>
 
-## 🔔 更新 / Update
-- [2024.04.23] <b>升级OBP到最新版，集成[Superprompt](https://huggingface.co/roborovski/superprompt-v1)超级提示词扩展，为提示词增补细节描写。新增SD3生图引擎接口，可到[stability.ai](https://stability.ai/membership)申请免费会员，获取接口密钥后无缝对接SD3新引擎生成图片。优化界面，包括将OBP和Superprompt入口整合到提示词框，新增预置包导航浮层提示、提示词框token数统计、图生图多个参数前置到操作页面等。<b>
-- [2024.03.26] 集成[OneButtonPrompt](https://github.com/AIrjen/OneButtonPrompt)组件，根据预设场景模版，随机抽取组合提示词，是一款好玩而强大的提示词组织工具。修订通配符语法处理逻辑,兼容主线的多通配符随机抽取。增加预置包模型文件下载提示，修订嵌参图片参数提取等bug，完成主线2.3.1合版。
+## 🔔 最新更新 / Update
+- [2024.06.30] <b>扩展架构，新增Comfy后端，全新升级SimpleSDXL2。支持SDXL、混元、SD3和Playground-v2.5本地模型，最低6G显卡内存可用，保持Fooocus简洁、高效和稳定的出图风格。新增融图打光模块，可自主生成前景及蒙版，可自动抠取产品或人物图片切换场景进行融合。升级OBP一键提示词到最新版。UI整体优化。</b>
+- [2024.05.28] 同步主线升级到v2.4.3，新增nsfw过滤等功能。
+- [2024.04.23] 升级OBP到最新版，集成[Superprompt](https://huggingface.co/roborovski/superprompt-v1)超级提示词扩展，为提示词增补细节描写。新增SD3生图引擎接口，可到[stability.ai](https://stability.ai/membership)申请免费会员，获取接口密钥后无缝对接SD3新引擎生成图片。优化界面，包括将OBP和Superprompt入口整合到提示词框，新增预置包导航浮层提示、提示词框token数统计、图生图多个参数前置到操作页面等。</b>
 
 <b>重要：如果项目给您带来了便利和价值，不要吝惜加颗星"⭐️"，促进项目更好的发展！😜<br>
 Note: Please don't forget to give us a star if you like this project. Thanks! 😜</b>
 
+## Windows安装使用
+### 下载：(新用户至少要下载程序包和基本模型包)
+- 运行环境和应用程序, [程序包: SimpleSDXL2_win.exe.7z (2G)](https://hf-mirror.com/metercai/SimpleSDXL2/resolve/main/SimpleSDXL2_win.exe.7z)
+- 缺省出图模型和所有辅助模型，包括混元v1.1版和SD3基础版, [基本模型包: models_base.zip (49G)](https://hf-mirror.com/metercai/SimpleSDXL2/resolve/main/models_base.zip)
+- 预置导航上的其他出图模型和SD3的t5fp8版, [扩展模型包: models_ckpt.zip (46G)](https://hf-mirror.com/metercai/SimpleSDXL2/resolve/main/models_ckpt.zip)
+### 安装：
+- 新建空目录，路径名上不能包含中文和空格。将程序包复制到新目录，<b>去掉`.7z`的文件名尾缀</b>，然后点击运行SimpleSDXL2_win.exe，自解压到当前目录。新版本严禁与旧版本混装。
+- 解压基本模型包models_base.zip， 与上一步解压出来的models目录同名覆盖。如有Fooocus、SD或其他模型库共享，可自行配置config.txt。
+- 如需解除预置导航上其他预置包下载箭头，可解压扩展模型包models_ckpt.zip，同样覆盖同名目录models。
+### 运行
+- 点击启动 run_SimpleSDXL.bat，完成第一次运行。
+- 后续可用三种方式启动运行：
+  - 带更新启动：run_SimpleSDXL.bat
+  - 不更新启动：run_SimpleSDXL_without_update.bat
+  - 启动开发测试版：run_SimpleSDXL_dev.bat
+
+
 ## 什么是SimpleSDXL？/ What's SimpleSDXL?
 - **化繁为简** AI的本质应该是化繁为简，让操作更简洁，让想法更易达成。SimpleSDXL保持Fooocus的易用性，以SDXL模型生态为核心，朝着开源可控，简洁易用，功能完善的方向更进一步。
-- **中文适配** 中文环境与英语环境有很多差异。不仅仅在语言文字上，包括思维习惯、操作方式和网络环境都有很多不同。让中文用户使用更简单，用的更爽，也是SimpleSDXL的原始初衷。
+- **中文适配** 中文环境与英语环境有很多差异。不仅仅在语言文字上，包括思维习惯、操作方式和网络环境都有很多不同。让中文用户使用更简单，用的更爽，也是SimpleSDXL
+的原始初衷。
 - **场景定制** 文生图和图生图有非常多的使用场景，需要更好的配置定制能力。SimpleSDXL以**预置包和嵌参图片**为基础，面向场景提升Fooocus的**开放性和可定制性**，发挥出SDXL的强大能力。
+
+## SmipleSDXL2 全新架构 / New Architecture
+<img width="600" align=center src="https://github.com/metercai/SimpleSDXL/assets/5652458/364df3ce-3420-4cec-b26e-f315c76b4c1e">
 
 ## 对比Fooocus的增强特色 / Enhanced features of Fooocus
 在Fooocus基础上增强功能，可无缝升级，同步迭代，并行使用。而且经过了手机适配，PC和手机也可同步操作。<br> 
@@ -84,29 +106,26 @@ Enhanced parameter management for instant viewing and embedding of images, and c
 - [ ] **算力云化** 前后端分离，本机的出图算力后端可支持远程的前端出图调用，实现前端操控和出图计算的分离，让无GPU卡设备也可使用SDXL模型出图。
 - [x] **主线同步** SimpleSDXL的增强代码保持良好的结构，与Fooocus主线版本保持良好的兼容性和扩展性，可以及时同步主线的新增能力和Bug修复。
 
-## 安装使用 / Install & Usage
-### Windows :
-1, 点击下载**安装包**(81M,可执行压缩包): [SimpleSDXL_win64_in](https://gitee.com/metercai/SimpleSDXL/releases/download/win64/SimpleSDXL_win64_in.exe)。<br>
-2, 解压缩到工作目录后，点击运行：`run.bat` 。第一次运行会同步项目代码，安装基础组件，然后下载相关的模型和主模型文件。虽然下载源已全部更新为国内源，但模型尺寸比较大，总体时间较长，需耐心等待。如果本地已经有模型目录，可以在根目录下配置`config.txt`来指定模型目录位置。如果已安装Fooocus，可以加启动参数`--config`来指定Fooocus的config.txt文件路径，实现与Fooocus共享模型和图片输出目录配置。<br>
-3, 启动成功后，会自动打开浏览器，进入主界面。<br>
-或<br>
-1，点击下载**完全包**(28G,ZIP压缩包): [SimpleSDXL_win64_all_in](https://v2.token.tm/img/SimpleSDXL_win64_all_in.zip)。<br>
-2, 解压缩到工作目录后，点击运行：`run.bat` 。完全包已经带运行时的所有组件和模型资源，不用再下载，点击运行进入主界面后就可以直接出图。
-
-### Linux :
-1, 安装 Anaconda 
+## Linux安装使用 / Install & Usage
+### 安装 Anaconda 
 
     curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh 
     bash Miniconda3-latest-Linux-x86_64.sh
-2, 安装应用环境
+### 安装应用环境
 
+    mkdir SimpleAI;cd SimpleAI
     git clone https://github.com/metercai/SimpleSDXL.git
     #国内用户可换用gitee源: https://gitee.com/metercai/SimpleSDXL.git
+    wget https://hf-mirror.com/metercai/SimpleSDXL2/resolve/main/models_base.zip
+    wget https://hf-mirror.com/metercai/SimpleSDXL2/resolve/main/models_ckpt.zip
     cd SimpleSDXL
+    unzip -d -o ../models_base.zip 
+    unzip -d -o ../models_ckpt.zip
     conda env create -f environment.yaml
-    conda activate fooocus
-    pip install -r requirements_versions.txt
-3, 启动服务
+    conda activate simpleai
+    pip install packaging pygit2==1.12.2 -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+### 启动服务
 
     python entry_with_update.py
     # 云端部署可以配置： ip, port, webroot 等参数
@@ -489,26 +508,38 @@ A safer way is just to try "run_anime.bat" or "run_realistic.bat" - they should 
 entry_with_update.py  [-h] [--listen [IP]] [--port PORT]
                       [--disable-header-check [ORIGIN]]
                       [--web-upload-size WEB_UPLOAD_SIZE]
+                      [--hf-mirror HF_MIRROR]
                       [--external-working-path PATH [PATH ...]]
-                      [--output-path OUTPUT_PATH] [--temp-path TEMP_PATH]
+                      [--output-path OUTPUT_PATH]
+                      [--temp-path TEMP_PATH]
                       [--cache-path CACHE_PATH] [--in-browser]
-                      [--disable-in-browser] [--gpu-device-id DEVICE_ID]
+                      [--disable-in-browser]
+                      [--gpu-device-id DEVICE_ID]
                       [--async-cuda-allocation | --disable-async-cuda-allocation]
-                      [--disable-attention-upcast] [--all-in-fp32 | --all-in-fp16]
+                      [--disable-attention-upcast]
+                      [--all-in-fp32 | --all-in-fp16]
                       [--unet-in-bf16 | --unet-in-fp16 | --unet-in-fp8-e4m3fn | --unet-in-fp8-e5m2]
-                      [--vae-in-fp16 | --vae-in-fp32 | --vae-in-bf16]
+                      [--vae-in-fp16 | --vae-in-fp32 | --vae-in-bf16]   
+                      [--vae-in-cpu]
                       [--clip-in-fp8-e4m3fn | --clip-in-fp8-e5m2 | --clip-in-fp16 | --clip-in-fp32]
-                      [--directml [DIRECTML_DEVICE]] [--disable-ipex-hijack]
+                      [--directml [DIRECTML_DEVICE]]
+                      [--disable-ipex-hijack]
                       [--preview-option [none,auto,fast,taesd]]
                       [--attention-split | --attention-quad | --attention-pytorch]
                       [--disable-xformers]
-                      [--always-gpu | --always-high-vram | --always-normal-vram | 
-                       --always-low-vram | --always-no-vram | --always-cpu [CPU_NUM_THREADS]]
-                      [--always-offload-from-vram] [--disable-server-log]
-                      [--debug-mode] [--is-windows-embedded-python]
-                      [--disable-server-info] [--share] [--preset PRESET]
-                      [--language LANGUAGE] [--disable-offload-from-vram]
-                      [--theme THEME] [--disable-image-log]
+                      [--always-gpu | --always-high-vram | --always-normal-vram |
+                      --always-low-vram | --always-no-vram | --always-cpu [CPU_NUM_THREADS]]
+                      [--always-offload-from-vram]
+                      [--pytorch-deterministic] [--disable-server-log]  
+                      [--debug-mode] [--is-windows-embedded-python]     
+                      [--disable-server-info] [--multi-user] [--share]  
+                      [--preset PRESET] [--disable-preset-selection]    
+                      [--language LANGUAGE]
+                      [--disable-offload-from-vram] [--theme THEME]     
+                      [--disable-image-log] [--disable-analytics]       
+                      [--disable-metadata] [--disable-preset-download]  
+                      [--enable-describe-uov-image]
+                      [--always-download-new-model]
 ```
 
 ## Advanced Features

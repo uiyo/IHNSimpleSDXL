@@ -4,6 +4,7 @@ from modules.patch import PatchSettings, patch_settings, patch_all
 
 patch_all()
 
+
 class AsyncTask:
     def __init__(self, args):
         self.args = args
@@ -46,14 +47,18 @@ def worker():
     import fooocus_version
     import args_manager
 
-    from modules.sdxl_styles import apply_style, apply_wildcards, fooocus_expansion, apply_arrays
+    from extras.censor import default_censor
+    from modules.sdxl_styles import apply_style, get_random_style, fooocus_expansion, apply_arrays, random_style_name
     from modules.private_logger import log
     from extras.expansion import safe_str
-    from modules.util import remove_empty_str, HWC3, resize_image, get_image_shape_ceil, set_image_shape_ceil, \
-        get_shape_ceil, resample_image, erode_or_dilate, ordinal_suffix, get_enabled_loras
+    from modules.util import (remove_empty_str, HWC3, resize_image, get_image_shape_ceil, set_image_shape_ceil,
+                              get_shape_ceil, resample_image, erode_or_dilate, get_enabled_loras,
+                              parse_lora_references_from_prompt, apply_wildcards)
     from modules.upscaler import perform_upscale
     from modules.flags import Performance
     from modules.meta_parser import get_metadata_parser, MetadataScheme
+    import enhanced.hydit_task as hydit_task
+    from enhanced.simpleai import comfyd, args_comfyd
 
     pid = os.getpid()
     print(f'Started worker with PID {pid}')
@@ -71,9 +76,14 @@ def worker():
         print(f'[Fooocus] {text}')
         async_task.yields.append(['preview', (number, text, None)])
 
-    def yield_result(async_task, imgs, do_not_show_finished_images=False):
+    def yield_result(async_task, imgs, black_out_nsfw, censor=True, do_not_show_finished_images=False,
+                     progressbar_index=flags.preparation_step_count):
         if not isinstance(imgs, list):
             imgs = [imgs]
+
+        if censor and (modules.config.default_black_out_nsfw or black_out_nsfw):
+            progressbar(async_task, progressbar_index, 'Checking for NSFW content ...')
+            imgs = default_censor(imgs)
 
         async_task.results = async_task.results + imgs
 
@@ -150,7 +160,8 @@ def worker():
         base_model_name = args.pop()
         refiner_model_name = args.pop()
         refiner_switch = args.pop()
-        loras = get_enabled_loras([[bool(args.pop()), str(args.pop()), float(args.pop())] for _ in range(modules.config.default_max_lora_number)])
+        loras = get_enabled_loras([(bool(args.pop()), str(args.pop()), float(args.pop())) for _ in
+                                   range(modules.config.default_max_lora_number)])
         input_image_checkbox = args.pop()
         current_tab = args.pop()
         uov_method = args.pop()
@@ -165,15 +176,22 @@ def worker():
         # usr id
         state = args[0]
         cookie = state["__cookie"]
+        layer_method = args.pop()
+        layer_input_image = args.pop()
+        iclight_enable = args.pop()
+        iclight_source_radio = args.pop()
         disable_preview = args.pop()
         disable_intermediate_results = args.pop()
         disable_seed_increment = args.pop()
+        black_out_nsfw = args.pop()
         adm_scaler_positive = args.pop()
         adm_scaler_negative = args.pop()
         adm_scaler_end = args.pop()
         adaptive_cfg = args.pop()
+        clip_skip = args.pop()
         sampler_name = args.pop()
         scheduler_name = args.pop()
+        vae_name = args.pop()
         overwrite_step = args.pop()
         overwrite_switch = args.pop()
         overwrite_width = args.pop()
@@ -203,15 +221,26 @@ def worker():
         inpaint_erode_or_dilate = args.pop()
 
         save_metadata_to_images = args.pop() if not args_manager.args.disable_metadata else False
-        metadata_scheme = MetadataScheme(args.pop()) if not args_manager.args.disable_metadata else MetadataScheme.FOOOCUS
+        metadata_scheme = MetadataScheme(
+            args.pop()) if not args_manager.args.disable_metadata else MetadataScheme.FOOOCUS
 
-        if ehps.translation_timing != 'No translate':
+        is_SD3_task = False #ehps.backend_selection == flags.backend_engines[2]
+        is_SD3T_task = False #ehps.backend_selection == flags.backend_engines[2]
+        is_hydit_task =  ehps.backend_selection == flags.backend_engines[1]
+        is_comfy_task = 'layer' in current_tab and input_image_checkbox
+        is_SD3m_task = ehps.backend_selection == flags.backend_engines[2]
+
+        if is_hydit_task:
+            aspect_ratios_selection = ehps.hydit_aspect_ratios_selection
+        if is_SD3m_task:
+            aspect_ratios_selection = ehps.sd3_aspect_ratios_selection
+        if not is_hydit_task:
             prompt = translator.convert(prompt, ehps.translation_methods)
             negative_prompt = translator.convert(negative_prompt, ehps.translation_methods)
-        
+
         import enhanced.sd3_handle as sd3_handle
-        if ehps.backend_selection == 'SD3 Api' or ehps.backend_selection == 'SD3Turbo Api':
-            if ehps.backend_selection == 'SD3 Api':
+        if is_SD3_task or is_SD3T_task:
+            if is_SD3_task:
                 model = 'sd3'
             else:
                 model = 'sd3-turbo'
@@ -225,11 +254,13 @@ def worker():
                  ('Negative Prompt', 'negative_prompt', negative_prompt),
                  ('Base Model', 'base_model', model),
                  ('Resolution', 'resolution', str((width, height))),
-                 ('Seed', 'seed', image_seed)]
+                 ('Seed', 'seed', image_seed),
+                 ('Generate Engine', 'generate_engine', 'StableDiffusion3')]
             sd3_image_path = log(img, d, output_format=output_format)
             yield_result(async_task, sd3_image_path, do_not_show_finished_images=True)    
             async_task.processing = False
             return
+
 
         cn_tasks = {x: [] for x in flags.ip_list}
         for _ in range(flags.controlnet_image_count):
@@ -259,10 +290,12 @@ def worker():
 
         steps = performance_selection.steps()
 
+        performance_loras = []
+
         if performance_selection == Performance.EXTREME_SPEED:
             print('Enter LCM mode.')
             progressbar(async_task, 1, 'Downloading LCM components ...')
-            loras += [(modules.config.downloading_sdxl_lcm_lora(), 1.0)]
+            performance_loras += [(modules.config.downloading_sdxl_lcm_lora(), 1.0)]
 
             if refiner_model_name != 'None':
                 print(f'Refiner disabled in LCM mode.')
@@ -281,7 +314,7 @@ def worker():
         elif performance_selection == Performance.LIGHTNING:
             print('Enter Lightning mode.')
             progressbar(async_task, 1, 'Downloading Lightning components ...')
-            loras += [(modules.config.downloading_sdxl_lightning_lora(), 1.0)]
+            performance_loras += [(modules.config.downloading_sdxl_lightning_lora(), 1.0)]
 
             if refiner_model_name != 'None':
                 print(f'Refiner disabled in Lightning mode.')
@@ -297,7 +330,27 @@ def worker():
             adm_scaler_negative = 1.0
             adm_scaler_end = 0.0
 
+        elif performance_selection == Performance.HYPER_SD:
+            print('Enter Hyper-SD mode.')
+            progressbar(async_task, 1, 'Downloading Hyper-SD components ...')
+            performance_loras += [(modules.config.downloading_sdxl_hyper_sd_lora(), 0.8)]
+
+            if refiner_model_name != 'None':
+                print(f'Refiner disabled in Hyper-SD mode.')
+
+            refiner_model_name = 'None'
+            sampler_name = 'dpmpp_sde_gpu'
+            scheduler_name = 'karras'
+            sharpness = 0.0
+            guidance_scale = 1.0
+            adaptive_cfg = 1.0
+            refiner_switch = 1.0
+            adm_scaler_positive = 1.0
+            adm_scaler_negative = 1.0
+            adm_scaler_end = 0.0
+
         print(f'[Parameters] Adaptive CFG = {adaptive_cfg}')
+        print(f'[Parameters] CLIP Skip = {clip_skip}')
         print(f'[Parameters] Sharpness = {sharpness}')
         print(f'[Parameters] ControlNet Softness = {controlnet_softness}')
         print(f'[Parameters] ADM Scale = '
@@ -465,22 +518,30 @@ def worker():
             extra_positive_prompts = prompts[1:] if len(prompts) > 1 else []
             extra_negative_prompts = negative_prompts[1:] if len(negative_prompts) > 1 else []
 
-            progressbar(async_task, 3, 'Loading models ...')
-            pipeline.refresh_everything(refiner_model_name=refiner_model_name, base_model_name=base_model_name,
+            if not is_comfy_task and not is_hydit_task and not is_SD3m_task:
+                progressbar(async_task, 2, 'Loading models ...')
+
+                lora_filenames = modules.util.remove_performance_lora(modules.config.lora_filenames, performance_selection)
+                loras, prompt = parse_lora_references_from_prompt(prompt, loras, modules.config.default_max_lora_number, lora_filenames=lora_filenames)
+                loras += performance_loras
+                print(f'refiner_model_name:{refiner_model_name}, base_model_name={base_model_name},  base_model_additional_loras:{ base_model_additional_loras}, use_synthetic_refiner:{use_synthetic_refiner}, vae_name:{vae_name}')
+                pipeline.refresh_everything(refiner_model_name=refiner_model_name, base_model_name=base_model_name,
                                         loras=loras, base_model_additional_loras=base_model_additional_loras,
-                                        use_synthetic_refiner=use_synthetic_refiner)
+                                        use_synthetic_refiner=use_synthetic_refiner, vae_name=vae_name)
+
+                pipeline.set_clip_skip(clip_skip)
 
             progressbar(async_task, 3, 'Processing prompts ...')
             tasks = []
             task_rng = random.Random(seed % (constants.MAX_SEED + 1))
             prompt, wildcards_arrays, arrays_mult, seed_fixed = wildcards.compile_arrays(prompt, task_rng)
             for i in range(image_number if arrays_mult==0 else arrays_mult):
-                if arrays_mult==0 or not seed_fixed:
+                if arrays_mult==0 or not seed_fixed or not disable_seed_increment:
                     task_seed = (seed + i) % (constants.MAX_SEED + 1)  # randint is inclusive, % is not
-                    task_rng = random.Random(task_seed)  # may bind to inpaint noise in the future
                 else:
                     task_seed = seed % (constants.MAX_SEED + 1)
 
+                task_rng = random.Random(task_seed)  # may bind to inpaint noise in the future
                 task_prompt = wildcards.apply_arrays(prompt, i, wildcards_arrays, arrays_mult)
                 task_prompt = wildcards.replace_wildcard(task_prompt, task_rng)
                 task_negative_prompt = wildcards.apply_wildcards(negative_prompt, task_rng)
@@ -490,8 +551,12 @@ def worker():
                 positive_basic_workloads = []
                 negative_basic_workloads = []
 
+                task_styles = style_selections.copy()
                 if use_style:
-                    for s in style_selections:
+                    for i, s in enumerate(task_styles):
+                        if s == random_style_name:
+                            s = get_random_style(task_rng)
+                            task_styles[i] = s
                         p, n = apply_style(s, positive=task_prompt)
                         positive_basic_workloads = positive_basic_workloads + p
                         negative_basic_workloads = negative_basic_workloads + n
@@ -506,6 +571,7 @@ def worker():
                 positive_basic_workloads = remove_empty_str(positive_basic_workloads, default=task_prompt)
                 negative_basic_workloads = remove_empty_str(negative_basic_workloads, default=task_negative_prompt)
 
+                #print(f'task_prompt:{task_prompt},\npositive:{positive_basic_workloads}')
                 tasks.append(dict(
                     task_seed=task_seed,
                     task_prompt=task_prompt,
@@ -519,29 +585,31 @@ def worker():
                     negative_top_k=len(negative_basic_workloads),
                     log_positive_prompt='\n'.join([task_prompt] + task_extra_positive_prompts),
                     log_negative_prompt='\n'.join([task_negative_prompt] + task_extra_negative_prompts),
+                    styles=task_styles
                 ))
             
             if use_expansion:
                 for i, t in enumerate(tasks):
-                    progressbar(async_task, 5, f'Preparing Fooocus text #{i + 1} ...')
+                    progressbar(async_task, 4, f'Preparing Fooocus text #{i + 1} ...')
                     expansion = pipeline.final_expansion(t['task_prompt'], t['task_seed'])
                     print(f'[Prompt Expansion] {expansion}')
                     t['expansion'] = expansion
                     t['positive'] = copy.deepcopy(t['positive']) + [expansion]  # Deep copy.
 
-            for i, t in enumerate(tasks):
-                progressbar(async_task, 7, f'Encoding positive #{i + 1} ...')
-                t['c'] = pipeline.clip_encode(texts=t['positive'], pool_top_k=t['positive_top_k'])
+            if not is_comfy_task and not is_hydit_task and not is_SD3m_task:
+                for i, t in enumerate(tasks):
+                    progressbar(async_task, 5, f'Encoding positive #{i + 1} ...')
+                    t['c'] = pipeline.clip_encode(texts=t['positive'], pool_top_k=t['positive_top_k'])
 
-            for i, t in enumerate(tasks):
-                if abs(float(cfg_scale) - 1.0) < 1e-4:
-                    t['uc'] = pipeline.clone_cond(t['c'])
-                else:
-                    progressbar(async_task, 10, f'Encoding negative #{i + 1} ...')
-                    t['uc'] = pipeline.clip_encode(texts=t['negative'], pool_top_k=t['negative_top_k'])
+                for i, t in enumerate(tasks):
+                    if abs(float(cfg_scale) - 1.0) < 1e-4:
+                        t['uc'] = pipeline.clone_cond(t['c'])
+                    else:
+                        progressbar(async_task, 6, f'Encoding negative #{i + 1} ...')
+                        t['uc'] = pipeline.clip_encode(texts=t['negative'], pool_top_k=t['negative_top_k'])
 
         if len(goals) > 0:
-            progressbar(async_task, 13, 'Image processing ...')
+            progressbar(async_task, 7, 'Image processing ...')
 
         if 'vary' in goals:
             if 'subtle' in uov_method:
@@ -562,7 +630,7 @@ def worker():
             uov_input_image = set_image_shape_ceil(uov_input_image, shape_ceil)
 
             initial_pixels = core.numpy_to_pytorch(uov_input_image)
-            progressbar(async_task, 13, 'VAE encoding ...')
+            progressbar(async_task, 8, 'VAE encoding ...')
 
             candidate_vae, _ = pipeline.get_candidate_vae(
                 steps=steps,
@@ -579,7 +647,7 @@ def worker():
 
         if 'upscale' in goals:
             H, W, C = uov_input_image.shape
-            progressbar(async_task, 13, f'Upscaling image from {str((H, W))} ...')
+            progressbar(async_task, 9, f'Upscaling image from {str((H, W))} ...')
             uov_input_image = perform_upscale(uov_input_image)
             print(f'Image upscaled.')
 
@@ -613,8 +681,12 @@ def worker():
 
             if direct_return:
                 d = [('Upscale (Fast)', 'upscale_fast', '2x')]
+                if modules.config.default_black_out_nsfw or black_out_nsfw:
+                    progressbar(async_task, 100, 'Checking for NSFW content ...')
+                    uov_input_image = default_censor(uov_input_image)
+                progressbar(async_task, 100, 'Saving image to system ...')
                 uov_input_image_path = log(uov_input_image, d, output_format=output_format, cookie=cookie)
-                yield_result(async_task, uov_input_image_path, do_not_show_finished_images=True)
+                yield_result(async_task, uov_input_image_path, black_out_nsfw, False, do_not_show_finished_images=True)
                 return
 
             tiled = True
@@ -624,7 +696,7 @@ def worker():
                 denoising_strength = overwrite_upscale_strength
 
             initial_pixels = core.numpy_to_pytorch(uov_input_image)
-            progressbar(async_task, 13, 'VAE encoding ...')
+            progressbar(async_task, 10, 'VAE encoding ...')
 
             candidate_vae, _ = pipeline.get_candidate_vae(
                 steps=steps,
@@ -678,11 +750,11 @@ def worker():
             )
 
             if debugging_inpaint_preprocessor:
-                yield_result(async_task, inpaint_worker.current_task.visualize_mask_processing(),
+                yield_result(async_task, inpaint_worker.current_task.visualize_mask_processing(), black_out_nsfw,
                              do_not_show_finished_images=True)
                 return
 
-            progressbar(async_task, 13, 'VAE Inpaint encoding ...')
+            progressbar(async_task, 11, 'VAE Inpaint encoding ...')
 
             inpaint_pixel_fill = core.numpy_to_pytorch(inpaint_worker.current_task.interested_fill)
             inpaint_pixel_image = core.numpy_to_pytorch(inpaint_worker.current_task.interested_image)
@@ -702,7 +774,7 @@ def worker():
 
             latent_swap = None
             if candidate_vae_swap is not None:
-                progressbar(async_task, 13, 'VAE SD15 encoding ...')
+                progressbar(async_task, 12, 'VAE SD15 encoding ...')
                 latent_swap = core.encode_vae(
                     vae=candidate_vae_swap,
                     pixels=inpaint_pixel_fill)['samples']
@@ -743,7 +815,7 @@ def worker():
                 task[0] = core.numpy_to_pytorch(cn_img)
 
                 if debugging_cn_preprocessor:
-                    yield_result(async_task, cn_img, do_not_show_finished_images=True)
+                    yield_result(async_task, cn_img, black_out_nsfw, do_not_show_finished_images=True)
                     return
             
             for task in cn_tasks[flags.cn_cpds]:
@@ -756,13 +828,13 @@ def worker():
                 cn_img = HWC3(cn_img)
                 task[0] = core.numpy_to_pytorch(cn_img)
                 if debugging_cn_preprocessor:
-                    yield_result(async_task, cn_img, do_not_show_finished_images=True)
+                    yield_result(async_task, cn_img, black_out_nsfw, do_not_show_finished_images=True)
                     return
             # add pose
             for task in cn_tasks[flags.cn_pose]:
                 cn_img, cn_stop, cn_weight = task
                 cn_img = resize_image(HWC3(cn_img), width=width, height=height)
-                from extras.controlnet_preprocess_model.dwpose import DWposeDetector, DWposeDetectorTrans
+                from extras.controlnet_preprocess_model.dwpose.__init__ import DWposeDetector, DWposeDetectorTrans
                 # pose_model = OpenPose(controlnet_pose_info)
                 if mixing_image_prompt_and_inpaint and inpaint_input_image is not None:
                     pose_model = DWposeDetectorTrans(controlnet_dwpose_info)
@@ -777,7 +849,7 @@ def worker():
                 task[0] = core.numpy_to_pytorch(cn_img)
 
                 if debugging_cn_preprocessor:
-                    yield_result(async_task, cn_img, do_not_show_finished_images=True)
+                    yield_result(async_task, cn_img, black_out_nsfw, do_not_show_finished_images=True)
                     return
 
             for task in cn_tasks[flags.cn_ip]:
@@ -789,7 +861,7 @@ def worker():
 
                 task[0] = ip_adapter.preprocess(cn_img, ip_adapter_path=ip_adapter_path)
                 if debugging_cn_preprocessor:
-                    yield_result(async_task, cn_img, do_not_show_finished_images=True)
+                    yield_result(async_task, cn_img, black_out_nsfw, do_not_show_finished_images=True)
                     return
             for task in cn_tasks[flags.cn_ip_face]:
                 cn_img, cn_stop, cn_weight = task
@@ -803,7 +875,7 @@ def worker():
 
                 task[0] = ip_adapter.preprocess(cn_img, ip_adapter_path=ip_adapter_face_path)
                 if debugging_cn_preprocessor:
-                    yield_result(async_task, cn_img, do_not_show_finished_images=True)
+                    yield_result(async_task, cn_img, black_out_nsfw, do_not_show_finished_images=True)
                     return
 
             all_ip_tasks = cn_tasks[flags.cn_ip] + cn_tasks[flags.cn_ip_face]
@@ -838,29 +910,88 @@ def worker():
         final_sampler_name = sampler_name
         final_scheduler_name = scheduler_name
 
-        if scheduler_name == 'lcm':
+        if scheduler_name in ['lcm', 'tcd']:
             final_scheduler_name = 'sgm_uniform'
-            if pipeline.final_unet is not None:
-                pipeline.final_unet = core.opModelSamplingDiscrete.patch(
-                    pipeline.final_unet,
-                    sampling='lcm',
-                    zsnr=False)[0]
-            if pipeline.final_refiner_unet is not None:
-                pipeline.final_refiner_unet = core.opModelSamplingDiscrete.patch(
-                    pipeline.final_refiner_unet,
-                    sampling='lcm',
-                    zsnr=False)[0]
-            print('Using lcm scheduler.')
 
-        async_task.yields.append(['preview', (13, 'Moving model to GPU ...', None)])
+            def patch_discrete(unet):
+                return core.opModelSamplingDiscrete.patch(
+                    pipeline.final_unet,
+                    sampling=scheduler_name,
+                    zsnr=False)[0]
+
+            if pipeline.final_unet is not None:
+                pipeline.final_unet = patch_discrete(pipeline.final_unet)
+            if pipeline.final_refiner_unet is not None:
+                pipeline.final_refiner_unet = patch_discrete(pipeline.final_refiner_unet)
+            print(f'Using {scheduler_name} scheduler.')
+        elif scheduler_name == 'edm_playground_v2.5':
+            final_scheduler_name = 'karras'
+
+            def patch_edm(unet):
+                return core.opModelSamplingContinuousEDM.patch(
+                    unet,
+                    sampling=scheduler_name,
+                    sigma_max=120.0,
+                    sigma_min=0.002)[0]
+
+            if pipeline.final_unet is not None:
+                pipeline.final_unet = patch_edm(pipeline.final_unet)
+            if pipeline.final_refiner_unet is not None:
+                pipeline.final_refiner_unet = patch_edm(pipeline.final_refiner_unet)
+
+            print(f'Using {scheduler_name} scheduler.')
+
+        if is_comfy_task:
+            async_task.yields.append(['preview', (flags.preparation_step_count, 'Process Comfy Task ...', None)])
+        elif is_hydit_task:
+            async_task.yields.append(['preview', (flags.preparation_step_count, 'Process HyDiT Task ...', None)])
+        elif is_SD3m_task:
+            async_task.yields.append(['preview', (flags.preparation_step_count, 'Process SD3m Task ...', None)])
+        else:
+            async_task.yields.append(['preview', (flags.preparation_step_count, 'Moving model to GPU ...', None)])
 
         def callback(step, x0, x, total_steps, y):
             done_steps = current_task_id * steps + step
             async_task.yields.append(['preview', (
-                int(15.0 + 85.0 * float(done_steps) / float(all_steps)),
-                f'Step {step}/{total_steps} in the {current_task_id + 1}{ordinal_suffix(current_task_id + 1)} Sampling', y)])
+                int(flags.preparation_step_count + (100 - flags.preparation_step_count) * float(done_steps) / float(all_steps)),
+                f'Sampling step {step + 1}/{total_steps}, image {current_task_id + 1}/{image_number} ...', y)])
+        
+        def callback_comfytask(step, total_steps, y):
+            done_steps = current_task_id * steps + step
+            async_task.yields.append(['preview', (
+                int(flags.preparation_step_count + (100 - flags.preparation_step_count) * float(done_steps) / float(all_steps)),
+                f'Sampling step {step + 1}/{total_steps}, image {current_task_id + 1}/{image_number} ...', y)])
+        
+        def callback_hydittask(pipe, step, time_steps, callback_kwargs):
+            from enhanced.latent_preview import get_previewer
+            from ldm_patched.modules.latent_formats import SDXL as SDXL_format
+
+            latents = callback_kwargs["latents"]
+            preview_format = "JPEG"
+            latent_format = SDXL_format()
+            previewer = get_previewer(latent_format)
+            y=previewer.decode_latent_to_preview_image(preview_format, latents)
+            done_steps = current_task_id * steps + step
+            async_task.yields.append(['preview', (
+                int(flags.preparation_step_count + (100 - flags.preparation_step_count) * float(done_steps) / float(all_steps)),
+                f'Sampling step {step + 1}/{steps}, image {current_task_id + 1}/{image_number} ...', y)])
+            return callback_kwargs
+
+        task_type = ''
+        if is_hydit_task or is_comfy_task or is_SD3m_task:
+            ldm_patched.modules.model_management.unload_all_models()
+            ldm_patched.modules.model_management.soft_empty_cache(True)
+            if is_comfy_task:
+                task_type = 'Comfy'
+            if is_hydit_task:
+                hydit_task.init_load_model()
+                task_type = 'HyDiT'
+            if is_SD3m_task:
+                task_type = 'SD3m'
 
         for current_task_id, task in enumerate(tasks):
+            current_progress = int(flags.preparation_step_count + (100 - flags.preparation_step_count) * float(current_task_id * steps) / float(all_steps))
+            progressbar(async_task, current_progress, f'Preparing {task_type} task {current_task_id + 1}/{image_number} ...')
             execution_start_time = time.perf_counter()
 
             try:
@@ -868,47 +999,114 @@ def worker():
                     ldm_patched.modules.model_management.interrupt_current_processing()
                 positive_cond, negative_cond = task['c'], task['uc']
 
-                if 'cn' in goals:
-                    for cn_flag, cn_path in [
-                        (flags.cn_canny, controlnet_canny_path),
-                        (flags.cn_cpds, controlnet_cpds_path),
-                        (flags.cn_pose, controlnet_pose_info[0])
-                    ]:
-                        for cn_img, cn_stop, cn_weight in cn_tasks[cn_flag]:
-                            positive_cond, negative_cond = core.apply_controlnet(
-                                positive_cond, negative_cond,
-                                pipeline.loaded_ControlNets[cn_path], cn_img, cn_weight, 0, cn_stop)
+                
 
-                imgs = pipeline.process_diffusion(
-                    positive_cond=positive_cond,
-                    negative_cond=negative_cond,
-                    steps=steps,
-                    switch=switch,
-                    width=width,
-                    height=height,
-                    image_seed=task['task_seed'],
-                    callback=callback,
-                    sampler_name=final_sampler_name,
-                    scheduler_name=final_scheduler_name,
-                    latent=initial_latent,
-                    denoise=denoising_strength,
-                    tiled=tiled,
-                    cfg_scale=cfg_scale,
-                    refiner_swap_method=refiner_swap_method,
-                    disable_preview=disable_preview
-                )
+                if is_comfy_task or is_SD3m_task:
+                    from enhanced.simpleai import comfyclient_pipeline as comfypipeline
+                    from enhanced.comfy_task import get_comfy_task
+                    
+                    default_params = dict(
+                        prompt=task["positive"][0],
+                        negative_prompt=task["negative"][0],
+                        width=width,
+                        height=height,
+                        base_model=base_model_name,
+                        sampler=final_sampler_name,
+                        scheduler=final_scheduler_name,
+                        cfg_scale=cfg_scale,
+                        steps=steps,
+                        denoise=denoising_strength,
+                        seed=task['task_seed'],
+                        )
+                    if layer_input_image is None:
+                        input_images = None
+                    else:
+                        input_images = [HWC3(layer_input_image)]
+                    if is_SD3m_task:
+                        comfy_method = 'SD3m'
+                        options = dict()
+                    else:
+                        comfy_method = layer_method
+                        options = dict(
+                            iclight_enable=iclight_enable,
+                            iclight_source_radio=iclight_source_radio
+                            )
+                    try:
+                        comfy_task = get_comfy_task(comfy_method, default_params, input_images, options)
+                        imgs = comfypipeline.process_flow(comfy_task.name, comfy_task.params, comfy_task.images, callback=callback_comfytask)
+                    except ValueError as e:
+                        print(f"comfy_task: input_image is None: {e}")
+                        empty_path = [np.zeros((width, height), dtype=np.uint8)]
+                        yield_result(async_task, empty_path, black_out_nsfw, do_not_show_finished_images=True)
+                        imgs = empty_path
 
-                del task['c'], task['uc'], positive_cond, negative_cond  # Save memory
+                elif is_hydit_task:
+                    imgs = hydit_task.inferencer(
+                        prompt=task["positive"][0],
+                        negative_prompt=task["negative"][0],
+                        seed=task['task_seed'],
+                        cfg_scale=cfg_scale,
+                        infer_steps=steps,
+                        width=width, 
+                        height=height,
+                        sampler=final_sampler_name,
+                        callback=callback_hydittask
+                    )
+                    scheduler_name, sampler_name = hydit_task.get_scheduler_name(final_sampler_name)
 
-                if inpaint_worker.current_task is not None:
-                    imgs = [inpaint_worker.current_task.post_process(x) for x in imgs]
+                else:
+                    positive_cond, negative_cond = task['c'], task['uc']
+
+                    if 'cn' in goals:
+                        for cn_flag, cn_path in [
+                            (flags.cn_canny, controlnet_canny_path),
+                            (flags.cn_cpds, controlnet_cpds_path),
+                            (flags.cn_pose, controlnet_pose_info[0])
+                        ]:
+                            for cn_img, cn_stop, cn_weight in cn_tasks[cn_flag]:
+                                positive_cond, negative_cond = core.apply_controlnet(
+                                    positive_cond, negative_cond,
+                                    pipeline.loaded_ControlNets[cn_path], cn_img, cn_weight, 0, cn_stop)
+                
+                    imgs = pipeline.process_diffusion(
+                        positive_cond=positive_cond,
+                        negative_cond=negative_cond,
+                        steps=steps,
+                        switch=switch,
+                        width=width,
+                        height=height,
+                        image_seed=task['task_seed'],
+                        callback=callback,
+                        sampler_name=final_sampler_name,
+                        scheduler_name=final_scheduler_name,
+                        latent=initial_latent,
+                        denoise=denoising_strength,
+                        tiled=tiled,
+                        cfg_scale=cfg_scale,
+                        refiner_swap_method=refiner_swap_method,
+                        disable_preview=disable_preview
+                    )
+
+                    del task['c'], task['uc'], positive_cond, negative_cond  # Save memory
+
+                    if inpaint_worker.current_task is not None:
+                        imgs = [inpaint_worker.current_task.post_process(x) for x in imgs]
 
                 img_paths = []
+                current_progress = int(flags.preparation_step_count + (100 - flags.preparation_step_count) * float((current_task_id + 1) * steps) / float(all_steps))
+                if modules.config.default_black_out_nsfw or black_out_nsfw:
+                    progressbar(async_task, current_progress, 'Checking for NSFW content ...')
+                    imgs = default_censor(imgs)
+
+                if ldm_patched.modules.model_management.is_nvidia():
+                    print(f'[Fooocus] Max_memory_allocated: {torch.cuda.max_memory_allocated()/ 1024 / 1024 / 1024:.2f}GB')
+                progressbar(async_task, current_progress, f'Saving image {current_task_id + 1}/{image_number} to system ...')
                 for x in imgs:
                     d = [('Prompt', 'prompt', task['log_positive_prompt']),
                          ('Negative Prompt', 'negative_prompt', task['log_negative_prompt']),
                          ('Fooocus V2 Expansion', 'prompt_expansion', task['expansion']),
-                         ('Styles', 'styles', str(raw_style_selections)),
+                         ('Styles', 'styles',
+                          str(task['styles'] if not use_expansion else [fooocus_expansion] + task['styles'])),
                          ('Performance', 'performance', performance_selection.value)]
 
                     if performance_selection.steps() != steps:
@@ -920,7 +1118,13 @@ def worker():
                           ('ADM Guidance', 'adm_guidance', str((
                               modules.patch.patch_settings[pid].positive_adm_scale,
                               modules.patch.patch_settings[pid].negative_adm_scale,
-                              modules.patch.patch_settings[pid].adm_scaler_end))),
+                              modules.patch.patch_settings[pid].adm_scaler_end)))]
+                    if is_comfy_task or is_hydit_task or is_SD3m_task:
+                        refiner_model_name = ''
+                        refiner_switch = 1.0
+                        if is_hydit_task:
+                            base_model_name = 'hydit_v1.1_fp16.safetensors'
+                    d += [
                           ('Base Model', 'base_model', base_model_name),
                           ('Refiner Model', 'refiner_model', refiner_model_name),
                           ('Refiner Switch', 'refiner_switch', refiner_switch)]
@@ -931,33 +1135,48 @@ def worker():
                         if refiner_swap_method != flags.refiner_swap_method:
                             d.append(('Refiner Swap Method', 'refiner_swap_method', refiner_swap_method))
                     if modules.patch.patch_settings[pid].adaptive_cfg != modules.config.default_cfg_tsnr:
-                        d.append(('CFG Mimicking from TSNR', 'adaptive_cfg', modules.patch.patch_settings[pid].adaptive_cfg))
+                        d.append(
+                            ('CFG Mimicking from TSNR', 'adaptive_cfg', modules.patch.patch_settings[pid].adaptive_cfg))
 
+                    if clip_skip > 1 and not is_comfy_task and not is_hydit_task:
+                        d.append(('CLIP Skip', 'clip_skip', clip_skip))
                     d.append(('Sampler', 'sampler', sampler_name))
                     d.append(('Scheduler', 'scheduler', scheduler_name))
+                    if not is_comfy_task and not is_hydit_task and not is_SD3m_task:
+                        d.append(('VAE', 'vae', vae_name))
                     d.append(('Seed', 'seed', str(task['task_seed'])))
 
                     if freeu_enabled:
                         d.append(('FreeU', 'freeu', str((freeu_b1, freeu_b2, freeu_s1, freeu_s2))))
 
                     for li, (n, w) in enumerate(loras):
-                        if n != 'None':
+                        if n != 'None' and not is_hydit_task and not is_comfy_task:
                             d.append((f'LoRA {li + 1}', f'lora_combined_{li + 1}', f'{n} : {w}'))
+                    if is_hydit_task or is_comfy_task or is_SD3m_task:
+                        loras = []
 
                     metadata_parser = None
                     if save_metadata_to_images:
-                        styles_name = [f[1:-1] for f in str(raw_style_selections)[1:-1].split(', ')]
+                        styles_name = task['styles'] if not use_expansion else [fooocus_expansion] + task['styles']
+                        #styles_name = [f[1:-1] for f in str(raw_style_selections)[1:-1].split(', ')]
                         styles_definition = {k: modules.sdxl_styles.styles[k] for k in styles_name if k and k not in ['Fooocus V2', 'Fooocus Enhance', 'Fooocus Sharp', 'Fooocus Masterpiece', 'Fooocus Photograph', 'Fooocus Negative', 'Fooocus Cinematic']}
                         metadata_parser = modules.meta_parser.get_metadata_parser(metadata_scheme)
                         metadata_parser.set_data(task['log_positive_prompt'], task['positive'],
                                                  task['log_negative_prompt'], task['negative'],
-                                                 steps, base_model_name, refiner_model_name, loras, '')
+                                                 steps, base_model_name, refiner_model_name, loras, vae_name, '')
+                    if is_hydit_task:
+                        d.append(('Backend Engine', 'backend_engine', 'Hunyuan-DiT'))
+                    elif is_SD3m_task:
+                        d.append(('Backend Engine', 'backend_engine', 'SD3-medium'))
+                    else:
+                        d.append(('Backend Engine', 'backend_engine', 'SDXL-Fooocus'))
                     d.append(('Metadata Scheme', 'metadata_scheme', metadata_scheme.value if save_metadata_to_images else save_metadata_to_images))
                     import enhanced.version as version
                     d.append(('Version', 'version', f'Fooocus v{fooocus_version.version} {version.branch}_{version.get_simplesdxl_ver()}'))
-                    img_paths.append(log(x, d, metadata_parser, output_format, cookie=cookie))
+                    img_paths.append(log(x, d, metadata_parser, output_format, task, cookie=cookie))
 
-                yield_result(async_task, img_paths, do_not_show_finished_images=len(tasks) == 1 or disable_intermediate_results)
+                yield_result(async_task, img_paths, black_out_nsfw, False,
+                             do_not_show_finished_images=len(tasks) == 1 or disable_intermediate_results)
             except ldm_patched.modules.model_management.InterruptProcessingException as e:
                 if async_task.last_stop == 'skip':
                     print('User skipped')
