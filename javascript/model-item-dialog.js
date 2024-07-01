@@ -150,6 +150,11 @@ const modelData = [{
   value: '[SDXL]亚洲人像.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/asiaportrait.png',
   decs: '国风审美的人像'
+}, {
+  label: 'SD3Medium',
+  value: '[SD3]Medium.safetensors',
+  image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/sd3.png',
+  decs: 'SD3Mdedium'
 }]
 
 // lora的数据
