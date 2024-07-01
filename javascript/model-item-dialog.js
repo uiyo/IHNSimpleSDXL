@@ -152,7 +152,7 @@ const modelData = [{
   decs: '国风审美的人像'
 }, {
   label: 'SD3Medium',
-  value: '[SD3]Medium.safetensors',
+  value: 'sd3_medium_incl_clips.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/sd3.png',
   decs: 'SD3Mdedium'
 }, {
