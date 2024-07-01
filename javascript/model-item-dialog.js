@@ -122,7 +122,7 @@ const modelData = [{
   decs: 'DreamShaper SDXL turbo版本'
 }, {
   label: 'AnimaPencil动漫',
-  value: '[SDXL]AnimaPencil动漫v100.safetensors',
+  value: '[SDXL]AnimaPencil动漫v400.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/animaPencilXL_v100.png',
   decs: ' Fooocus预置包动漫二次元'
 }, {
