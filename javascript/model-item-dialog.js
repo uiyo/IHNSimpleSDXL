@@ -155,6 +155,11 @@ const modelData = [{
   value: '[SD3]Medium.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/sd3.png',
   decs: 'SD3Mdedium'
+}, {
+  label: 'PlaygroundV2.5',
+  value: 'Playground-v2.5.safetensors',
+  image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/playgroundv2.5.png',
+  decs: 'PlaygroundV2.5'
 }]
 
 // lora的数据
