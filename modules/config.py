@@ -2,15 +2,18 @@ import os
 import json
 import math
 import numbers
+
 import args_manager
 import tempfile
+import shared
 import modules.flags
 import modules.sdxl_styles
 import enhanced.all_parameters as ads
 
 from modules.model_loader import load_file_from_url
-from modules.extra_utils import makedirs_with_log, get_files_from_folder
+from modules.extra_utils import makedirs_with_log, get_files_from_folder, try_eval_env_var
 from modules.flags import OutputFormat, Performance, MetadataScheme
+
 
 
 def get_config_path(key, default_value):
@@ -39,7 +42,10 @@ try:
     if os.path.exists(config_path):
         with open(config_path, "r", encoding="utf-8") as json_file:
             config_dict.update(json.load(json_file))
-            always_save_keys = list(config_dict.keys())
+        always_save_keys = list(config_dict.keys())
+        for key in always_save_keys:
+            if key.startswith('default_') and key[8:] in ads.default:
+                ads.default[key[8:]] = config_dict[key]
         print(f'Load config data from {config_path}.')
 except Exception as e:
     print(f'Failed to load config file "{config_path}" . The reason is: {str(e)}')
@@ -203,9 +209,13 @@ path_llms = get_dir_or_set_default('path_llms','../models/llms/')
 path_wildcards = get_dir_or_set_default('path_wildcards', '../wildcards/')
 path_safety_checker = get_dir_or_set_default('path_safety_checker', '../models/safety_checker/')
 path_outputs = get_path_output()
+path_models_root = get_dir_or_set_default('path_models_root', '../models/')
+path_unet = get_dir_or_set_default('path_unet', '../models/unet')
+path_rembg = get_dir_or_set_default('path_rembg', '../models/rembg')
+path_layer_model = get_dir_or_set_default('path_layer_model', '../models/layer_model')
 
 
-def get_config_item_or_set_default(key, default_value, validator, disable_empty_as_none=False):
+def get_config_item_or_set_default(key, default_value, validator, disable_empty_as_none=False, expected_type=None):
     global config_dict, visited_keys
 
     if key not in visited_keys:
@@ -213,6 +223,7 @@ def get_config_item_or_set_default(key, default_value, validator, disable_empty_
     
     v = os.getenv(key)
     if v is not None:
+        v = try_eval_env_var(v, expected_type)
         print(f"Environment: {key} = {v}")
         config_dict[key] = v
 
@@ -235,7 +246,7 @@ def get_config_item_or_set_default(key, default_value, validator, disable_empty_
 def init_temp_path(path: str | None, default_path: str) -> str:
     if args_manager.args.temp_path:
         path = args_manager.args.temp_path
-
+    
     if path != '' and path != default_path:
         try:
             if not os.path.isabs(path):
@@ -288,77 +299,91 @@ default_loras = get_config_item_or_set_default(
 default_loras = [(y[0], y[1], y[2]) if len(y) == 3 else (True, y[0], y[1]) for y in default_loras]
 default_max_lora_number = get_config_item_or_set_default(
     key='default_max_lora_number',
-    default_value=len(default_loras) if isinstance(default_loras, list) and len(default_loras) > 0 else 5,
+    default_value=len(default_loras) if isinstance(default_loras, list) and len(default_loras) > 0 else ads.default['max_lora_number'],
     validator=lambda x: isinstance(x, int) and x >= 1
 )
 
 ads.init_all_params_index(default_max_lora_number, args_manager.args.disable_metadata)
 
 default_temp_path = os.path.join(tempfile.gettempdir(), 'fooocus')
+
 temp_path = init_temp_path(get_config_item_or_set_default(
     key='temp_path',
     default_value=default_temp_path,
     validator=lambda x: isinstance(x, str),
+    expected_type=str
 ), default_temp_path)
 temp_path_cleanup_on_launch = get_config_item_or_set_default(
     key='temp_path_cleanup_on_launch',
     default_value=True,
-    validator=lambda x: isinstance(x, bool)
+    validator=lambda x: isinstance(x, bool),
+    expected_type=bool
 )
 default_base_model_name = default_model = get_config_item_or_set_default(
     key='default_model',
     default_value='model.safetensors',
-    validator=lambda x: isinstance(x, str)
+    validator=lambda x: isinstance(x, str),
+    expected_type=str
 )
 previous_default_models = get_config_item_or_set_default(
     key='previous_default_models',
     default_value=[],
-    validator=lambda x: isinstance(x, list) and all(isinstance(k, str) for k in x)
+    validator=lambda x: isinstance(x, list) and all(isinstance(k, str) for k in x),
+    expected_type=list
 )
 default_refiner_model_name = default_refiner = get_config_item_or_set_default(
     key='default_refiner',
     default_value='None',
-    validator=lambda x: isinstance(x, str)
+    validator=lambda x: isinstance(x, str),
+    expected_type=str
 )
 default_refiner_switch = get_config_item_or_set_default(
     key='default_refiner_switch',
     default_value=0.8,
-    validator=lambda x: isinstance(x, numbers.Number) and 0 <= x <= 1
+    validator=lambda x: isinstance(x, numbers.Number) and 0 <= x <= 1,
+    expected_type=numbers.Number
 )
 default_loras_min_weight = get_config_item_or_set_default(
     key='default_loras_min_weight',
-    default_value=-2,
-    validator=lambda x: isinstance(x, numbers.Number) and -10 <= x <= 10
+    default_value=ads.default['loras_min_weight'],
+    validator=lambda x: isinstance(x, numbers.Number) and -10 <= x <= 10,
+    expected_type=numbers.Number
 )
 default_loras_max_weight = get_config_item_or_set_default(
     key='default_loras_max_weight',
-    default_value=2,
-    validator=lambda x: isinstance(x, numbers.Number) and -10 <= x <= 10
+    default_value=ads.default['loras_max_weight'],
+    validator=lambda x: isinstance(x, numbers.Number) and -10 <= x <= 10,
+    expected_type=numbers.Number
 )
 default_cfg_scale = get_config_item_or_set_default(
     key='default_cfg_scale',
     default_value=7.0,
-    validator=lambda x: isinstance(x, numbers.Number)
+    validator=lambda x: isinstance(x, numbers.Number),
+    expected_type=numbers.Number
 )
 default_sample_sharpness = get_config_item_or_set_default(
     key='default_sample_sharpness',
     default_value=2.0,
-    validator=lambda x: isinstance(x, numbers.Number)
+    validator=lambda x: isinstance(x, numbers.Number),
+    expected_type=numbers.Number
 )
 default_sampler = get_config_item_or_set_default(
     key='default_sampler',
     default_value=ads.default['sampler_name'],
-    validator=lambda x: x in modules.flags.sampler_list
+    validator=lambda x: x in modules.flags.sampler_list,
+    expected_type=str
 )
 default_scheduler = get_config_item_or_set_default(
     key='default_scheduler',
     default_value=ads.default['scheduler_name'],
-    validator=lambda x: x in modules.flags.scheduler_list
+    validator=lambda x: x in modules.flags.scheduler_list,
+    expected_type=str
 )
 default_vae = get_config_item_or_set_default(
     key='default_vae',
     default_value=modules.flags.default_vae,
-    validator=lambda x: isinstance(x, str)
+    validator=lambda x: isinstance(x, str),
+    expected_type=str
 )
 default_styles = get_config_item_or_set_default(
     key='default_styles',
@@ -367,94 +392,112 @@ default_styles = get_config_item_or_set_default(
         "Fooocus Enhance",
         "Fooocus Sharp"
     ],
-    validator=lambda x: isinstance(x, list) and all(y in modules.sdxl_styles.legal_style_names for y in x)
+    validator=lambda x: isinstance(x, list) and all(y in modules.sdxl_styles.legal_style_names for y in x),
+    expected_type=list
 )
 default_prompt_negative = get_config_item_or_set_default(
     key='default_prompt_negative',
     default_value='',
     validator=lambda x: isinstance(x, str),
-    disable_empty_as_none=True
+    disable_empty_as_none=True,
+    expected_type=str
 )
 default_prompt = get_config_item_or_set_default(
     key='default_prompt',
     default_value='',
     validator=lambda x: isinstance(x, str),
-    disable_empty_as_none=True
+    disable_empty_as_none=True,
+    expected_type=str
 )
 default_performance = get_config_item_or_set_default(
     key='default_performance',
     default_value=Performance.SPEED.value,
-    validator=lambda x: x in Performance.list()
+    validator=lambda x: x in Performance.list(),
+    expected_type=str
 )
 default_advanced_checkbox = get_config_item_or_set_default(
     key='default_advanced_checkbox',
-    default_value=True,
-    validator=lambda x: isinstance(x, bool)
+    default_value=ads.default['advanced_checkbox'],
+    validator=lambda x: isinstance(x, bool),
+    expected_type=bool
 )
 default_max_image_number = get_config_item_or_set_default(
     key='default_max_image_number',
-    default_value=32,
-    validator=lambda x: isinstance(x, int) and x >= 1
+    default_value=ads.default['max_image_number'],
+    validator=lambda x: isinstance(x, int) and x >= 1,
+    expected_type=int
 )
 default_output_format = get_config_item_or_set_default(
     key='default_output_format',
-    default_value='png',
-    validator=lambda x: x in OutputFormat.list()
+    default_value=ads.default['output_format'],
+    validator=lambda x: x in OutputFormat.list(),
+    expected_type=str
 )
 default_image_number = get_config_item_or_set_default(
     key='default_image_number',
-    default_value=2,
-    validator=lambda x: isinstance(x, int) and 1 <= x <= default_max_image_number
+    default_value=ads.default['image_number'],
+    validator=lambda x: isinstance(x, int) and 1 <= x <= default_max_image_number,
+    expected_type=int
 )
 checkpoint_downloads = get_config_item_or_set_default(
     key='checkpoint_downloads',
     default_value={},
-    validator=lambda x: isinstance(x, dict) and all(isinstance(k, str) and isinstance(v, str) for k, v in x.items())
+    validator=lambda x: isinstance(x, dict) and all(isinstance(k, str) and isinstance(v, str) for k, v in x.items()),
+    expected_type=dict
 )
 lora_downloads = get_config_item_or_set_default(
     key='lora_downloads',
     default_value={},
-    validator=lambda x: isinstance(x, dict) and all(isinstance(k, str) and isinstance(v, str) for k, v in x.items())
+    validator=lambda x: isinstance(x, dict) and all(isinstance(k, str) and isinstance(v, str) for k, v in x.items()),
+    expected_type=dict
 )
 embeddings_downloads = get_config_item_or_set_default(
     key='embeddings_downloads',
     default_value={},
-    validator=lambda x: isinstance(x, dict) and all(isinstance(k, str) and isinstance(v, str) for k, v in x.items())
+    validator=lambda x: isinstance(x, dict) and all(isinstance(k, str) and isinstance(v, str) for k, v in x.items()),
+    expected_type=dict
 )
 available_aspect_ratios = get_config_item_or_set_default(
     key='available_aspect_ratios',
     default_value=modules.flags.sdxl_aspect_ratios,
-    validator=lambda x: isinstance(x, list) and all('*' in v for v in x) and len(x) > 1
+    validator=lambda x: isinstance(x, list) and all('*' in v for v in x) and len(x) > 1,
+    expected_type=list
 )
 default_aspect_ratio = get_config_item_or_set_default(
     key='default_aspect_ratio',
     default_value='1152*896' if '1152*896' in available_aspect_ratios else available_aspect_ratios[0],
-    validator=lambda x: x in available_aspect_ratios
+    validator=lambda x: x in available_aspect_ratios,
+    expected_type=str
 )
 default_inpaint_engine_version = get_config_item_or_set_default(
     key='default_inpaint_engine_version',
     default_value=ads.default['inpaint_engine'],
-    validator=lambda x: x in modules.flags.inpaint_engine_versions
+    validator=lambda x: x in modules.flags.inpaint_engine_versions,
+    expected_type=str
 )
 default_cfg_tsnr = get_config_item_or_set_default(
     key='default_cfg_tsnr',
     default_value=ads.default['adaptive_cfg'],
-    validator=lambda x: isinstance(x, numbers.Number)
+    validator=lambda x: isinstance(x, numbers.Number),
+    expected_type=numbers.Number
 )
 default_clip_skip = get_config_item_or_set_default(
     key='default_clip_skip',
     default_value=2,
-    validator=lambda x: isinstance(x, int) and 1 <= x <= modules.flags.clip_skip_max
+    validator=lambda x: isinstance(x, int) and 1 <= x <= modules.flags.clip_skip_max,
+    expected_type=int
 )
 default_overwrite_step = get_config_item_or_set_default(
     key='default_overwrite_step',
     default_value=ads.default['overwrite_step'],
-    validator=lambda x: isinstance(x, int)
+    validator=lambda x: isinstance(x, int),
+    expected_type=int
 )
 default_overwrite_switch = get_config_item_or_set_default(
     key='default_overwrite_switch',
     default_value=ads.default['overwrite_switch'],
-    validator=lambda x: isinstance(x, int)
+    validator=lambda x: isinstance(x, int),
+    expected_type=int
 )
 
 default_inpaint_mask_upload_checkbox = get_config_item_or_set_default(
@@ -468,27 +511,32 @@ example_inpaint_prompts = get_config_item_or_set_default(
     default_value=[
         'highly detailed face', 'detailed girl face', 'detailed man face', 'detailed hand', 'beautiful eyes'
     ],
-    validator=lambda x: isinstance(x, list) and all(isinstance(v, str) for v in x)
+    validator=lambda x: isinstance(x, list) and all(isinstance(v, str) for v in x),
+    expected_type=list
 )
 default_black_out_nsfw = get_config_item_or_set_default(
     key='default_black_out_nsfw',
     default_value=False,
-    validator=lambda x: isinstance(x, bool)
+    validator=lambda x: isinstance(x, bool),
+    expected_type=bool
 )
 default_save_metadata_to_images = get_config_item_or_set_default(
     key='default_save_metadata_to_images',
-    default_value=False,
-    validator=lambda x: isinstance(x, bool)
+    default_value=ads.default['save_metadata_to_images'],
+    validator=lambda x: isinstance(x, bool),
+    expected_type=bool
 )
 default_metadata_scheme = get_config_item_or_set_default(
     key='default_metadata_scheme',
-    default_value=MetadataScheme.SIMPLE.value,
-    validator=lambda x: x in [y[1] for y in modules.flags.metadata_scheme if y[1] == x]
+    default_value=ads.default['metadata_scheme'],
+    validator=lambda x: x in [y[1] for y in modules.flags.metadata_scheme if y[1] == x],
+    expected_type=str
 )
 metadata_created_by = get_config_item_or_set_default(
     key='metadata_created_by',
     default_value='',
-    validator=lambda x: isinstance(x, str)
+    validator=lambda x: isinstance(x, str),
+    expected_type=str
 )
 
 example_inpaint_prompts = [[x] for x in example_inpaint_prompts]
@@ -513,26 +561,26 @@ default_inpaint_mask_sam_model = get_config_item_or_set_default(
 
 default_translation_methods = get_config_item_or_set_default(
     key='default_translation_methods',
-    default_value='Big Model',
+    default_value=ads.default['translation_methods'],
     validator=lambda x: x in modules.flags.translation_methods
-)
-
-default_translation_timing = get_config_item_or_set_default(
-    key='default_translation_timing',
-    default_value='Translate then generate',
-    validator=lambda x: x in modules.flags.translation_timing
 )
 
 default_backfill_prompt = get_config_item_or_set_default(
     key='default_backfill_prompt',
-    default_value=False,
+    default_value=ads.default['backfill_prompt'],
     validator=lambda x: isinstance(x, bool)
 )
 
 default_backend = get_config_item_or_set_default(
     key='default_backend',
-    default_value='SDXL',
-    validator=lambda x: x in modules.flags.backend_engine_list
+    default_value=ads.default['backend'],
+    validator=lambda x: x in modules.flags.backend_engines
+)
+
+default_comfyd_active_checkbox = get_config_item_or_set_default(
+    key='default_comfyd_active_checkbox',
+    default_value=ads.default['comfyd_active_checkbox'],
+    validator=lambda x: isinstance(x, bool)
 )
 
 config_dict["default_loras"] = default_loras = default_loras[:default_max_lora_number] + [[True, 'None', 1.0] for _ in range(default_max_lora_number - len(default_loras))]
@@ -565,7 +613,8 @@ possible_preset_keys = {
     "default_save_metadata_to_images": "default_save_metadata_to_images",
     "checkpoint_downloads": "checkpoint_downloads",
     "embeddings_downloads": "embeddings_downloads",
-    "lora_downloads": "lora_downloads"
+    "lora_downloads": "lora_downloads",
+    "default_vae": "vae"
 }
 
 REWRITE_PRESET = False
@@ -582,28 +631,31 @@ def add_ratio(x):
     a, b = x.replace('*', ' ').split(' ')[:2]
     a, b = int(a), int(b)
     g = math.gcd(a, b)
-    c, d = 1, 1
-    if g<8:
-        if (a, b) == (768, 1366):
-            c, d = 9, 16
-        elif (a, b) == (915, 1144):
-            c, d = 4, 5
-        elif (a, b) == (1182, 886):
-            c, d = 4, 3
-        elif (a, b) == (1366, 768):
-            c, d = 16, 9
-        elif (a, b) == (1564, 670):
-            c, d = 21, 9
-    else:
-        c, d = a // g, b // g
+    c, d = a // g, b // g
+    if (a, b) == (576, 1344):
+        c, d = 9, 21
+    elif (a, b) == (1344, 576):
+        c, d = 21, 9
+    elif (a, b) == (768, 1280):
+        c, d = 9, 15
+    elif (a, b) == (1280, 768):
+        c, d = 15, 9
     return f'{a}×{b} <span style="color: grey;"> \U00002223 {c}:{d}</span>'
 
 
 default_aspect_ratio = add_ratio(default_aspect_ratio)
 available_aspect_ratios_labels = [add_ratio(x) for x in available_aspect_ratios]
 
-sd3_default_aspect_ratio = '16:9'
-sd3_available_aspect_ratios = ['21:9', '16:9', '3:2', '5:4', '1:1', '2:3', '4:5', '9:16', '9:21']
+#sd3_default_aspect_ratio = '16:9'
+#sd3_available_aspect_ratios = ['21:9', '16:9', '3:2', '5:4', '1:1', '2:3', '4:5', '9:16', '9:21']
+sd3_default_aspect_ratio = add_ratio('1024*1024')
+sd3_available_aspect_ratios = [
+        '576*1344', '768*1152', '896*1152', '768*1280', '960*1280',  
+        '1024*1024', '1024*1280', '1280*1280', '1280*1024',
+        '1280*960', '1280*768', '1152*896', '1152*768', '1344*576'
+    ]
+sd3_available_aspect_ratios = [add_ratio(x) for x in sd3_available_aspect_ratios]
+
 
 # Only write config in the first launch.
 if not os.path.exists(config_path):
@@ -621,26 +673,30 @@ with open(config_example_path, "w", encoding="utf-8") as json_file:
                       'and there is no "," before the last "}". \n\n\n')
     json.dump({k: config_dict[k] for k in visited_keys}, json_file, indent=4)
 
+config_comfy_path = os.path.join(shared.root, 'comfy/extra_model_paths.yaml')
+config_comfy_formatted_text = '''
+comfyui:
+     checkpoints: {checkpoints} 
+     clip_vision: {clip_vision}
+     controlnet: {controlnet}
+     embeddings: {embeddings}
+     loras: {loras}
+     upscale_models: {upscale_models}
+     unet: {unet}
+     rembg: {rembg}
+     layer_model: {layer_model}
+     '''
+
+paths2str = lambda p: '\n'.join(p[:-1]) + ('' if not p else p[-1])
+config_comfy_text = config_comfy_formatted_text.format(checkpoints=paths2str(paths_checkpoints), clip_vision=path_clip_vision, controlnet=path_controlnet, embeddings=path_embeddings, loras=paths2str(paths_loras), upscale_models=path_upscale_models, unet=path_unet, rembg=path_rembg, layer_model=path_layer_model)
+with open(config_comfy_path, "w", encoding="utf-8") as comfy_file:
+    comfy_file.write(config_comfy_text)
+
+
 model_filenames = []
 lora_filenames = []
-lora_filenames_no_special = []
 vae_filenames = []
 wildcard_filenames = []
-
-sdxl_lcm_lora = 'sdxl_lcm_lora.safetensors'
-sdxl_lightning_lora = 'sdxl_lightning_4step_lora.safetensors'
-sdxl_hyper_sd_lora = 'sdxl_hyper_sd_4step_lora.safetensors'
-loras_metadata_remove = [sdxl_lcm_lora, sdxl_lightning_lora, sdxl_hyper_sd_lora]
-
-
-def remove_special_loras(lora_filenames):
-    global loras_metadata_remove
-
-    loras_no_special = lora_filenames.copy()
-    for lora_to_remove in loras_metadata_remove:
-        if lora_to_remove in loras_no_special:
-            loras_no_special.remove(lora_to_remove)
-    return loras_no_special
 
 
 def get_model_filenames(folder_paths, extensions=None, name_filter=None):
@@ -657,10 +713,9 @@ def get_model_filenames(folder_paths, extensions=None, name_filter=None):
 
 
 def update_files():
-    global model_filenames, lora_filenames, lora_filenames_no_special, vae_filenames, wildcard_filenames, available_presets
+    global model_filenames, lora_filenames, vae_filenames, wildcard_filenames, available_presets
     model_filenames = get_model_filenames(paths_checkpoints)
     lora_filenames = get_model_filenames(paths_loras)
-    lora_filenames_no_special = remove_special_loras(lora_filenames)
     vae_filenames = get_model_filenames(path_vae)
     wildcard_filenames = get_files_from_folder(path_wildcards, ['.txt'])
     available_presets = get_presets()
@@ -709,26 +764,27 @@ def downloading_sdxl_lcm_lora():
     load_file_from_url(
         url='https://huggingface.co/lllyasviel/misc/resolve/main/sdxl_lcm_lora.safetensors',
         model_dir=paths_loras[0],
-        file_name=sdxl_lcm_lora
+        file_name=modules.flags.PerformanceLoRA.EXTREME_SPEED.value
     )
-    return sdxl_lcm_lora
+    return modules.flags.PerformanceLoRA.EXTREME_SPEED.value
+
 
 def downloading_sdxl_lightning_lora():
     load_file_from_url(
         url='https://huggingface.co/mashb1t/misc/resolve/main/sdxl_lightning_4step_lora.safetensors',
         model_dir=paths_loras[0],
-        file_name=sdxl_lightning_lora
+        file_name=modules.flags.PerformanceLoRA.LIGHTNING.value
     )
-    return sdxl_lightning_lora
+    return modules.flags.PerformanceLoRA.LIGHTNING.value
 
 
 def downloading_sdxl_hyper_sd_lora():
     load_file_from_url(
         url='https://huggingface.co/mashb1t/misc/resolve/main/sdxl_hyper_sd_4step_lora.safetensors',
         model_dir=paths_loras[0],
-        file_name=sdxl_hyper_sd_lora
+        file_name=modules.flags.PerformanceLoRA.HYPER_SD.value
     )
-    return sdxl_hyper_sd_lora
+    return modules.flags.PerformanceLoRA.HYPER_SD.value
 
 
 def downloading_controlnet_canny():
@@ -865,5 +921,21 @@ def downloading_superprompter_model():
     )
     return os.path.join(path_superprompter, 'model.safetensors')
 
+def downloading_sd3_medium_model():
+    load_file_from_url(
+        url='https://huggingface.co/metercai/SimpleSDXL2/resolve/main/sd3_medium_incl_clips.safetensors',
+        model_dir=paths_checkpoints[0],
+        file_name='sd3_medium_incl_clips.safetensors'
+    )
+    return os.path.join(paths_checkpoints[0], 'sd3_medium_incl_clips.safetensors')
 
 update_files()
+from enhanced.simpleai import simpleai_config, refresh_models_info 
+simpleai_config.paths_checkpoints = paths_checkpoints
+simpleai_config.paths_loras = paths_loras
+simpleai_config.path_embeddings = path_embeddings
+
+refresh_models_info()
+
+
+

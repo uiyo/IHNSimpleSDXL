@@ -88,5 +88,11 @@ src/
 test/
 *.did
 client.toml
-/models/t2i
-/comfy
+/models/hydit
+client.toml
+/models
+comfy/input/
+comfy/output/
+comfy/temp/
+comfy/extra_model_paths.yaml
+comfy/user/default/*.json

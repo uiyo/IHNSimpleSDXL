@@ -33,12 +33,12 @@ def log(img, metadata, metadata_parser: MetadataParser | None = None, output_for
     date_string, local_temp_filename, only_name = generate_temp_filename(folder=path_outputs, extension=output_format)
     os.makedirs(os.path.dirname(local_temp_filename), exist_ok=True)
 
-    parsed_parameters = metadata_parser.parse_string(metadata.copy()) if metadata_parser is not None else ''
+    parsed_parameters = metadata_parser.to_string(metadata.copy()) if metadata_parser is not None else ''
     metadata_scheme = metadata_parser.get_scheme().value if metadata_parser is not None else ''
 
     image = Image.fromarray(img)
 
-    if output_format == OutputFormat.PNG.value:
+    if output_format == OutputFormat.PNG.value or (image.mode == 'RGBA' and output_format == OutputFormat.JPEG.value):
         if metadata_scheme == 'simple':
             pnginfo = PngInfo()
             pnginfo.add_text("Comment", parsed_parameters)
@@ -48,8 +48,10 @@ def log(img, metadata, metadata_parser: MetadataParser | None = None, output_for
             pnginfo.add_text('fooocus_scheme', metadata_parser.get_scheme().value)
         else:
             pnginfo = None
+        if output_format == OutputFormat.JPEG.value:
+            local_temp_filename = local_temp_filename[:-4] + "png"
         image.save(local_temp_filename, pnginfo=pnginfo)
-    elif output_format == OutputFormat.JPEG.value:
+    elif output_format == OutputFormat.JPEG.value and image.mode != 'RGBA':
         image.save(local_temp_filename, quality=95, optimize=True, progressive=True, exif=get_exif(parsed_parameters, metadata_scheme) if metadata_parser else Image.Exif())
     elif output_format == OutputFormat.WEBP.value:
         image.save(local_temp_filename, quality=95, lossless=False, exif=get_exif(parsed_parameters, metadata_scheme) if metadata_parser else Image.Exif())

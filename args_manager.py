@@ -1,7 +1,4 @@
 import ldm_patched.modules.args_parser as args_parser
-import os
-
-from tempfile import gettempdir
 
 args_parser.parser.add_argument("--share", action='store_true', help="Set whether to share on Gradio.")
 args_parser.parser.add_argument("--preset", type=str, default='default', help="Apply specified UI preset.")
@@ -44,6 +41,9 @@ args_parser.parser.add_argument("--dev", action='store_true',
 args_parser.parser.add_argument("--main", action='store_true',
                                 help="launch the Fooocus branch", default=False)
 args_parser.parser.add_argument("--config", type=str, help="Set the path of config.txt", default=None)
+
+args_parser.parser.add_argument("--enable-comfyd", action='store_true',
+                                help="auto start comfyd server at launch", default=False)
 
 args_parser.parser.set_defaults(
     disable_cuda_malloc=True,

@@ -48,7 +48,7 @@ SAMPLERS = KSAMPLER | SAMPLER_EXTRA
 
 KSAMPLER_NAMES = list(KSAMPLER.keys())
 
-SCHEDULER_NAMES = ["normal", "karras", "exponential", "sgm_uniform", "simple", "ddim_uniform", "lcm", "turbo", "align_your_steps", "tcd"]
+SCHEDULER_NAMES = ["normal", "karras", "exponential", "sgm_uniform", "simple", "ddim_uniform", "lcm", "turbo", "align_your_steps", "tcd", "edm_playground_v2.5"]
 SAMPLER_NAMES = KSAMPLER_NAMES + list(SAMPLER_EXTRA.keys())
 
 sampler_list = SAMPLER_NAMES
@@ -89,7 +89,7 @@ inpaint_mask_cloth_category = ['full', 'upper', 'lower']
 
 inpaint_mask_sam_model = ['sam_vit_b_01ec64', 'sam_vit_h_4b8939', 'sam_vit_l_0b3195']
 
-inpaint_engine_versions = ['None', 'v1', 'v2.5', 'v2.6']
+inpaint_engine_versions = ['None', 'v2.5', 'v2.6']
 inpaint_option_default = 'Inpaint or Outpaint (default)'
 inpaint_option_detail = 'Improve Detail (face, hand, eyes, etc.)'
 inpaint_option_modify = 'Modify Content (add objects, change background, etc.)'
@@ -98,17 +98,19 @@ inpaint_options = [inpaint_option_default, inpaint_option_detail, inpaint_option
 desc_type_photo = 'Photograph'
 desc_type_anime = 'Art/Anime'
 
-translation_timing = ['Translate then generate', 'Modify after translate', 'No translate']
 translation_methods = ['Slim Model', 'Big Model', 'Third APIs']
 
-backend_engine_list = ['SDXL', 'SD3 Api', 'SD3Turbo Api']
 sdxl_aspect_ratios = [
-    '704*1408', '704*1344', '768*1366', '768*1280', '832*1216', '832*1152',
-    '896*1152', '896*1088', '915*1144', '960*1024', '960*1088', '1024*1024',
-    '1024*960', '1088*960', '1088*896', '1152*896', '1152*832', '1182*886',
-    '1216*832', '1254*836', '1280*768', '1344*768', '1344*704', '1366*768',
-    '1408*704', '1472*704', '1536*640', '1564*670', '1600*640', '1664*576'
+    '704*1408', '704*1344', '768*1344', '768*1280', '832*1216', '832*1152',
+    '896*1152', '896*1088', '960*1088', '960*1024', '1024*1024', '1024*960',
+    '1088*960', '1088*896', '1152*896', '1152*832', '1216*832', '1280*768',
+    '1344*768', '1344*704', '1408*704', '1472*704', '1536*640', '1600*640',
+    '1664*576', '1728*576'
 ]
+backend_engines = ['SDXL', 'HyDiT', 'SD3m']
+
+language_radio = lambda x: '中文' if x=='cn' else 'En'
+
 
 class MetadataScheme(Enum):
     FOOOCUS = 'fooocus'
@@ -136,12 +138,24 @@ class OutputFormat(Enum):
         return list(map(lambda c: c.value, cls))
 
 
+class PerformanceLoRA(Enum):
+    QUALITY = None
+    SPEED = None
+    EXTREME_SPEED = 'sdxl_lcm_lora.safetensors'
+    LIGHTNING = 'sdxl_lightning_4step_lora.safetensors'
+    HYPER_SD = 'sdxl_hyper_sd_4step_lora.safetensors'
+
+
 class Steps(IntEnum):
     QUALITY = 60
     SPEED = 30
     EXTREME_SPEED = 8
     LIGHTNING = 4
     HYPER_SD = 4
+
+    @classmethod
+    def keys(cls) -> list:
+        return list(map(lambda c: c, Steps.__members__))
 
 
 class StepsUOV(IntEnum):
@@ -166,6 +180,14 @@ class Performance(Enum):
         return item
 
     @classmethod
+    def values(cls) -> list:
+        return list(map(lambda c: c.value, cls))
+
+    @classmethod
+    def by_steps(cls, steps: int | str):
+        return cls[Steps(int(steps)).name]
+
+    @classmethod
     def has_restricted_features(cls, x) -> bool:
         if isinstance(x, Performance):
             x = x.value
@@ -173,7 +195,10 @@ class Performance(Enum):
         #return x in [cls.LIGHTNING.value, cls.HYPER_SD.value]
 
     def steps(self) -> int | None:
-        return Steps[self.name].value if Steps[self.name] else None
+        return Steps[self.name].value if self.name in Steps.__members__ else None
 
     def steps_uov(self) -> int | None:
-        return StepsUOV[self.name].value if Steps[self.name] else None
+        return StepsUOV[self.name].value if self.name in StepsUOV.__members__ else None
+
+    def lora_filename(self) -> str | None:
+        return PerformanceLoRA[self.name].value if self.name in PerformanceLoRA.__members__ else None
