@@ -40,6 +40,7 @@ face-alignment
 rtmlib
 # scipy==1.9.3
 # rembg
+apex
 spandrel
 tqdm==4.65.0
 timm==0.9.5

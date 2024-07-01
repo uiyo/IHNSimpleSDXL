@@ -214,8 +214,6 @@ if args.hf_mirror is not None :
     print("Set hf_mirror to:", args.hf_mirror)
 
 from modules import config
-import pdb
-pdb.set_trace()
 os.environ['GRADIO_TEMP_DIR'] = config.temp_path
 
 if config.temp_path_cleanup_on_launch:
