@@ -274,9 +274,10 @@ config.default_base_model_name, config.checkpoint_downloads = download_models(
 
 def reset_env_args():
     global token, sysinfo
-
+    
     sysinfo = json.loads(token.get_sysinfo().to_json())
     sysinfo.update(dict(did=token.get_did()))
+    # sysinfo.update(dict(loopback_port=9890))
     #print(f'sysinfo/基础环境信息:{sysinfo}')
 
     if '--location' in sys.argv:

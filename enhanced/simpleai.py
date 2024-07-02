@@ -26,7 +26,10 @@ def reset_simpleai_args(launch_token, launch_sysinfo):
     sysinfo.update(dict(
         torch_version=torch_version,
         xformers_version=xformers_version,
-        cuda_version=cuda_version))
+        cuda_version=cuda_version,
+        loopback_port=6067
+        ))
+
     comfyclient_pipeline.COMFYUI_ENDPOINT_PORT = sysinfo["loopback_port"]
     args_comfyd = comfyd.args_mapping(sys.argv) + [["--listen"], ["--port", f'{sysinfo["loopback_port"]}']]
 
