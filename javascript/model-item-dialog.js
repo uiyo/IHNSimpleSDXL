@@ -160,6 +160,16 @@ const modelData = [{
   value: 'Playground-v2.5.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/playgroundv2.5.png',
   decs: 'PlaygroundV2.5'
+}, {
+  label: 'NijiV6',
+  value: '[SDXL]NijiV6.safetensors',
+  image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/nijiv6_.jpeg',
+  decs: 'NijiEX style'
+}, {
+  label: 'NijiV6+古诗',
+  value: 'human_MidjourneyV1.2_base_sdxl.safetensors',
+  image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/niji_ihunman.jpeg',
+  decs: 'NijiEX style'
 }]
 
 // lora的数据
@@ -293,6 +303,16 @@ const loraData = [{
   value: '粘土风格.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/claymation.jpeg',
   decs: 'claymation'
+}, {
+  label: 'Q版盲盒',
+  value: 'Q版3D盲盒SDXL_v1.0.safetensors',
+  image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/qver_3d_blindbox.jpg',
+  decs: 'owo style, chibi'
+}, {
+  label: 'XL盲盒',
+  value: 'XL-Designer_BlindBox_v1.0.safetensors',
+  image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/xl_designer_blindbox.webp',
+  decs: 'chibi'
 }]
 
 // 点击回显的数据
