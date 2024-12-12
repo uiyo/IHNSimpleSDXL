@@ -492,7 +492,7 @@ with shared.gradio_root:
                 # print(f"[LOGINFO] {state_topbar.value}")
                 
                 if not args_manager.args.disable_image_log:
-                   save_zip = gr.Button('🗃️ Download History Image', elem_id='save_current_image', interactive=False)
+                   save_zip = gr.Button('🗃️ Download History Image', elem_id='save_current_image', interactive=True)
                    download_files = gr.File(None, file_count="multiple", interactive=False, show_label=False, visible=False, elem_id=f'download_files')
             with gr.Tab(label='Style', elem_classes=['style_selections_tab']):
                 style_sorter.try_load_sorted_styles(
@@ -782,7 +782,8 @@ with shared.gradio_root:
                 def save_files(filename, state_topbar):
                     filename = '20' + filename.split("/")[0]
                     filepath = os.path.join(modules.config.path_outputs, state_topbar["__cookie"], filename)
-                    image_list = [file for file in os.listdir(filepath) if file.endswith(".png")]
+                    image_extensions = ('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp')
+                    image_list = [file for file in os.listdir(filepath) if file.endswith(image_extensions)]
                     zip_filename = os.path.join(filepath, f"{filename}.zip")
                     from zipfile import ZipFile
                     with ZipFile(zip_filename, "w") as zip_file:
