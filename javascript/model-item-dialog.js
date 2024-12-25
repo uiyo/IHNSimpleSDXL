@@ -160,6 +160,11 @@ const modelData = [{
   value: 'Playground-v2.5.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/playgroundv2.5.png',
   decs: 'PlaygroundV2.5'
+}, {
+  label: '动漫插画',
+  value: '[SDXL]动漫插画.safetensors',
+  image: 'https://galaxyfs-ali-new-dev.dev.ihuman.com/nas/ai-tools/illustriousxl.png',
+  decs: '动漫插画sdxl'
 }]
 
 // lora的数据
@@ -269,6 +274,16 @@ const loraData = [{
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/ahaworld.png',
   decs: 'AHA世界角色风格'
 }, {
+  label: 'AHA全景v2',
+  value: 'AHAallV2.safetensors',
+  image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/ahaworld.png',
+  decs: 'AHA世界全场景v2'
+}, {
+  label: 'AHA全景v1',
+  value: 'AHAall.safetensors',
+  image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/ahaworld.png',
+  decs: 'AHA世界全场景v1'
+}, {
   label: 'AppIcons',
   value: 'appicons.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/appicons.png',
@@ -293,6 +308,11 @@ const loraData = [{
   value: '粘土风格.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/claymation.jpeg',
   decs: 'claymation'
+}, {
+  label: '小X',
+  value: 'xiaoX-v2.safetensors',
+  image: 'https://galaxyfs-ali-new-dev.dev.ihuman.com/nas/ai-tools/2cats.png',
+  decs: '两喵-小X'
 }]
 
 // 点击回显的数据

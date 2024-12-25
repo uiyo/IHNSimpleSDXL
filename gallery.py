@@ -14,6 +14,8 @@ def get_usernames():
 def get_dates(username_chi):
     username = name_list[username_chi]
     user_dir = os.path.join(ROOT_DIR, username)
+    if not os.path.exists(user_dir):
+        os.mkdir(user_dir)
     return sorted([d for d in os.listdir(user_dir) if os.path.isdir(os.path.join(user_dir, d))], reverse=True)
 
 # 获取某个日期文件夹下的 log.html 文件内容
