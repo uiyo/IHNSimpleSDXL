@@ -12,6 +12,7 @@ from PIL.PngImagePlugin import PngInfo
 from modules.flags import OutputFormat
 from modules.meta_parser import MetadataParser, get_exif
 from modules.util import generate_temp_filename
+import numpy as np
 
 log_cache = {}
 
@@ -26,18 +27,36 @@ def get_current_html_path(cookie="default", output_format=None):
     html_name = os.path.join(os.path.dirname(local_temp_filename), 'log.html')
     return html_name
 
-
-def log(img, metadata, metadata_parser: MetadataParser | None = None, output_format=None, task=None, cookie="default") -> str:
-    path_outputs = modules.config.temp_path if args_manager.args.disable_image_log else os.path.join(modules.config.path_outputs,cookie)
+def resize_array(arr, target_height, target_width):
+    img = Image.fromarray(arr)
+    resized_img = img.resize((target_width, target_height), Image.Resampling.LANCZOS)
+    return resized_img
+def pile_images(imgs):
+    target_width = min(arr.shape[1] for arr in imgs)
+    target_height = min(arr.shape[0] for arr in imgs)       
+    resized_imgs = [resize_array(arr, target_height, target_width) for arr in imgs]
+    
+    new_height = len(imgs) * target_height
+    new_image = Image.new('RGB', (target_width, new_height), (255, 255, 255))
+    for i in range(len(imgs)):
+        new_image.paste(resized_imgs[i],(0, i*target_height))
+    return new_image
+def log(img, metadata, metadata_parser: MetadataParser | None = None, output_format=None, task=None, cookie="default", ip_imgs=None) -> str:
+    
+    path_outputs = modules.config.temp_path if args_manager.args.disable_image_log else os.path.join(modules.config.path_outputs, cookie)
     output_format = output_format if output_format else modules.config.default_output_format
     date_string, local_temp_filename, only_name = generate_temp_filename(folder=path_outputs, extension=output_format)
+    local_temp_ip_filename = os.path.join(os.path.dirname(local_temp_filename), 'iptmp', only_name)
     os.makedirs(os.path.dirname(local_temp_filename), exist_ok=True)
-
+    os.makedirs(os.path.dirname(local_temp_ip_filename), exist_ok=True)
     parsed_parameters = metadata_parser.to_string(metadata.copy()) if metadata_parser is not None else ''
     metadata_scheme = metadata_parser.get_scheme().value if metadata_parser is not None else ''
 
     image = Image.fromarray(img)
-
+    if ip_imgs is not None:
+        ipimage = pile_images(ip_imgs)
+    else:
+        ipimage = None
     if output_format == OutputFormat.PNG.value or (image.mode == 'RGBA' and output_format == OutputFormat.JPEG.value):
         if metadata_scheme == 'simple':
             pnginfo = PngInfo()
@@ -51,12 +70,20 @@ def log(img, metadata, metadata_parser: MetadataParser | None = None, output_for
         if output_format == OutputFormat.JPEG.value:
             local_temp_filename = local_temp_filename[:-4] + "png"
         image.save(local_temp_filename, pnginfo=pnginfo)
+        if ipimage is not None:
+            ipimage.save(local_temp_ip_filename, pnginfo=pnginfo)
     elif output_format == OutputFormat.JPEG.value and image.mode != 'RGBA':
         image.save(local_temp_filename, quality=95, optimize=True, progressive=True, exif=get_exif(parsed_parameters, metadata_scheme) if metadata_parser else Image.Exif())
+        if ipimage is not None:
+            ipimage.save(local_temp_ip_filename, quality=95, optimize=True, progressive=True, exif=get_exif(parsed_parameters, metadata_scheme) if metadata_parser else Image.Exif())
     elif output_format == OutputFormat.WEBP.value:
         image.save(local_temp_filename, quality=95, lossless=False, exif=get_exif(parsed_parameters, metadata_scheme) if metadata_parser else Image.Exif())
+        if ipimage is not None:
+            ipimage.save(local_temp_ip_filename, quality=95, lossless=False, exif=get_exif(parsed_parameters, metadata_scheme) if metadata_parser else Image.Exif())
     else:
         image.save(local_temp_filename)
+        if ipimage is not None:
+            ipimage.save(local_temp_ip_filename)
 
     if args_manager.args.disable_image_log:
         return local_temp_filename
@@ -120,7 +147,11 @@ def log(img, metadata, metadata_parser: MetadataParser | None = None, output_for
 
     div_name = only_name.replace('.', '_')
     item = f"<div id=\"{div_name}\" class=\"image-container\"><hr><table><tr>\n"
-    item += f"<td><a href=\"{only_name}\" target=\"_blank\"><img src='{only_name}' onerror=\"this.closest('.image-container').style.display='none';\" loading='lazy'/></a><div>{only_name}</div></td>"
+    
+    if ip_imgs is not None:
+        item += f"<td><a href=\"{only_name}\" target=\"_blank\"><img src='{only_name}' onerror=\"this.closest('.image-container').style.display='none';\" loading='lazy'/></a> <div>{only_name}</div><br><a href=\"{only_name}_cn\"target=\"_blank\"><img src='iptmp/{only_name}' onerror=\"this.closest('.image-container').style.display='none';\"loading='lazy'/></a><div>垫图</div></td>"
+    else:
+        item += f"<td><a href=\"{only_name}\" target=\"_blank\"><img src='{only_name}' onerror=\"this.closest('.image-container').style.display='none';\" loading='lazy'/></a><div>{only_name}</div></td>"
     item += "<td><table class='metadata'>"
     for label, key, value in metadata:
         value_txt = str(value).replace('\n', ' </br> ')

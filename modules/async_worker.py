@@ -256,7 +256,7 @@ def worker():
                  ('Resolution', 'resolution', str((width, height))),
                  ('Seed', 'seed', image_seed),
                  ('Generate Engine', 'generate_engine', 'StableDiffusion3')]
-            sd3_image_path = log(img, d, output_format=output_format)
+            sd3_image_path = log(img, d, output_format=output_format, cookie=cookie, ip_imgs=None)
             yield_result(async_task, sd3_image_path, do_not_show_finished_images=True)    
             async_task.processing = False
             return
@@ -685,7 +685,7 @@ def worker():
                     progressbar(async_task, 100, 'Checking for NSFW content ...')
                     uov_input_image = default_censor(uov_input_image)
                 progressbar(async_task, 100, 'Saving image to system ...')
-                uov_input_image_path = log(uov_input_image, d, output_format=output_format, cookie=cookie)
+                uov_input_image_path = log(uov_input_image, d, output_format=output_format, cookie=cookie, ip_imgs=None)
                 yield_result(async_task, uov_input_image_path, black_out_nsfw, False, do_not_show_finished_images=True)
                 return
 
@@ -803,11 +803,19 @@ def worker():
             final_height, final_width = inpaint_worker.current_task.image.shape[:2]
             print(f'Final resolution is {str((final_height, final_width))}, latent is {str((height, width))}.')
 
-        if 'cn' in goals:            
+        if 'cn' in goals:
+            ip_img = []            
             for task in cn_tasks[flags.cn_canny]:
                 cn_img, cn_stop, cn_weight = task
+                # if 'canny' in ip_img:
+                #     imgs = ip_img['canny']
+                # else:
+                #     imgs = []
+                # imgs.append(cn_img)
+                # ip_img.update({'canny': imgs})
+                ip_img.append(cn_img)
                 cn_img = resize_image(HWC3(cn_img), width=width, height=height)
-
+                
                 if not skipping_cn_preprocessor:
                     cn_img = preprocessors.canny_pyramid(cn_img, canny_low_threshold, canny_high_threshold)
 
@@ -820,6 +828,14 @@ def worker():
             
             for task in cn_tasks[flags.cn_cpds]:
                 cn_img, cn_stop, cn_weight = task
+                # if 'cpds' in ip_img:
+                #     imgs = ip_img['cpds']
+                # else:
+                #     imgs = []
+                # imgs.append(cn_img)
+                # ip_img.update({'cpds': imgs})
+                ip_img.append(cn_img)
+
                 cn_img = resize_image(HWC3(cn_img), width=width, height=height)
 
                 if not skipping_cn_preprocessor:
@@ -833,6 +849,13 @@ def worker():
             # add pose
             for task in cn_tasks[flags.cn_pose]:
                 cn_img, cn_stop, cn_weight = task
+                # if 'pose' in ip_img:
+                #     imgs = ip_img['pose']
+                # else:
+                #     imgs = []
+                # imgs.append(cn_img)
+                # ip_img.update({'pose': imgs})
+                ip_img.append(cn_img)
                 cn_img = resize_image(HWC3(cn_img), width=width, height=height)
                 from extras.controlnet_preprocess_model.dwpose.__init__ import DWposeDetector, DWposeDetectorTrans
                 # pose_model = OpenPose(controlnet_pose_info)
@@ -854,6 +877,13 @@ def worker():
 
             for task in cn_tasks[flags.cn_ip]:
                 cn_img, cn_stop, cn_weight = task
+                # if 'ip' in ip_img:
+                #     imgs = ip_img['ip']
+                # else:
+                #     imgs = []
+                # imgs.append(cn_img)
+                # ip_img.update({'ip': imgs})
+                ip_img.append(cn_img)
                 cn_img = HWC3(cn_img)
 
                 # https://github.com/tencent-ailab/IP-Adapter/blob/d580c50a291566bbf9fc7ac0f760506607297e6d/README.md?plain=1#L75
@@ -882,7 +912,8 @@ def worker():
 
             if len(all_ip_tasks) > 0:
                 pipeline.final_unet = ip_adapter.patch_model(pipeline.final_unet, all_ip_tasks)
-
+        else:
+            ip_img = None
         if freeu_enabled:
             print(f'FreeU is enabled!')
             pipeline.final_unet = core.apply_freeu(
@@ -1173,7 +1204,7 @@ def worker():
                     d.append(('Metadata Scheme', 'metadata_scheme', metadata_scheme.value if save_metadata_to_images else save_metadata_to_images))
                     import enhanced.version as version
                     d.append(('Version', 'version', f'Fooocus v{fooocus_version.version} {version.branch}_{version.get_simplesdxl_ver()}'))
-                    img_paths.append(log(x, d, metadata_parser, output_format, task, cookie=cookie))
+                    img_paths.append(log(x, d, metadata_parser, output_format, task, cookie=cookie, ip_imgs=ip_img))
 
                 yield_result(async_task, img_paths, black_out_nsfw, False,
                              do_not_show_finished_images=len(tasks) == 1 or disable_intermediate_results)

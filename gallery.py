@@ -67,3 +67,6 @@ with gr.Blocks() as demo:
     date_dropdown.change(update_html, inputs=[username_dropdown, date_dropdown], outputs=html_output)
 
 demo.launch(server_name="0.0.0.0", server_port=8188, allowed_paths=[Path.cwd().absolute()])
+
+# if debug, flux environment
+# demo.launch(allowed_paths=[Path.cwd().absolute()])

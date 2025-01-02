@@ -249,7 +249,8 @@ def init_nav_bars(state_params, request: gr.Request):
         if 'x-sso-uid' in request.headers.keys():
             userid = request.headers['x-sso-uid']
         else:
-            userid = cookies['_gid']
+            # userid = cookies['_gid']
+            userid = cookies['_ga']
         state_params.update({'__cookie': userid})
         print(f"[LOG] USRID: {userid}")
         if "SESSION" in cookies.keys():

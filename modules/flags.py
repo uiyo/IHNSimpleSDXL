@@ -76,7 +76,7 @@ default_ip = cn_ip
 #     cn_ip: (0.5, 0.6), cn_ip_face: (0.9, 0.75), cn_canny: (0.5, 1.0), cn_cpds: (0.5, 1.0),
 # }  # stop, weight
 default_parameters = {
-    cn_ip: (0.5, 0.6), cn_ip_face: (0.9, 0.75), cn_canny: (0.5, 1.0), cn_cpds: (0.5, 1.0), cn_pose: (0.926, 1.566),
+    cn_ip: (0.5, 0.6), cn_ip_face: (0.9, 0.75), cn_canny: (0.5, 1.0), cn_cpds: (0.5, 1.0), cn_pose: (0.7, 0.6),
 }  # stop, weight
 
 output_formats = ['png', 'jpeg', 'webp']

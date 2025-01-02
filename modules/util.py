@@ -174,6 +174,7 @@ def generate_temp_filename(folder='./outputs/', extension='png'):
     result = os.path.join(folder, date_string, filename)
     return date_string, os.path.abspath(result), filename
 
+
 folder_variation = {}
 def get_files_from_folder(folder_path, extensions=None, name_filter=None, variation=False):
     global folder_variation

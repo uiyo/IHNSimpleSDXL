@@ -74,6 +74,10 @@ def select_gallery(choice, state_params, backfill_prompt, evt: gr.SelectData):
     state_params.update({"prompt_info": [choice, evt.index]})
     if choice is None and len(state_params["__output_list"]) > 0:
         choice = state_params["__output_list"][0]
+    # try:
+    #     _ = images_list[choice]
+    # except:
+    #     _, _, _ = images_list_update(choice, state_params)
     result = get_images_prompt(choice, evt.index, state_params["__max_per_page"], True)
     #print(f'[Gallery] Selected_gallery: selected index {evt.index} of {choice} images_list:{result["Filename"]}.')
     if backfill_prompt and 'Prompt' in result:
@@ -88,6 +92,7 @@ def select_gallery_progress(state_params, evt: gr.SelectData):
     state_params.update({"prompt_info": [None, evt.index]})
     # output_list = state_params["__output_list"]
     # print(f"[LOGINFO] {output_list}")
+    
     result = get_images_prompt(state_params["__output_list"][0], evt.index, state_params["__max_per_page"])
     return [gr.update(value=toolbox.make_infobox_markdown(result), visible=False)] + [gr.update(visible=False)] * 4 + [state_params]
 
@@ -154,7 +159,9 @@ def get_images_prompt(choice, selected, max_per_page, display_index=False):
     page_choice = page
     page_index = selected
     parse_html_log(choice)
+
     nums = len(images_list[choice])
+
     if page > 0:
         page = abs(page-math.ceil(nums/max_per_page))+1
         if page*max_per_page < nums:
