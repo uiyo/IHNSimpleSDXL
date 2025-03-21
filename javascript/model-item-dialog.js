@@ -279,10 +279,20 @@ const loraData = [{
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/ahaworld.png',
   decs: 'AHA世界全场景v2'
 }, {
+  label: 'AHA全景v3',
+  value: 'AHAallV3.safetensors',
+  image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/ahaworld.png',
+  decs: 'AHA世界全场景v3'
+}, {
   label: 'AHA全景v1',
   value: 'AHAall.safetensors',
   image: 'https://galaxyfs-in-dev.dev.ihuman.com/nas/ai-tools/ahaworld.png',
   decs: 'AHA世界全场景v1'
+}, {
+  label: 'AHA1级地图',
+  value: 'AHA1level.safetensors',
+  image: 'https://galaxyfs-ali-new-dev.dev.ihuman.com/nas/ai-tools/007.png',
+  decs: 'AHA1级地图v1'
 }, {
   label: 'AppIcons',
   value: 'appicons.safetensors',

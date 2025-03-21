@@ -29,7 +29,12 @@ def refresh_output_list(max_per_page, cookie='default'):
     if not os.path.exists(history_path):
         os.mkdir(history_path)
     
-    listdirs = [f for f in os.listdir(history_path) if output_images_regex.findall(f) and os.path.isdir(os.path.join(history_path,f))]
+    listdirs = [
+    f for f in os.listdir(history_path)
+    if output_images_regex.findall(f)  # 匹配正则表达式
+    and os.path.isfile(os.path.join(history_path, f))  # 确保是文件
+    and f != 'history'  # 排除名为 'history' 的文件夹
+]
     if listdirs is None:
         return None
     listdirs1 = listdirs.copy()
