@@ -9,9 +9,6 @@ import enhanced.toolbox as toolbox
 import re
 from lxml import etree
 
-
-
-
 # app context
 images_list = {}
 images_list_keys = []
@@ -28,13 +25,12 @@ def refresh_output_list(max_per_page, cookie='default'):
     history_path = os.path.join(config.path_outputs, cookie)
     if not os.path.exists(history_path):
         os.mkdir(history_path)
-    
     listdirs = [
     f for f in os.listdir(history_path)
     if output_images_regex.findall(f)  # 匹配正则表达式
-    and os.path.isfile(os.path.join(history_path, f))  # 确保是文件
-    and f != 'history'  # 排除名为 'history' 的文件夹
-]
+    # and os.path.isfile(os.path.join(history_path, f))  # 确保是文件
+    # and f != 'iptmp'  # 排除名为 'history' 的文件夹
+    ]
     if listdirs is None:
         return None
     listdirs1 = listdirs.copy()
@@ -97,7 +93,7 @@ def select_gallery_progress(state_params, evt: gr.SelectData):
     state_params.update({"prompt_info": [None, evt.index]})
     # output_list = state_params["__output_list"]
     # print(f"[LOGINFO] {output_list}")
-    
+
     result = get_images_prompt(state_params["__output_list"][0], evt.index, state_params["__max_per_page"])
     return [gr.update(value=toolbox.make_infobox_markdown(result), visible=False)] + [gr.update(visible=False)] * 4 + [state_params]
 

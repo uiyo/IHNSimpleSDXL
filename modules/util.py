@@ -191,6 +191,8 @@ def get_files_from_folder(folder_path, extensions=None, name_filter=None, variat
             _, file_extension = os.path.splitext(filename)
             if (extensions is None or file_extension.lower() in extensions) and (name_filter is None or name_filter in _):
                 path = os.path.join(relative_path, filename)
+                if 'iptmp/' in path:
+                    continue
                 if variation:
                     mtime = int(os.path.getmtime(os.path.join(root, filename)))
                     if folder_path not in folder_variation or path not in folder_variation[folder_path] or mtime > folder_variation[folder_path][path]:
